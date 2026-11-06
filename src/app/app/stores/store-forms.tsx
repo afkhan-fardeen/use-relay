@@ -18,10 +18,10 @@ export function ConnectForm() {
   return (
     <form action={action} className="mt-6 space-y-4">
       <Field label="Store address" hint="The address ending in .myshopify.com, not your custom domain.">
-        <input name="domain" required className={inputCls} placeholder="your-store.myshopify.com" autoComplete="off" autoCapitalize="off" spellCheck={false} />
+        <input name="domain" required className={inputCls} placeholder="your-store.myshopify.com" autoComplete="off" autoCapitalize="off" spellCheck={false} defaultValue={state?.values?.domain ?? ""} />
       </Field>
       <Field label="Client ID">
-        <input name="clientId" required className={inputCls} autoComplete="off" spellCheck={false} />
+        <input name="clientId" required className={inputCls} autoComplete="off" spellCheck={false} defaultValue={state?.values?.clientId ?? ""} />
       </Field>
       <Field label="Client secret" hint="Encrypted before it is saved. You can revoke it in Shopify at any time.">
         <input name="clientSecret" type="password" required className={inputCls} autoComplete="new-password" spellCheck={false} />

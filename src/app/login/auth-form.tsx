@@ -2,11 +2,13 @@
 
 import { useActionState, useState } from "react";
 import { Button, Field, inputCls } from "@/components/ui";
-import { signIn, signUp } from "./actions";
+import { resendConfirmation, signIn, signUp } from "./actions";
 
 export function AuthForm() {
   const [mode, setMode] = useState<"signup" | "login">("signup");
   const [state, action, pending] = useActionState(mode === "signup" ? signUp : signIn, undefined);
+  const [resent, resend, resending] = useActionState(resendConfirmation, undefined);
+  const needsConfirm = !!state?.email && (!!state?.message || /confirm your email/i.test(state?.error ?? ""));
 
   return (
     <div>
@@ -27,7 +29,7 @@ export function AuthForm() {
 
       <form action={action} className="space-y-5">
         <Field label="Email">
-          <input name="email" type="email" required autoComplete="email" className={inputCls} placeholder="you@brand.com" />
+          <input name="email" type="email" required autoComplete="email" className={inputCls} placeholder="you@brand.com" defaultValue={state?.email ?? ""} />
         </Field>
         <Field label="Password" hint={mode === "signup" ? "At least 10 characters." : undefined}>
           <input
@@ -45,6 +47,18 @@ export function AuthForm() {
           {pending ? "One moment…" : mode === "signup" ? "Create account" : "Log in"}
         </Button>
       </form>
+
+      {needsConfirm && (
+        <form action={resend} className="mt-5 pt-5 border-t border-line">
+          <input type="hidden" name="email" value={state?.email} />
+          <p className="text-sm text-muted">Didn&apos;t get it? Check spam, or</p>
+          <button type="submit" disabled={resending} className="mt-1 text-sm text-primary hover:text-primary-hover disabled:opacity-50">
+            {resending ? "Sending…" : "resend the confirmation email"}
+          </button>
+          {resent?.message && <p role="status" className="mt-2 text-sm text-primary">{resent.message}</p>}
+          {resent?.error && <p role="alert" className="mt-2 text-sm text-danger">{resent.error}</p>}
+        </form>
+      )}
     </div>
   );
 }

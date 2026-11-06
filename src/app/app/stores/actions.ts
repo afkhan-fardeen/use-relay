@@ -7,7 +7,7 @@ import { decryptSecret, encryptSecret } from "@/lib/crypto";
 import { FRIENDLY, ShopifyError, fetchShopInfo, mintToken, normalizeDomain } from "@/lib/shopify";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
-export type StoreState = { ok?: boolean; error?: string; message?: string } | undefined;
+export type StoreState = { ok?: boolean; error?: string; message?: string; values?: { domain: string; clientId: string } } | undefined;
 
 const MAX_ATTEMPTS_PER_10_MIN = 10;
 
@@ -28,15 +28,18 @@ export async function connectStore(_prev: StoreState, formData: FormData): Promi
   if (!session) return { error: "Your session ended. Log in again." };
   if (session.role !== "owner") return { error: "Only the account owner can connect stores." };
 
-  const domain = normalizeDomain(String(formData.get("domain") ?? ""));
+  const domainRaw = String(formData.get("domain") ?? "").trim();
+  const domain = normalizeDomain(domainRaw);
   const clientId = String(formData.get("clientId") ?? "").trim();
   const clientSecret = String(formData.get("clientSecret") ?? "").trim();
-  if (!domain) return { error: "Enter your store address, like your-store.myshopify.com." };
-  if (clientId.length < 8 || clientId.length > 200) return { error: "Enter the Client ID from your app's Settings page." };
-  if (clientSecret.length < 8 || clientSecret.length > 400) return { error: "Enter the Client secret from your app's Settings page." };
+  // Keep what they typed (never the secret) so a failed attempt doesn't wipe the form.
+  const fail = (error: string): StoreState => ({ error, values: { domain: domainRaw, clientId } });
+  if (!domain) return fail("Enter your store address, like your-store.myshopify.com.");
+  if (clientId.length < 8 || clientId.length > 200) return fail("Enter the Client ID from your app's Settings page.");
+  if (clientSecret.length < 8 || clientSecret.length > 400) return fail("Enter the Client secret from your app's Settings page.");
 
   // Credential testing is a brute-force target, so limit attempts per account.
-  if (await tooManyAttempts(session.accountId)) return { error: "Too many attempts. Wait a few minutes and try again." };
+  if (await tooManyAttempts(session.accountId)) return fail("Too many attempts. Wait a few minutes and try again.");
   const db = supabaseAdmin();
   await db.from("audit_log").insert({ account_id: session.accountId, actor_id: session.userId, action: "store.connect_attempt", target: domain });
 
@@ -45,16 +48,16 @@ export async function connectStore(_prev: StoreState, formData: FormData): Promi
     const token = await mintToken(domain, clientId, clientSecret);
     info = await fetchShopInfo(domain, token);
   } catch (e) {
-    return { error: e instanceof ShopifyError ? e.message : FRIENDLY.unexpected };
+    return fail(e instanceof ShopifyError ? e.message : FRIENDLY.unexpected);
   }
   if (info.scopes.length === 0) {
-    return { error: "The app is installed but has no permissions. In the Dev Dashboard, add the read scopes, release a version, and approve it on the store." };
+    return fail("The app is installed but has no permissions. In the Dev Dashboard, add the read scopes, release a version, and approve it on the store.");
   }
 
   // Is this store already connected? Only to this same account.
   const { data: existing } = await db.from("stores").select("id, account_id").eq("shop_domain", domain).maybeSingle();
   if (existing && existing.account_id !== session.accountId) {
-    return { error: "This store is already connected to another Userelay account." };
+    return fail("This store is already connected to another Userelay account.");
   }
 
   const storeId = existing?.id ?? randomUUID();
@@ -69,12 +72,12 @@ export async function connectStore(_prev: StoreState, formData: FormData): Promi
   const saved = existing
     ? await db.from("stores").update(row).eq("id", storeId)
     : await db.from("stores").insert({ id: storeId, account_id: session.accountId, shop_domain: domain, ...row });
-  if (saved.error) return { error: "We couldn't save the store. Try again." };
+  if (saved.error) return fail("We couldn't save the store. Try again.");
 
   const sec = await db
     .from("store_secrets")
     .upsert({ store_id: storeId, blob: encryptSecret(storeId, clientSecret), key_version: 1, updated_at: new Date().toISOString() });
-  if (sec.error) return { error: "We couldn't save the credentials securely. Try again." };
+  if (sec.error) return fail("We couldn't save the credentials securely. Try again.");
 
   await db.from("audit_log").insert({ account_id: session.accountId, actor_id: session.userId, action: "store.connected", target: domain, meta: { scopes: info.scopes } });
   revalidatePath("/app/stores");
