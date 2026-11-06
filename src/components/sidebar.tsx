@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { signOut } from "@/app/login/actions";
 
 const nav = [
   { href: "/app", label: "Home" },
@@ -41,7 +42,7 @@ function Item({ href, label, active }: { href: string; label: string; active: bo
   );
 }
 
-export function Sidebar() {
+export function Sidebar({ email, storeName }: { email: string; storeName: string | null }) {
   const path = usePathname();
   const is = (h: string) => (h === "/app" ? path === "/app" : path.startsWith(h));
   return (
@@ -51,8 +52,8 @@ export function Sidebar() {
       </div>
       <button className="mb-6 flex items-center justify-between gap-2 py-2.5 px-3 rounded-ctl border border-line-strong text-left text-sm hover:bg-wash">
         <span className="min-w-0">
-          <span className="block font-normal leading-5 truncate">northwind-active</span>
-          <span className="block text-xs text-muted leading-4 mt-0.5">myshopify.com · connected</span>
+          <span className="block font-normal leading-5 truncate">{storeName ?? "No store yet"}</span>
+          <span className="block text-xs text-muted leading-4 mt-0.5">{storeName ? "myshopify.com · connected" : "Connect one in Stores"}</span>
         </span>
         <span aria-hidden className="text-muted">⌄</span>
       </button>
@@ -68,11 +69,10 @@ export function Sidebar() {
         ))}
       </nav>
       <div className="mt-auto rounded-card border border-line p-4">
-        <p className="text-sm font-normal">Pro plan</p>
-        <p className="text-xs text-muted mt-1">14 of 25 schedules used</p>
-        <div className="mt-3 h-1.5 rounded-full bg-line overflow-hidden">
-          <div className="h-full bg-secondary rounded-full" style={{ width: "56%" }} />
-        </div>
+        <p className="text-sm font-normal truncate" title={email}>{email}</p>
+        <form action={signOut}>
+          <button type="submit" className="mt-2 text-xs text-muted hover:text-primary">Log out</button>
+        </form>
       </div>
     </aside>
   );
