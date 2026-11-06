@@ -1,0 +1,25 @@
+# Render Blueprint: Userelay Export (free web service)
+# Secrets are NOT stored here. Render prompts for each `sync: false` value on first deploy.
+services:
+  - type: web
+    name: userelay
+    runtime: node
+    plan: free
+    region: singapore        # closest Render region to the Supabase project (Tokyo)
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: MASTER_KEY
+        sync: false
+      - key: TICK_SECRET
+        sync: false
