@@ -10,6 +10,7 @@ import { readFile, unlink } from "node:fs/promises";
 import { once } from "node:events";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { getEntitlements } from "../billing/entitlements.ts";
 import { columnLabel, fileName, getResource, validateConfig, type ExportConfig } from "../export.ts";
 import { FRIENDLY, ShopifyError } from "../shopify.ts";
 import { supabaseAdmin } from "../supabase/admin.ts";
@@ -68,6 +69,8 @@ export async function runJob(job: JobRow, worker: string): Promise<void> {
     const cfg: ExportConfig = parsed.config;
     const resource = getResource(cfg.resource);
 
+    const ent = await getEntitlements(job.account_id);
+    const rowCap = Math.min(MAX_ROWS, ent.limits.maxRows);
     const store = await loadStoreAccess(job.store_id, job.account_id);
     if (!store.scopes.includes(resource.scope)) {
       throw new JobError("missing_scope", `This store's app doesn't have the ${resource.scope} permission. Add it in the Dev Dashboard, release a new version, then reconnect the store.`);
@@ -117,7 +120,14 @@ export async function runJob(job: JobRow, worker: string): Promise<void> {
 
     const proc = createProcessor(cfg, (row: Row) => {
       rows++;
-      if (rows > MAX_ROWS) throw new LimitError("too_many_rows", `This export has more than ${MAX_ROWS.toLocaleString("en-US")} rows. Narrow it with filters.`);
+      if (rows > rowCap) {
+        throw new LimitError(
+          "too_many_rows",
+          ent.billingOn && rowCap < MAX_ROWS
+            ? `Your ${ent.plan} plan allows ${rowCap.toLocaleString("en-US")} rows per export. Narrow it with filters or upgrade in Billing.`
+            : `This export has more than ${rowCap.toLocaleString("en-US")} rows. Narrow it with filters.`,
+        );
+      }
       addText(csvLine(row, delimiter));
     });
 

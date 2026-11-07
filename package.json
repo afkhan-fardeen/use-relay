@@ -11,7 +11,9 @@
     "test:crypto": "node scripts/test-crypto.mjs",
     "db:verify": "node --env-file=.env.local scripts/verify-db.mjs",
     "test:export": "node --conditions=react-server --env-file=.env.local scripts/test-export.mjs",
-    "test:ui": "node --conditions=react-server --env-file=.env.local scripts/test-ui.mjs"
+    "test:ui": "node --conditions=react-server --env-file=.env.local scripts/test-ui.mjs",
+    "test:billing": "node --conditions=react-server --env-file=.env.local scripts/test-billing.mjs",
+    "test:billing-ui": "node --env-file=.env.local scripts/test-billing-ui.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

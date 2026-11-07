@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/dal";
+import { getEntitlements } from "@/lib/billing/entitlements";
 import { decryptSecret, encryptSecret } from "@/lib/crypto";
 import { FRIENDLY, ShopifyError, fetchShopInfo, mintToken, normalizeDomain } from "@/lib/shopify";
 import { supabaseAdmin } from "@/lib/supabase/admin";
@@ -58,6 +59,14 @@ export async function connectStore(_prev: StoreState, formData: FormData): Promi
   const { data: existing } = await db.from("stores").select("id, account_id").eq("shop_domain", domain).maybeSingle();
   if (existing && existing.account_id !== session.accountId) {
     return fail("This store is already connected to another Userelay account.");
+  }
+
+  if (!existing) {
+    const ent = await getEntitlements(session.accountId);
+    const { count } = await db.from("stores").select("id", { count: "exact", head: true }).eq("account_id", session.accountId).neq("status", "disconnected");
+    if ((count ?? 0) >= ent.limits.maxStores) {
+      return fail(`Your ${ent.plan} plan includes ${ent.limits.maxStores} store${ent.limits.maxStores === 1 ? "" : "s"}. Upgrade in Billing to connect more.`);
+    }
   }
 
   const storeId = existing?.id ?? randomUUID();

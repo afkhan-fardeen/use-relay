@@ -4,6 +4,7 @@ import { createHash } from "node:crypto";
 import { after } from "next/server";
 import { getSession } from "@/lib/dal";
 import { columnLabel, getResource, validateConfig, type ExportConfig } from "@/lib/export";
+import { getEntitlements } from "@/lib/billing/entitlements";
 import { allow } from "@/lib/ratelimit";
 import { FRIENDLY, ShopifyError } from "@/lib/shopify";
 import { supabaseAdmin } from "@/lib/supabase/admin";
@@ -103,7 +104,15 @@ export async function startExport(input: unknown): Promise<StartResult> {
     db.from("export_jobs").select("id", { count: "exact", head: true }).eq("account_id", session.accountId).gte("created_at", hourAgo),
   ]);
   if ((active ?? 0) >= 3) return { ok: false, error: "You already have 3 exports running. Wait for one to finish." };
-  if ((recent ?? 0) >= 30) return { ok: false, error: "You've reached the hourly export limit. Try again later." };
+  const ent = await getEntitlements(session.accountId);
+  if ((recent ?? 0) >= ent.limits.exportsPerHour) {
+    return {
+      ok: false,
+      error: ent.billingOn
+        ? `Your ${ent.plan} plan allows ${ent.limits.exportsPerHour} exports an hour. Try again later or upgrade in Billing.`
+        : "You've reached the hourly export limit. Try again later.",
+    };
+  }
 
   // An identical request within 20 seconds (double click, retry) returns the same job.
   const twentyAgo = new Date(Date.now() - 20_000).toISOString();
