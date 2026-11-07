@@ -1,14 +1,17 @@
 // Company details shown on the public site and in the legal pages.
-// Paddle requires the legal entity name and a way to contact it; fill the empty fields before
+// You sell as an individual (sole trader): enter your full legal name below. Paddle requires the
+// seller's legal name and a way to contact it; fill the empty fields before
 // submitting your domain for approval. `npm run check:launch` lists what is still missing.
 
 export const COMPANY = {
   brand: "Klyroo",
-  /** The registered legal name of the business that sells Klyroo, for example "Klyroo Ltd". REQUIRED. */
+  /** "individual" = you sell as a person (sole trader) and trade as Klyroo. "company" = a registered company. */
+  entity: "individual" as "individual" | "company",
+  /** Individual: your full legal name, as on your ID. Company: the registered company name, e.g. "Klyroo Ltd". REQUIRED. */
   legalName: "",
-  /** Registered office address, one line. REQUIRED by Paddle's privacy-notice guidance. */
+  /** A postal address where you can be reached, one line. REQUIRED. Home address for an individual unless you use a business or correspondence address. */
   registeredAddress: "",
-  /** Country of registration, for example "United Kingdom". REQUIRED. */
+  /** Country where you are based, for example "United Kingdom". REQUIRED. */
   country: "",
   /** Law that governs the terms, for example "England and Wales". REQUIRED. */
   governingLaw: "",
@@ -17,8 +20,14 @@ export const COMPANY = {
   policiesUpdated: "7 November 2026",
 } as const;
 
-/** Name to show wherever the seller is named: the legal name once set, else the brand. */
-export const operatorName = (): string => COMPANY.legalName || COMPANY.brand;
+/** The seller as it should be named in the legal pages: "Jane Doe, trading as Klyroo" for an individual, the company name for a company. */
+export const operatorName = (): string => {
+  if (!COMPANY.legalName) return COMPANY.brand;
+  return COMPANY.entity === "individual" ? `${COMPANY.legalName}, trading as ${COMPANY.brand}` : COMPANY.legalName;
+};
+
+/** Short form for the page footer. */
+export const footerName = (): string => operatorName();
 
 export function missingCompanyDetails(): string[] {
   const out: string[] = [];

@@ -9,7 +9,7 @@ export default function Terms() {
     <LegalPage title="Terms of service" intro={`These terms are an agreement between you and ${op} (“Klyroo”, “we”, “us”). They apply when you create a Klyroo account or use any Klyroo app, including Klyroo Export and Klyroo QR.`}>
       <Section n={1} title="Who we are">
         <p>
-          Klyroo is a brand of {op}{COMPANY.registeredAddress ? `, registered at ${COMPANY.registeredAddress}` : ""}{COMPANY.country ? ` (${COMPANY.country})` : ""}.
+          Klyroo is {COMPANY.entity === "individual" ? "a trading name of " : "a brand of "}{op.replace(/, trading as Klyroo$/, "")}{COMPANY.entity === "individual" ? ", an individual" : ""}{COMPANY.registeredAddress ? `, of ${COMPANY.registeredAddress}` : ""}{COMPANY.country ? ` (${COMPANY.country})` : ""}.
           You can reach us at <A href={`mailto:${COMPANY.supportEmail}`}>{COMPANY.supportEmail}</A>.
         </p>
       </Section>

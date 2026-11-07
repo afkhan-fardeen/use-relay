@@ -79,8 +79,11 @@ check("Navigation", "robots.txt hides signed-in areas and lists the sitemap", /D
 
 // 8. Seller details Paddle requires (set in src/lib/company.ts)
 const missing = missingCompanyDetails();
-check("Seller details", "legal entity name, registered address, country and governing law are filled in", missing.length === 0, missing.length ? `missing: ${missing.join(", ")}` : "");
-if (COMPANY.legalName) check("Seller details", "legal name appears in the Terms and Privacy policy", terms.includes(COMPANY.legalName) && priv.includes(COMPANY.legalName));
+check("Seller details", "legal name, postal address, country and governing law are filled in", missing.length === 0, missing.length ? `missing: ${missing.join(", ")}` : "");
+if (COMPANY.legalName) {
+  check("Seller details", "legal name appears in the Terms and Privacy policy", terms.includes(COMPANY.legalName) && priv.includes(COMPANY.legalName));
+  if (COMPANY.entity === "individual") check("Seller details", 'individual seller is shown as "trading as Klyroo"', /trading as Klyroo/.test(terms) && /trading as Klyroo/.test(priv));
+}
 
 // Report
 let area = "";

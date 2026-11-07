@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/sidebar";
 import { Button } from "@/components/ui";
-import { COMPANY } from "@/lib/company";
+import { COMPANY, operatorName } from "@/lib/company";
 
 export function MarketingHeader({ tool, anchors }: { tool?: string; anchors?: { href: string; label: string }[] }) {
   return (
@@ -53,7 +53,7 @@ export function MarketingFooter() {
         </nav>
       </div>
       <div className="mx-auto max-w-[1200px] px-6 pb-10 text-xs text-muted">
-        © 2026 {COMPANY.legalName || COMPANY.brand}. Payments are handled by Paddle, our Merchant of Record.
+        © 2026 {operatorName()}. Payments are handled by Paddle, our Merchant of Record.
       </div>
     </footer>
   );
