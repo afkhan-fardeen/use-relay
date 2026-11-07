@@ -5,7 +5,7 @@ import "server-only";
 // - Redirects are never followed; every request has a timeout.
 // - Secrets and tokens are never logged or put in error messages.
 
-export const SHOPIFY_API_VERSION = process.env.SHOPIFY_API_VERSION || "2026-07";
+export const SHOPIFY_API_VERSION = process.env.SHOPIFY_API_VERSION || "2026-10";
 
 const DOMAIN = /^[a-z0-9][a-z0-9-]{0,60}\.myshopify\.com$/;
 
@@ -26,8 +26,10 @@ export type ShopifyErrorCode =
   | "unexpected";
 
 export class ShopifyError extends Error {
-  constructor(public code: ShopifyErrorCode, message: string) {
+  code: ShopifyErrorCode;
+  constructor(code: ShopifyErrorCode, message: string) {
     super(message);
+    this.code = code;
   }
 }
 
@@ -41,9 +43,15 @@ export const FRIENDLY: Record<ShopifyErrorCode, string> = {
   unexpected: "Something unexpected happened while talking to Shopify. Try again, or contact support.",
 };
 
-async function call(url: string, init: RequestInit): Promise<Response> {
+/** Where to send requests for a store. The override exists only for automated tests. */
+export function origin(domain: string): string {
+  if (process.env.NODE_ENV !== "production" && process.env.SHOPIFY_TEST_ORIGIN) return process.env.SHOPIFY_TEST_ORIGIN;
+  return `https://${domain}`;
+}
+
+export async function call(url: string, init: RequestInit, timeoutMs = 15_000): Promise<Response> {
   try {
-    return await fetch(url, { ...init, redirect: "manual", signal: AbortSignal.timeout(15_000), cache: "no-store" });
+    return await fetch(url, { ...init, redirect: "manual", signal: AbortSignal.timeout(timeoutMs), cache: "no-store" });
   } catch {
     throw new ShopifyError("unavailable", FRIENDLY.unavailable);
   }
@@ -51,7 +59,7 @@ async function call(url: string, init: RequestInit): Promise<Response> {
 
 /** Exchange client ID + secret for a short-lived (about 24h) Admin API token. */
 export async function mintToken(domain: string, clientId: string, clientSecret: string): Promise<string> {
-  const res = await call(`https://${domain}/admin/oauth/access_token`, {
+  const res = await call(`${origin(domain)}/admin/oauth/access_token`, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded", accept: "application/json" },
     body: new URLSearchParams({ grant_type: "client_credentials", client_id: clientId, client_secret: clientSecret }),
@@ -78,7 +86,7 @@ export type ShopInfo = { name: string; currencyCode: string; scopes: string[] };
 
 /** Read the shop name, currency and the permissions this app was actually granted. */
 export async function fetchShopInfo(domain: string, token: string): Promise<ShopInfo> {
-  const res = await call(`https://${domain}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`, {
+  const res = await call(`${origin(domain)}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`, {
     method: "POST",
     headers: { "content-type": "application/json", "x-shopify-access-token": token },
     body: JSON.stringify({

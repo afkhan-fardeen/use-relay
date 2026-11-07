@@ -9,7 +9,9 @@
     "lint": "eslint",
     "db:migrate": "node --env-file=.env.local scripts/migrate.mjs",
     "test:crypto": "node scripts/test-crypto.mjs",
-    "db:verify": "node --env-file=.env.local scripts/verify-db.mjs"
+    "db:verify": "node --env-file=.env.local scripts/verify-db.mjs",
+    "test:export": "node --conditions=react-server --env-file=.env.local scripts/test-export.mjs",
+    "test:ui": "node --conditions=react-server --env-file=.env.local scripts/test-ui.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -28,6 +30,8 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
+    "graphql": "^17.1.0",
+    "playwright-core": "^1.65.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

@@ -1,10 +1,13 @@
 import { timingSafeEqual } from "node:crypto";
+import { after } from "next/server";
+import { cleanupExpiredFiles, drainQueue } from "@/lib/export/queue";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 // Called every ~5 minutes by an external cron (cron-job.org). It:
 //  1. keeps the free Render service awake and the free Supabase project from pausing,
 //  2. requeues exports whose worker disappeared (lease expired),
-//  3. (next step) claims queued exports and runs them.
+//  3. runs any queued exports (retries, jobs missed while the server restarted),
+//  4. deletes export files past their retention date.
 // Protected by a shared secret: Authorization: Bearer <TICK_SECRET>.
 
 function authorized(req: Request): boolean {
@@ -25,6 +28,12 @@ export async function POST(req: Request) {
     console.error("tick: reap failed", reaped.error.message);
     return Response.json({ ok: false, error: "reap_failed" }, { status: 500 });
   }
+
+  // Do the real work after replying so the cron call returns instantly.
+  after(async () => {
+    await drainQueue();
+    await cleanupExpiredFiles();
+  });
 
   return Response.json({ ok: true, requeued: reaped.data, at: new Date().toISOString() });
 }

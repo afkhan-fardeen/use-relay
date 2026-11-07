@@ -4,10 +4,10 @@ import { Button, Card, Chip, Eyebrow } from "@/components/ui";
 import { templates } from "@/lib/export";
 
 const features = [
-  { t: "Templates for real jobs", d: "Orders for your 3PL, a full catalog, inventory by location, a customer list for email. Pick one and run it.", chip: "8 templates" },
+  { t: "Templates for real jobs", d: "Orders for your 3PL, a full catalog, inventory by location, a customer list for email. Pick one and run it.", chip: `${templates.length} templates` },
   { t: "Build your own", d: "Choose the data, filter it, pick and rename the columns, and check a live preview before you run.", chip: "Live preview" },
-  { t: "Runs on a schedule", d: "Hourly, daily, weekly or monthly. Only changed records if you want, so files stay small.", chip: "Incremental" },
-  { t: "Delivered for you", d: "Send files to email, Google Drive, Dropbox or SFTP. Failures email you with a one-click retry.", chip: "SFTP · Drive · Dropbox" },
+  { t: "Runs on a schedule", d: "Hourly, daily, weekly or monthly. Only changed records if you want, so files stay small.", chip: "Coming soon" },
+  { t: "Delivered for you", d: "Send files to email, Google Drive, Dropbox or SFTP. Failures email you with a one-click retry.", chip: "Coming soon" },
   { t: "Built for big stores", d: "Uses Shopify bulk operations and background jobs, so large exports finish instead of timing out.", chip: "1M+ rows" },
   { t: "Read-only and private", d: "We only ask for read access. Credentials are encrypted and files are served through short-lived links.", chip: "Never writes" },
 ];

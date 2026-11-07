@@ -23,8 +23,8 @@ async function Shell({ children }: { children: React.ReactNode }) {
         <MobileBar />
         <header className="flex flex-wrap items-center justify-between gap-3 px-6 lg:px-10 h-16 border-b border-line">
           <div className="flex items-center gap-3 text-sm">
-            <Chip tone="info">Preview</Chip>
-            <span className="text-muted hidden sm:inline">Exports below use sample data until the first real export is built.</span>
+            <Chip tone="info">Beta</Chip>
+            <span className="text-muted hidden sm:inline">Free while we test. Exports run read-only against your store.</span>
           </div>
           <Button size="sm" href="/app/exports/new">New export</Button>
         </header>

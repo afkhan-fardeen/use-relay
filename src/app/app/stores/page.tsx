@@ -67,6 +67,7 @@ export default async function StoresPage() {
               <span aria-hidden className="grid place-items-center size-6 shrink-0 rounded-full border border-secondary/40 text-secondary text-xs">2</span>
               <span>In Versions, add these <span className="font-normal text-ink">read-only</span> scopes and release the version:
                 <span className="mt-2 flex flex-wrap gap-1.5">{needed.map((x) => <Chip key={x} tone="info">{x}</Chip>)}</span>
+                <span className="mt-2 block text-xs text-muted">Optional: <span className="font-mono">read_all_orders</span> to export orders older than 60 days.</span>
               </span>
             </li>
             <li className="flex gap-3">
