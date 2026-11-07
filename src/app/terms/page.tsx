@@ -60,16 +60,16 @@ export default function Terms() {
         ]} />
       </Section>
 
-      <Section n={7} title="Plans, payments and Paddle">
+      <Section n={7} title="Plans, payments and Dodo Payments">
         <p>
-          Our order process is conducted by our online reseller Paddle.com. <strong className="font-normal">Paddle.com is the Merchant of Record for all our orders.</strong> Paddle provides all customer service inquiries and handles returns.
-          Payments, invoices and taxes are handled by Paddle, and Paddle&apos;s{" "}
-          <A href="https://www.paddle.com/legal/checkout-buyer-terms">checkout buyer terms</A> apply to your purchase.
+          Our order process is conducted by our online reseller Dodo Payments. <strong className="font-normal">Dodo Payments is the Merchant of Record for all our orders.</strong> Dodo Payments processes your payment, calculates and collects taxes, and issues invoices and refunds. Its{" "}
+          <A href="https://dodopayments.com/legal/privacy-policy">privacy policy</A> applies to the payment data it collects.
         </p>
         <UL items={[
           "Paid plans are subscriptions that renew every month until you cancel. Prices are shown in pounds sterling (GBP) and taxes are calculated at checkout.",
-          "You can cancel at any time from the Billing page of the app or through Paddle's customer portal. Cancellation takes effect at the end of the period you have paid for, and you keep your plan until then.",
-          "If a payment fails, Paddle will retry it. If it still cannot be collected, your plan may move to the Free plan.",
+          "Every paid plan starts with a 3-day free trial. You are not charged during the trial. Cancel before it ends and you pay nothing; otherwise the first payment is taken when it ends.",
+          "You can cancel at any time from the Billing page of the app or through the customer portal. Cancellation takes effect at the end of the period you have paid for, and you keep your plan until then.",
+          "If a payment fails, it is retried automatically. If it still cannot be collected, your plan may move to the Free plan.",
           "We may change prices for future periods. We will tell you in advance, and the change applies from your next renewal.",
           "Each Klyroo app is billed separately. Cancelling one app does not affect another.",
         ]} />

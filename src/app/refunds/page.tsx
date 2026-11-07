@@ -12,6 +12,12 @@ export default function Refunds() {
         </p>
       </Section>
 
+      <Section title="Free trial">
+        <p>
+          Every paid plan starts with a <strong className="font-normal">3-day free trial</strong>. You are not charged during the trial, and you can cancel before it ends to pay nothing. If you do not cancel, the first payment is taken when the trial ends, and the 30-day guarantee then runs from that payment.
+        </p>
+      </Section>
+
       <Section title="Renewals and mistakes">
         <UL items={[
           "If a renewal is charged and you meant to cancel, contact us within 14 days of the charge and we will refund it, as long as you have not used the paid features in that period.",
@@ -22,15 +28,15 @@ export default function Refunds() {
 
       <Section title="How to ask for a refund">
         <UL items={[
-          <>Request it from Paddle, our Merchant of Record, at <A href="https://paddle.net">paddle.net</A> using the email address on your order, or</>,
-          <>email us at <A href={`mailto:${COMPANY.supportEmail}`}>{COMPANY.supportEmail}</A> with your order details and we will take care of it.</>,
+          <>Email us at <A href={`mailto:${COMPANY.supportEmail}`}>{COMPANY.supportEmail}</A> from the address on your account, with the app and plan.</>,
+          "We approve valid requests and Dodo Payments, our Merchant of Record, sends the refund. You do not need to contact anyone else.",
         ]} />
-        <p>Refunds are paid to your original payment method by Paddle. They include the taxes you paid and usually appear within 5 to 10 business days, depending on your bank.</p>
+        <p>Refunds are paid to your original payment method by Dodo Payments. They include the taxes you paid and usually appear within 5 to 10 business days, depending on your bank.</p>
       </Section>
 
       <Section title="Cancelling">
         <p>
-          You can cancel any time from the Billing page in the app or in Paddle&apos;s customer portal. When you cancel, you keep your plan until the end of the period you paid for and will not be charged again.
+          You can cancel any time from the Billing page in the app or in the customer portal (the Billing page links to it). When you cancel, you keep your plan until the end of the period you paid for and will not be charged again.
           Each Klyroo app is billed separately, so cancelling one does not affect the others.
         </p>
       </Section>

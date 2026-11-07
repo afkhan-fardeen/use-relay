@@ -1,6 +1,6 @@
 // Plans per app. Shared by the UI and the server. No secrets, no Node-only imports.
-// Prices are NOT stored here: the Paddle catalog is the source of truth (in GBP) and the UI
-// reads live prices from Paddle by price ID. Each app has its own plans and its own billing.
+// Prices are NOT stored here: the Dodo Payments catalog is the source of truth (in GBP) and the UI
+// shows the marketing label; checkout shows the exact price. Each app has its own plans and its own billing.
 //
 // Klyroo Export plans differ ONLY by number of stores and rows per export.
 // Klyroo QR plans differ by dynamic links and scans per month.
@@ -17,7 +17,7 @@ export type PlanInfo = {
   features: Feature[];
   limits: Limits;
   recommended?: boolean;
-  /** The real price is in the Paddle catalog; this label is for the marketing pages. */
+  /** The real price is in the Dodo Payments catalog; this label is for the marketing pages. */
   priceLabel: string;
 };
 

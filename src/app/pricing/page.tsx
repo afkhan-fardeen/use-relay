@@ -31,11 +31,12 @@ export default function Pricing() {
           <SectionHead eyebrow="Billing" title="Questions about paying." center />
           <div className="mt-10">
             <Faq items={[
-              ["Who takes the payment?", "Paddle, our Merchant of Record. Paddle handles payment, tax and invoices. Our checkout shows the exact price, including tax, before you pay."],
-              ["Can I cancel?", "Yes, any time from the app's Billing page or Paddle's customer portal. You keep your plan until the end of the period you paid for."],
+              ["Who takes the payment?", "Dodo Payments, our Merchant of Record. It handles payment, tax and invoices. Checkout shows the exact price, including tax, before you pay."],
+              ["Is there a free trial?", "Yes. Every paid plan starts with a 3-day free trial. Cancel before it ends and you pay nothing."],
+              ["Can I cancel?", "Yes, any time from the app's Billing page or the customer portal. You keep your plan until the end of the period you paid for."],
               ["Can I get a refund?", <>Yes. Every first purchase has a 30-day money-back guarantee. See the <Link href="/refunds" className="text-primary">refund policy</Link>.</>],
               ["Do I pay once for everything?", "No. Each Klyroo app has its own plan and its own billing, so you only pay for what you use."],
-              ["Can I change plan later?", "Yes. You can move up or down at any time. Upgrades are prorated by Paddle."],
+              ["Can I change plan later?", "Yes. You can move up or down at any time. Upgrades are prorated."],
             ]} />
           </div>
         </section>

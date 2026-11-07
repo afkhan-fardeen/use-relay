@@ -29,7 +29,7 @@ export const DOCS: DocPage[] = [
         <H2>Using more than one app</H2>
         <P>Open <strong className="font-normal">Account → Apps</strong> to switch apps on or off. Turning an app off only hides it. Nothing is deleted. Use the app switcher at the top of the sidebar to move between your apps.</P>
         <H2>Billing</H2>
-        <P>Every app has its own <strong className="font-normal">Billing</strong> page in its sidebar. Plans are monthly and you can cancel from that page at any time. Payments are handled by Paddle, our Merchant of Record. See the <A href="/refunds">refund policy</A> for the 30-day money-back guarantee.</P>
+        <P>Every app has its own <strong className="font-normal">Billing</strong> page in its sidebar. Plans are monthly and you can cancel from that page at any time. Payments are handled by Dodo Payments, our Merchant of Record. See the <A href="/refunds">refund policy</A> for the 30-day money-back guarantee.</P>
         <H2>Need something else?</H2>
         <P>To change your email address or delete your account and data, email {mail}.</P>
       </>

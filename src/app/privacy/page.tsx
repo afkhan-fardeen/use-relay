@@ -32,7 +32,7 @@ export default function Privacy() {
                 ["Store data you choose to export: products, orders, customers, inventory, collections", "Build the files you ask for. We act as your processor", "Your instructions (processor)"],
                 ["Klyroo QR codes you save, and for dynamic links the scan data: time, country, device type, referring site and a daily-changing anonymous visitor code (no IP address is stored and no cookies are used)", "Redirect scans and show you your analytics", "Contract; legitimate interests"],
                 ["Export files and job history (what was exported, when, status)", "Let you download and review exports", "Contract"],
-                ["Billing details: plan, status, Paddle customer and subscription IDs (we never see your card number)", "Manage your subscription and limits", "Contract; legal obligation"],
+                ["Billing details: plan, status, payment provider customer and subscription IDs (we never see your card number)", "Manage your subscription and limits", "Contract; legal obligation"],
                 ["Support emails and what you tell us", "Answer your questions", "Legitimate interests"],
                 ["Technical data: IP address, device and error logs", "Keep the service secure and fix problems", "Legitimate interests"],
               ].map(([a, b, c]) => (
@@ -53,7 +53,7 @@ export default function Privacy() {
         <UL items={[
           <><strong className="font-normal">Supabase</strong> for our database, sign-in and private file storage (data is held in Japan, in the AWS Asia Pacific (Tokyo) region).</>,
           <><strong className="font-normal">Render</strong> for application hosting (Singapore).</>,
-          <><strong className="font-normal">Paddle</strong>, our Merchant of Record, which sells our plans, collects payment and handles tax, invoices and refunds. Paddle acts as an independent controller of your payment data under its own <A href="https://www.paddle.com/legal/privacy">privacy notice</A>.</>,
+          <><strong className="font-normal">Dodo Payments</strong>, our Merchant of Record, which sells our plans, collects payment and handles tax, invoices and refunds. Dodo Payments acts as an independent controller of your payment data under its own <A href="https://dodopayments.com/legal/privacy-policy">privacy policy</A>.</>,
           <><strong className="font-normal">Shopify</strong>, the source of the data you ask us to export.</>,
           "Email providers we use to send account emails. These do not receive your exported store data.",
           "Professional advisers, and public authorities where we are legally required to.",
@@ -86,7 +86,7 @@ export default function Privacy() {
 
       <Section n={7} title="Cookies">
         <p>
-          We use only strictly necessary cookies, to keep you signed in and secure. Our checkout, provided by Paddle, may set its own cookies to process your payment. We do not use advertising or analytics cookies on the Klyroo app.
+          We use only strictly necessary cookies, to keep you signed in and secure. Our checkout, provided by Dodo Payments, may set its own cookies to process your payment. We do not use advertising or analytics cookies on the Klyroo app.
         </p>
       </Section>
 

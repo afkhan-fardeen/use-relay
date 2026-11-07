@@ -1,7 +1,8 @@
-// Billing page in a real browser: beta mode (no Paddle keys) and live-plans mode (keys set).
+// Billing page in a real browser: free mode (no billing keys) and paid-plans mode (keys set).
 // Usage: npm run test:billing-ui
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import http from "node:http";
 import { randomUUID } from "node:crypto";
 import { chromium } from "playwright-core";
 import { createClient } from "@supabase/supabase-js";
@@ -16,11 +17,27 @@ const password = randomUUID();
 const { data: u } = await admin.auth.admin.createUser({ email, password, email_confirm: true });
 const { data: mem } = await admin.from("members").select("account_id").eq("user_id", u.user.id).single();
 await admin.from("account_apps").insert([{ account_id: mem.account_id, app: "export" }, { account_id: mem.account_id, app: "qr" }]);
+// A fake Dodo API: returns a checkout URL on this same fake server.
+const checkoutBodies = [];
+const fakeDodo = http.createServer((req, res) => {
+  let d = "";
+  req.on("data", (c) => (d += c));
+  req.on("end", () => {
+    if (req.method === "POST" && req.url === "/checkouts") {
+      checkoutBodies.push(JSON.parse(d));
+      res.writeHead(200, { "content-type": "application/json" });
+      return res.end(JSON.stringify({ session_id: "cks_1", checkout_url: `http://127.0.0.1:${fakeDodo.address().port}/pay` }));
+    }
+    res.writeHead(200, { "content-type": "text/html" });
+    res.end("<h1>Fake checkout</h1>");
+  });
+});
+await new Promise((r) => fakeDodo.listen(0, "127.0.0.1", r));
 const browser = await chromium.launch({ executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", headless: true });
 
 async function withServer(port, extraEnv, fn) {
   const env = { ...process.env, NODE_ENV: "development", ...extraEnv };
-  for (const k of ["NEXT_PUBLIC_PADDLE_CLIENT_TOKEN", "PADDLE_WEBHOOK_SECRET", "PADDLE_PRICE_EXPORT_STARTER", "PADDLE_PRICE_EXPORT_GROWTH", "PADDLE_PRICE_EXPORT_SCALE", "PADDLE_PRICE_QR_PRO"]) if (!(k in extraEnv)) delete env[k];
+  for (const k of ["DODO_PAYMENTS_API_KEY", "DODO_PAYMENTS_WEBHOOK_KEY", "DODO_API_BASE", "DODO_PRODUCT_EXPORT_STARTER", "DODO_PRODUCT_EXPORT_GROWTH", "DODO_PRODUCT_EXPORT_SCALE", "DODO_PRODUCT_QR_PRO", "DODO_PRODUCT_QR_BUSINESS"]) if (!(k in extraEnv)) env[k] = ""; // empty, not deleted: Next would otherwise load the real value from .env.local
   const server = spawn("node", ["node_modules/next/dist/bin/next", "dev", "-p", String(port)], { env, stdio: ["ignore", "pipe", "pipe"] });
   let log = "";
   server.stdout.on("data", (d) => (log += d));
@@ -46,15 +63,16 @@ try {
     await page.goto(`${base}/export/billing`, { waitUntil: "networkidle" });
     await page.waitForSelector("text=Free for now");
     assert.equal(await page.locator("text=Choose Growth").count(), 0);
-    ok('without Paddle keys the page says Free for now and offers no checkout');
+    ok('without billing keys the page says Free for now and offers no checkout');
   });
 
   await withServer(3342, {
-    NEXT_PUBLIC_PADDLE_CLIENT_TOKEN: "test_0000000000000000000000000000000000",
-    PADDLE_WEBHOOK_SECRET: "pdl_ntfset_test",
-    PADDLE_PRICE_EXPORT_STARTER: "pri_starter01",
-    PADDLE_PRICE_EXPORT_GROWTH: "pri_growth01",
-    NEXT_PUBLIC_PADDLE_ENV: "sandbox",
+    DODO_PAYMENTS_ENVIRONMENT: "test_mode",
+    DODO_PAYMENTS_API_KEY: "dodo_test_key",
+    DODO_PAYMENTS_WEBHOOK_KEY: "whsec_dGVzdA==",
+    DODO_API_BASE: `http://127.0.0.1:${fakeDodo.address().port}`,
+    DODO_PRODUCT_EXPORT_STARTER: "pdt_starter01",
+    DODO_PRODUCT_EXPORT_GROWTH: "pdt_growth01",
   }, async (base) => {
     const page = await (await browser.newContext({ viewport: { width: 1440, height: 1000 } })).newPage();
     page.setDefaultTimeout(60000);
@@ -70,7 +88,14 @@ try {
     assert.ok(await page.locator("text=Recommended").count() >= 1, "Growth is marked recommended");
     ok("Growth is marked Recommended");
     await page.waitForSelector('button:has-text("Choose Growth")', { timeout: 30000 });
-    ok("Paddle.js loads and enables checkout buttons");
+    for (const t of ["£19", "£49", "3-day free trial"]) assert.ok(await page.locator(`text=${t}`).count() >= 1, t);
+    await page.click('button:has-text("Choose Growth")');
+    await page.waitForURL(/127\.0\.0\.1:\d+\/pay/, { timeout: 60000 });
+    assert.equal(checkoutBodies.length, 1);
+    assert.deepEqual(checkoutBodies[0].product_cart, [{ product_id: "pdt_growth01", quantity: 1 }]);
+    assert.equal(checkoutBodies[0].customer.email, email);
+    assert.equal(checkoutBodies[0].metadata.app, "export");
+    ok("prices show with the trial note; choosing a plan creates a checkout for the right product and sends you to it");
     // Each app bills separately: Export has plans for sale, QR does not.
     await page.goto(`${base}/qr/billing`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector("text=Free for now");
@@ -85,6 +110,7 @@ try {
   process.exitCode = 1;
 } finally {
   await browser.close();
+  fakeDodo.close();
   await admin.auth.admin.deleteUser(u.user.id);
   const { data: accs } = await admin.from("accounts").select("id").like("name", `billui-${tag}`);
   for (const a of accs ?? []) await admin.from("accounts").delete().eq("id", a.id);

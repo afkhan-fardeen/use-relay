@@ -1,9 +1,8 @@
-// Paddle go-live readiness check against a running site.
+// Dodo Payments verification readiness check against a running site.
 //   npm run check:launch                      (checks https://useklyroo.com)
 //   BASE=http://localhost:3000 npm run check:launch
-// Mirrors Paddle's published requirements: public HTTPS site, product + pricing described,
-// Terms (naming the seller, with Merchant of Record wording), Privacy and Refund policies
-// reachable from navigation, refund window of 14-90 days, no login wall on any of it.
+// Mirrors Dodo's "Preparing your website" guidance: public site, pricing with billing interval, Terms,
+// Privacy, Refund and cancellation policy and a contact route linked from the footer, no login wall.
 import { COMPANY, missingCompanyDetails } from "../src/lib/company.ts";
 
 const BASE = (process.env.BASE || `https://${COMPANY.domain}`).replace(/\/$/, "");
@@ -50,8 +49,7 @@ check("Pricing", "pricing page states currency and cancel-any-time", /GBP/.test(
 
 // 4. Terms
 const terms = body["/terms"] || "";
-check("Terms", "names Paddle as Merchant of Record", /Paddle\.com is the Merchant of Record/.test(terms));
-check("Terms", "links Paddle's buyer terms", /paddle\.com\/legal\/checkout-buyer-terms/.test((await get("/terms")).text));
+check("Terms", "names Dodo Payments as Merchant of Record", /Dodo Payments is the Merchant of Record/.test(terms));
 check("Terms", "covers acceptable use, IP, termination, liability, governing law", ["Acceptable use", "Intellectual property", "Suspension and termination", "Liability", "Governing law"].every((x) => terms.includes(x)));
 check("Terms", "has contact details", terms.includes(COMPANY.supportEmail));
 
@@ -59,14 +57,15 @@ check("Terms", "has contact details", terms.includes(COMPANY.supportEmail));
 const refunds = body["/refunds"] || "";
 const days = [...refunds.matchAll(/(\d+)[- ]day/gi)].map((m) => Number(m[1]));
 check("Refunds", "refund window is between 14 and 90 days", days.some((d) => d >= 14 && d <= 90), `found: ${days.join(", ") || "none"}`);
+check("Refunds", "explains the free trial and cancelling", /free trial/i.test(refunds) && /cancel/i.test(refunds));
 check("Refunds", 'does not say "all sales are final" / "no refunds"', !/all sales are final|no refunds/i.test(refunds));
-check("Refunds", "tells buyers how to request a refund (Paddle or email)", /paddle\.net/i.test(refunds) && refunds.includes(COMPANY.supportEmail));
+check("Refunds", "tells buyers how to request a refund (by email)", refunds.includes(COMPANY.supportEmail));
 
 // 6. Privacy
 const priv = body["/privacy"] || "";
 check("Privacy", "identifies the controller and a privacy contact", /controller/i.test(priv) && priv.includes(COMPANY.supportEmail));
 check("Privacy", "lists data collected with purposes and legal basis", /Legal basis/i.test(priv) && /Why/.test(priv));
-check("Privacy", "names recipients including Paddle as Merchant of Record", /Paddle/.test(priv) && /Supabase/.test(priv));
+check("Privacy", "names recipients including Dodo Payments as Merchant of Record", /Dodo Payments/.test(priv) && /Supabase/.test(priv));
 check("Privacy", "covers retention, security, cookies, rights, international transfers", ["How long we keep it", "How we protect it", "Cookies", "Your rights", "International transfers"].every((x) => priv.includes(x)));
 check("Privacy", "mentions the right to complain to a supervisory authority", /complain/i.test(priv));
 
@@ -79,7 +78,7 @@ for (const p of ["/", "/apps/export", "/pricing", "/contact"]) {
 check("Navigation", "sign-up page links Terms and Privacy", (await get("/login")).text.includes('href="/terms"') && (await get("/login")).text.includes('href="/privacy"'));
 check("Navigation", "robots.txt hides signed-in areas and lists the sitemap", /Disallow: \/export/.test((await get("/robots.txt")).text) && /Sitemap:/.test((await get("/robots.txt")).text));
 
-// 8. Seller details Paddle requires (set in src/lib/company.ts)
+// 8. Seller details Dodo Payments needs (set in src/lib/company.ts)
 const missing = missingCompanyDetails();
 check("Seller details", "legal name, postal address, country and governing law are filled in", missing.length === 0, missing.length ? `missing: ${missing.join(", ")}` : "");
 if (COMPANY.legalName) {
@@ -96,5 +95,5 @@ for (const r of results) {
   if (!r.ok) failed++;
 }
 console.log(`\n${results.length - failed}/${results.length} checks pass.`);
-console.log(failed ? "NOT READY for Paddle review: fix the items marked ✖." : "READY for Paddle review (still submit your domain in Paddle: Settings → Website approval).");
+console.log(failed ? "NOT READY for Dodo verification: fix the items marked ✖." : "READY for Dodo verification (submit the Product Information form in the Dodo dashboard: Verification).");
 process.exitCode = failed ? 1 : 0;

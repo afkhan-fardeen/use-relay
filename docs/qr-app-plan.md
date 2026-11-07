@@ -27,7 +27,7 @@ What each plan includes:
 - **Pro:** everything in Free, plus dynamic links (edit the destination any time), scan analytics (visitors, trends, top codes), custom short link names, priority email support.
 - **Business / API:** everything in Pro, plus custom routing domains, agency seats and projects, API access, priority support.
 
-All of the above is "Soon" on the site until built. Billing env names: `PADDLE_PRICE_QR_PRO`, `PADDLE_PRICE_QR_BUSINESS`.
+All of the above is "Soon" on the site until built. Billing env names: `DODO_PRODUCT_QR_PRO`, `DODO_PRODUCT_QR_BUSINESS`.
 
 ### Notes on this pricing
 - **£20 is a premium price.** Comparable tools advertise unlimited dynamic codes for roughly £5 to £9 a month. Pro only justifies £20 if it is clearly sold to businesses (multi-store, packaging, events) and the analytics are strong. Watch free-to-Pro conversion. If it is weak, add a small bridge plan (for example £8 for 5 dynamic links and 2,000 scans) rather than cutting Pro.
@@ -42,7 +42,7 @@ All of the above is "Soon" on the site until built. Billing env names: `PADDLE_P
 - **Redirect service (the hard part):** printed codes must never go down. Do **not** host it on the free Render service, which sleeps. Use an edge function (for example Cloudflare Workers with a key-value store) that answers in milliseconds and keeps working if the main app is down. It reads the destination from the edge store, replies with a redirect, and queues a scan event.
 - **Short domain:** buy a short, separate domain for redirects (not `useklyroo.com`), so a bad link can never damage the main site's reputation.
 - **Data (Supabase):** `qr_projects`, `qr_project_members`, `qr_codes` (type, destination, slug, style, status), `qr_scans` (code, time, country, device class, referrer, visitor hash). Same isolation rules as Export: members read only their own projects.
-- **Billing:** its own Paddle product. Env: `PADDLE_PRICE_QR_PLUS`. The platform already supports one subscription per account per app.
+- **Billing:** its own Dodo product. Env: `DODO_PRODUCT_QR_PRO`. The platform already supports one subscription per account per app.
 
 ## 4. Privacy and safety (decide before dynamic launches)
 
@@ -58,7 +58,7 @@ All of the above is "Soon" on the site until built. Billing env names: `PADDLE_P
 | **1. Static generator** | Public client-side tool: all content types, styling, logo, PNG/SVG to 2048 px. Replaces the current preview graphics with real, scannable codes. | Frontend only |
 | **2. Accounts** | Save designs, library, projects. Free plan limits. | Database tables |
 | **3. Dynamic codes** | Short domain, edge redirect service, edit destination, scan counting, safety checks. | Short domain, edge hosting |
-| **4. Analytics and Plus plan** | Unique visitors, trends, top codes, custom slugs, Paddle product and billing. | Paddle price for QR |
+| **4. Analytics and Plus plan** | Unique visitors, trends, top codes, custom slugs, Dodo product and billing. | Dodo product for QR |
 | **5. Teams** | Members per project, invites, roles. | Email sending |
 
 ## 6. Decisions still needed

@@ -1,4 +1,4 @@
-// Billing tests: webhook security, subscription state, plan limits, Paddle API calls.
+// Billing tests: webhook security, subscription state, plan limits, Dodo API calls.
 // Uses the real Supabase project and a fake Paddle/Shopify. Usage: npm run test:billing
 import assert from "node:assert/strict";
 import http from "node:http";
@@ -7,36 +7,45 @@ import { createClient } from "@supabase/supabase-js";
 import { startFakeShopify } from "./fake-shopify.mjs";
 
 process.env.NODE_ENV = "test";
-process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN = "test_token";
-process.env.PADDLE_WEBHOOK_SECRET = "pdl_ntfset_test_secret";
-process.env.PADDLE_PRICE_EXPORT_STARTER = "pri_starter01";
-process.env.PADDLE_PRICE_EXPORT_GROWTH = "pri_growth01";
-process.env.PADDLE_PRICE_EXPORT_SCALE = "pri_scale01";
-process.env.PADDLE_PRICE_QR_PRO = "pri_qrpro01"; // QR has its own prices and its own subscription
-process.env.PADDLE_API_KEY = "pdl_test_key";
+process.env.DODO_PAYMENTS_ENVIRONMENT = "test_mode";
+process.env.DODO_PAYMENTS_WEBHOOK_KEY = "whsec_" + Buffer.from("test-signing-secret-0123456789ab").toString("base64");
+process.env.DODO_PRODUCT_EXPORT_STARTER = "pdt_starter01";
+process.env.DODO_PRODUCT_EXPORT_GROWTH = "pdt_growth01";
+process.env.DODO_PRODUCT_EXPORT_SCALE = "pdt_scale01";
+process.env.DODO_PRODUCT_QR_PRO = "pdt_qrpro01"; // QR has its own products and its own subscription
+process.env.DODO_PAYMENTS_API_KEY = "dodo_test_key"; // never the real key: all API calls go to a local fake
 
-const paddle = await import("../src/lib/billing/paddle.ts");
-const { processPaddleWebhook } = await import("../src/lib/billing/webhook.ts");
+const paddle = await import("../src/lib/billing/dodo.ts");
+const { processDodoWebhook } = await import("../src/lib/billing/webhook.ts");
 const { getEntitlements, planFor } = await import("../src/lib/billing/entitlements.ts");
 const { encryptSecret } = await import("../src/lib/crypto.ts");
 const { drainQueue } = await import("../src/lib/export/queue.ts");
 
 let pass = 0;
 const ok = (n) => { pass++; console.log("ok  ", n); };
-const SECRET = process.env.PADDLE_WEBHOOK_SECRET;
-const sign = (body, ts = Math.floor(Date.now() / 1000), secret = SECRET) => `ts=${ts};h1=${createHmac("sha256", secret).update(`${ts}:${body}`).digest("hex")}`;
+const SECRET = process.env.DODO_PAYMENTS_WEBHOOK_KEY;
+const keyOf = (secret) => Buffer.from(secret.slice(6), "base64");
+// Standard Webhooks headers: webhook-id, webhook-timestamp, webhook-signature ("v1,<base64 hmac of id.ts.body>").
+const sign = (body, ts = Math.floor(Date.now() / 1000), secret = SECRET, id = `msg_${randomUUID().replace(/-/g, "")}`) => ({
+  id, timestamp: String(ts), signature: `v1,${createHmac("sha256", keyOf(secret)).update(`${id}.${ts}.${body}`).digest("base64")}`,
+});
 
 // ───────── pure checks ─────────
 {
   const body = '{"a":1}';
-  assert.deepEqual(paddle.verifyPaddleSignature(body, sign(body), SECRET), { ok: true });
-  assert.equal(paddle.verifyPaddleSignature(body + " ", sign(body), SECRET).reason, "bad_signature");
-  assert.equal(paddle.verifyPaddleSignature(body, sign(body, undefined, "other"), SECRET).reason, "bad_signature");
+  const v = (h) => paddle.verifyDodoSignature(body, h, SECRET);
+  assert.deepEqual(v(sign(body)), { ok: true });
+  assert.equal(paddle.verifyDodoSignature(body + " ", sign(body), SECRET).reason, "bad_signature");
+  assert.equal(v(sign(body, undefined, "whsec_" + Buffer.from("another-secret").toString("base64"))).reason, "bad_signature");
   const old = Math.floor(Date.now() / 1000) - 3600;
-  assert.equal(paddle.verifyPaddleSignature(body, sign(body, old), SECRET).reason, "stale_timestamp");
-  assert.equal(paddle.verifyPaddleSignature(body, "garbage", SECRET).reason, "malformed_signature");
-  assert.equal(paddle.verifyPaddleSignature(body, null, SECRET).reason, "missing_signature");
-  assert.equal(paddle.verifyPaddleSignature(body, "ts=1;h1=zz", SECRET).reason, "malformed_signature");
+  assert.equal(v(sign(body, old)).reason, "stale_timestamp");
+  assert.equal(v({ id: "msg_1", timestamp: "abc", signature: "v1,x" }).reason, "malformed_signature");
+  assert.equal(v({ id: null, timestamp: null, signature: null }).reason, "missing_signature");
+  assert.equal(v({ ...sign(body), signature: "v1,AAAA" }).reason, "bad_signature");
+  assert.equal(v({ ...sign(body), signature: "v2," + sign(body).signature.slice(3) }).reason, "bad_signature", "only v1 signatures count");
+  // Rotation: the header can carry several signatures; any valid one is enough.
+  const good = sign(body);
+  assert.deepEqual(v({ ...good, signature: `v1,AAAA ${good.signature}` }), { ok: true });
 }
 ok("webhook signature: valid accepted; tampered body, wrong secret, stale timestamp, malformed and missing rejected");
 
@@ -56,7 +65,7 @@ ok("checkout account token can't be reused for another account");
   assert.equal(planFor("export", null), "free");
   assert.equal(planFor("export", { plan: "growth", status: "active", current_period_end: future }), "growth");
   assert.equal(planFor("export", { plan: "growth", status: "trialing", current_period_end: future }), "growth");
-  assert.equal(planFor("export", { plan: "starter", status: "past_due", current_period_end: past }), "starter", "past_due keeps access while Paddle retries");
+  assert.equal(planFor("export", { plan: "starter", status: "past_due", current_period_end: past }), "starter", "past_due keeps access while payment is retried");
   assert.equal(planFor("export", { plan: "growth", status: "canceled", current_period_end: future }), "growth", "canceled keeps access until the period ends");
   assert.equal(planFor("export", { plan: "growth", status: "canceled", current_period_end: past }), "free");
   assert.equal(planFor("export", { plan: "growth", status: "paused", current_period_end: future }), "free");
@@ -66,32 +75,33 @@ ok("plan rules: active/trialing/past_due keep the plan; canceled until period en
 
 {
   const saved = { ...process.env };
-  delete process.env.PADDLE_WEBHOOK_SECRET;
+  delete process.env.DODO_PAYMENTS_WEBHOOK_KEY;
   assert.equal(paddle.billingConfigured("export"), false);
   const ent = await getEntitlements(randomUUID());
   assert.equal(ent.plan, "beta");
   assert.equal(ent.billingOn, false);
   Object.assign(process.env, saved);
   assert.equal(paddle.billingConfigured("export"), true);
-  const res = await processPaddleWebhook("{}", sign("{}"));
+  const res = await processDodoWebhook("{}", sign("{}"));
   assert.equal(res.status, 400, "once configured, requests are processed (an empty event is a 400, not a 503)");
 }
-ok("billing is off (beta limits) until Paddle is configured");
+ok("billing is off (beta limits) until billing is configured");
 
-// ───────── fake Paddle API ─────────
+// ───────── fake Dodo API ─────────
 const calls = [];
-const fakePaddle = http.createServer((req, res) => {
+const fakeDodo = http.createServer((req, res) => {
   let d = "";
   req.on("data", (c) => (d += c));
   req.on("end", () => {
     calls.push({ method: req.method, url: req.url, auth: req.headers.authorization, body: d ? JSON.parse(d) : null });
     res.writeHead(200, { "content-type": "application/json" });
-    if (req.url.includes("portal-sessions")) return res.end(JSON.stringify({ data: { urls: { general: { overview: "https://customer-portal.paddle.com/cpl_x?token=abc" } } } }));
-    res.end(JSON.stringify({ data: { id: "sub_x" } }));
+    if (req.url.includes("customer-portal")) return res.end(JSON.stringify({ link: "https://test.customer.dodopayments.com/session/abc" }));
+    if (req.url === "/checkouts") return res.end(JSON.stringify({ session_id: "cks_x", checkout_url: "https://test.checkout.dodopayments.com/session/cks_x" }));
+    res.end(JSON.stringify({}));
   });
 });
-await new Promise((r) => fakePaddle.listen(0, "127.0.0.1", r));
-process.env.PADDLE_API_BASE = `http://127.0.0.1:${fakePaddle.address().port}`;
+await new Promise((r) => fakeDodo.listen(0, "127.0.0.1", r));
+process.env.DODO_API_BASE = `http://127.0.0.1:${fakeDodo.address().port}`;
 
 // ───────── database-backed checks ─────────
 const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
@@ -110,14 +120,13 @@ async function mkAccount(label) {
   const { data: m } = await admin.from("members").select("account_id").eq("user_id", data.user.id).single();
   return { accountId: m.account_id, email, password };
 }
-const subEvent = (type, { subId = "sub_01abc", status = "active", price = "pri_growth01", custom, at = new Date().toISOString(), extra = {} } = {}) => {
-  const body = JSON.stringify({
-    event_id: `evt_${randomUUID().replace(/-/g, "")}`, event_type: type, occurred_at: at,
-    data: { id: subId, status, customer_id: "ctm_01abc", items: [{ price: { id: price } }], custom_data: custom, current_billing_period: { ends_at: new Date(Date.now() + 30 * 86_400_000).toISOString() }, ...extra },
+const DODO_STATUS = { active: "active", past_due: "past_due", canceled: "cancelled", paused: "paused", on_hold: "on_hold", pending: "pending" };
+const subEvent = (type, { subId = "sub_01abc", status = "active", price = "pdt_growth01", custom, at = new Date().toISOString(), extra = {} } = {}) =>
+  JSON.stringify({
+    business_id: "bus_test", type, timestamp: at,
+    data: { payload_type: "Subscription", subscription_id: subId, status: DODO_STATUS[status] ?? status, product_id: price, customer: { customer_id: "cus_01abc", email: "x@example.com" }, metadata: custom, next_billing_date: new Date(Date.now() + 30 * 86_400_000).toISOString(), cancel_at_next_billing_date: false, ...extra },
   });
-  return body;
-};
-const send = (body, header = sign(body)) => processPaddleWebhook(body, header);
+const send = (body, headers = sign(body)) => processDodoWebhook(body, headers);
 const getSub = async (accountId) => (await admin.from("subscriptions").select("*").eq("account_id", accountId).maybeSingle()).data;
 const custom = (acc) => ({ account_id: acc, sig: paddle.signAccount(acc) });
 
@@ -126,29 +135,30 @@ try {
   const B = await mkAccount("b");
 
   // Rejections and noise.
-  let r = await send(subEvent("subscription.created", { custom: custom(A.accountId) }), "ts=1;h1=" + "0".repeat(64));
+  let r = await send(subEvent("subscription.created", { custom: custom(A.accountId) }), { ...sign("x"), signature: "v1,AAAA" });
   assert.equal(r.status, 401);
   assert.equal(await getSub(A.accountId), null);
   r = await send("not json");
   assert.equal(r.status, 400);
-  r = await send(JSON.stringify({ event_type: "x" }));
+  r = await send(JSON.stringify({ nothing: "x" }));
   assert.equal(r.status, 400);
-  r = await send(JSON.stringify({ event_id: `evt_${randomUUID()}`, event_type: "transaction.completed", data: {} }));
+  r = await send(JSON.stringify({ type: "payment.succeeded", data: { payload_type: "Payment" } }));
   assert.deepEqual([r.status, r.body.ignored], [200, true]);
   ok("webhook: bad signature is rejected (nothing stored); bad JSON and missing fields rejected; unrelated events acknowledged");
 
   // Created → pro.
   const created = subEvent("subscription.created", { custom: custom(A.accountId) });
-  r = await send(created);
+  const createdHeaders = sign(created);
+  r = await send(created, createdHeaders);
   assert.deepEqual([r.status, r.body.applied], [200, true], JSON.stringify(r.body));
   let sub = await getSub(A.accountId);
-  assert.deepEqual([sub.plan, sub.status, sub.paddle_subscription_id, sub.paddle_customer_id], ["growth", "active", "sub_01abc", "ctm_01abc"]);
+  assert.deepEqual([sub.plan, sub.status, sub.provider_subscription_id, sub.provider_customer_id], ["growth", "active", "sub_01abc", "cus_01abc"]);
   assert.equal((await getEntitlements(A.accountId)).plan, "growth");
   ok("webhook: a signed subscription.created activates the plan for the right account");
 
   // Duplicate delivery.
   const before = (await getSub(A.accountId)).updated_at;
-  r = await send(created);
+  r = await send(created, createdHeaders);
   assert.deepEqual([r.status, r.body.duplicate], [200, true]);
   assert.equal((await getSub(A.accountId)).updated_at, before);
   ok("webhook: the same event delivered twice is acknowledged and changes nothing");
@@ -163,17 +173,23 @@ try {
   ok("webhook: out-of-order older events are ignored; past_due keeps access");
 
   // Scheduled cancellation, then final cancellation.
-  await send(subEvent("subscription.updated", { custom: custom(A.accountId), status: "active", at: new Date(Date.now() + 10_000).toISOString(), extra: { scheduled_change: { action: "cancel", effective_at: new Date(Date.now() + 86_400_000).toISOString() } } }));
-  assert.equal((await getSub(A.accountId)).cancel_at_period_end, true);
-  await send(subEvent("subscription.canceled", { custom: custom(A.accountId), status: "canceled", at: new Date(Date.now() + 20_000).toISOString() }));
+  await send(subEvent("subscription.updated", { custom: custom(A.accountId), status: "active", at: new Date(Date.now() + 10_000).toISOString(), extra: { cancel_at_next_billing_date: true } }));
   sub = await getSub(A.accountId);
-  assert.equal(sub.status, "canceled");
-  assert.equal((await getEntitlements(A.accountId)).plan, "growth", "paid through the period end");
-  await admin.from("subscriptions").update({ current_period_end: new Date(Date.now() - 1000).toISOString() }).eq("account_id", A.accountId);
-  assert.equal((await getEntitlements(A.accountId)).plan, "free");
-  ok("webhook: scheduled cancel is recorded; canceled keeps access until the paid period ends, then drops to free");
+  assert.deepEqual([sub.status, sub.cancel_at_period_end], ["active", true]);
+  assert.equal((await getEntitlements(A.accountId)).plan, "growth", "a scheduled cancel does not remove access");
+  await send(subEvent("subscription.cancelled", { custom: custom(A.accountId), status: "canceled", at: new Date(Date.now() + 20_000).toISOString() }));
+  sub = await getSub(A.accountId);
+  assert.deepEqual([sub.status, sub.cancel_at_period_end], ["canceled", false]);
+  assert.equal((await getEntitlements(A.accountId)).plan, "free", "a real cancellation ends paid access");
+  ok("webhook: a scheduled cancel keeps access; the final cancellation drops the account to free");
 
-  // Forged account in custom data.
+  // Failed renewals: on_hold has no access; an unpaid (pending) subscription is not recorded.
+  await send(subEvent("subscription.on_hold", { subId: "sub_hold", price: "pdt_starter01", status: "on_hold", custom: custom((await mkAccount("h")).accountId) }));
+  r = await send(subEvent("subscription.updated", { subId: "sub_pend", status: "pending", custom: custom(A.accountId) }));
+  assert.deepEqual([r.body.applied, r.body.reason], [false, "pending"]);
+  ok("webhook: on_hold records no access; pending subscriptions are not recorded");
+
+  // Forged account in checkout metadata.
   r = await send(subEvent("subscription.created", { subId: "sub_forged", custom: { account_id: B.accountId, sig: "f".repeat(64) } }));
   assert.deepEqual([r.body.applied, r.body.reason], [false, "unverified account"]);
   r = await send(subEvent("subscription.created", { subId: "sub_nosig", custom: { account_id: B.accountId } }));
@@ -184,39 +200,39 @@ try {
   ok("webhook: forged or missing account signatures never grant a plan");
 
   // Unknown price.
-  r = await send(subEvent("subscription.created", { subId: "sub_unk", price: "pri_unknown", custom: custom(B.accountId) }));
-  assert.deepEqual([r.body.applied, r.body.reason], [false, "unknown price"]);
+  r = await send(subEvent("subscription.created", { subId: "sub_unk", price: "pdt_unknown", custom: custom(B.accountId) }));
+  assert.deepEqual([r.body.applied, r.body.reason], [false, "unknown product"]);
   assert.equal(await getSub(B.accountId), null);
-  ok("webhook: subscriptions for prices we don't sell are ignored");
+  ok("webhook: subscriptions for products we don't sell are ignored");
 
   // One active subscription per account.
-  r = await send(subEvent("subscription.created", { subId: "sub_b1", price: "pri_starter01", custom: custom(B.accountId) }));
+  r = await send(subEvent("subscription.created", { subId: "sub_b1", price: "pdt_starter01", custom: custom(B.accountId) }));
   assert.equal(r.body.applied, true);
-  r = await send(subEvent("subscription.created", { subId: "sub_b2", price: "pri_scale01", custom: custom(B.accountId) }));
+  r = await send(subEvent("subscription.created", { subId: "sub_b2", price: "pdt_scale01", custom: custom(B.accountId) }));
   assert.deepEqual([r.body.applied, r.body.reason], [false, "account already has an active subscription"]);
   assert.equal((await getSub(B.accountId)).plan, "starter");
-  // A known subscription's later events don't need to re-prove the account (plan switch via Paddle).
-  r = await send(subEvent("subscription.updated", { subId: "sub_b1", price: "pri_scale01", custom: undefined, at: new Date(Date.now() + 30_000).toISOString() }));
+  // A known subscription's later events don't need to re-prove the account (plan switch through the provider).
+  r = await send(subEvent("subscription.updated", { subId: "sub_b1", price: "pdt_scale01", custom: undefined, at: new Date(Date.now() + 30_000).toISOString() }));
   assert.equal(r.body.applied, true);
   assert.equal((await getSub(B.accountId)).plan, "scale");
   ok("webhook: one active subscription per account; plan switches on a known subscription update the plan");
 
   // Each app bills separately: the same account can hold an Export plan and a QR plan at once.
-  r = await send(subEvent("subscription.created", { subId: "sub_b_qr", price: "pri_qrpro01", custom: custom(B.accountId) }));
+  r = await send(subEvent("subscription.created", { subId: "sub_b_qr", price: "pdt_qrpro01", custom: custom(B.accountId) }));
   assert.deepEqual([r.status, r.body.applied], [200, true], JSON.stringify(r.body));
   const { data: bSubs } = await admin.from("subscriptions").select("app, plan, status").eq("account_id", B.accountId).order("app");
   assert.deepEqual(bSubs.map((x) => `${x.app}:${x.plan}`), ["export:scale", "qr:pro"]);
   assert.equal((await getEntitlements(B.accountId, "export")).plan, "scale");
   assert.equal((await getEntitlements(B.accountId, "qr")).plan, "pro");
-  r = await send(subEvent("subscription.created", { subId: "sub_b_qr2", price: "pri_qrpro01", custom: custom(B.accountId) }));
+  r = await send(subEvent("subscription.created", { subId: "sub_b_qr2", price: "pdt_qrpro01", custom: custom(B.accountId) }));
   assert.deepEqual([r.body.applied, r.body.reason], [false, "account already has an active subscription"]);
-  await send(subEvent("subscription.canceled", { subId: "sub_b_qr", price: "pri_qrpro01", status: "canceled", at: new Date(Date.now() + 90_000).toISOString(), extra: { current_billing_period: { ends_at: new Date(Date.now() - 1000).toISOString() } } }));
+  await send(subEvent("subscription.cancelled", { subId: "sub_b_qr", price: "pdt_qrpro01", status: "canceled", at: new Date(Date.now() + 90_000).toISOString() }));
   assert.equal((await getEntitlements(B.accountId, "qr")).plan, "free");
   assert.equal((await getEntitlements(B.accountId, "export")).plan, "scale", "cancelling QR never touches Export");
   ok("per-app billing: one account holds an Export plan and a QR plan at the same time; cancelling one leaves the other alone");
 
   // Event log.
-  const { data: evs } = await admin.from("paddle_events").select("status").like("event_id", "evt_%").limit(200);
+  const { data: evs } = await admin.from("billing_events").select("status").like("event_id", "msg_%").limit(200);
   assert.ok(evs.some((e) => e.status === "processed") && evs.some((e) => e.status === "ignored"));
   ok("every delivery is recorded for audit");
 
@@ -233,25 +249,32 @@ try {
   assert.ok(tamper.error, "users cannot edit subscriptions");
   const anonRead = await anon().from("subscriptions").select("*");
   assert.ok(anonRead.error || anonRead.data.length === 0, "anonymous sees nothing");
-  const ev = await ua.from("paddle_events").select("*");
+  const ev = await ua.from("billing_events").select("*");
   assert.ok(ev.error || ev.data.length === 0, "event log is server-only");
   ok("subscriptions: members read only their own; nobody can edit them or read the event log from the browser");
 
-  // Paddle API calls.
-  const url = await paddle.createPortalLink("ctm_01abc", "sub_01abc");
-  assert.equal(url, "https://customer-portal.paddle.com/cpl_x?token=abc");
-  const pc = calls.find((c) => c.url.includes("portal-sessions"));
-  assert.equal(pc.url, "/customers/ctm_01abc/portal-sessions");
-  assert.equal(pc.auth, "Bearer pdl_test_key");
-  assert.deepEqual(pc.body, { subscription_ids: ["sub_01abc"] });
+  // Dodo API calls.
+  const url = await paddle.createPortalLink("cus_01abc");
+  assert.equal(url, "https://test.customer.dodopayments.com/session/abc");
+  const pc = calls.find((c) => c.url.includes("customer-portal"));
+  assert.equal(pc.method, "POST");
+  assert.equal(pc.url, "/customers/cus_01abc/customer-portal/session");
+  assert.equal(pc.auth, "Bearer dodo_test_key");
   assert.equal(await paddle.createPortalLink("not-a-customer"), null);
-  const ch = await paddle.changeSubscriptionPlan("sub_01abc", "pri_growth01");
+  const ch = await paddle.changeSubscriptionPlan("sub_01abc", "pdt_growth01");
   assert.deepEqual(ch, { ok: true });
-  const patch = calls.find((c) => c.method === "PATCH");
-  assert.equal(patch.url, "/subscriptions/sub_01abc");
-  assert.deepEqual(patch.body, { items: [{ price_id: "pri_growth01", quantity: 1 }], proration_billing_mode: "prorated_immediately" });
-  assert.equal((await paddle.changeSubscriptionPlan("../evil", "pri_growth01")).ok, false);
-  ok("Paddle API: portal link and prorated plan change send the right requests; malformed IDs are refused");
+  const cp = calls.find((c) => c.url.includes("change-plan"));
+  assert.equal(cp.url, "/subscriptions/sub_01abc/change-plan");
+  assert.deepEqual(cp.body, { product_id: "pdt_growth01", quantity: 1, proration_billing_mode: "prorated_immediately" });
+  assert.equal((await paddle.changeSubscriptionPlan("../evil", "pdt_growth01")).ok, false);
+  const co = await paddle.createCheckout({ productId: "pdt_growth01", email: "a@example.com", accountId: A.accountId, app: "export", plan: "growth", returnUrl: "https://useklyroo.com/export/billing?checkout=done" });
+  assert.deepEqual(co, { ok: true, url: "https://test.checkout.dodopayments.com/session/cks_x" });
+  const cc = calls.find((c) => c.url === "/checkouts");
+  assert.deepEqual(cc.body.product_cart, [{ product_id: "pdt_growth01", quantity: 1 }]);
+  assert.equal(cc.body.return_url, "https://useklyroo.com/export/billing?checkout=done");
+  assert.deepEqual([cc.body.metadata.account_id, cc.body.metadata.app, cc.body.metadata.plan], [A.accountId, "export", "growth"]);
+  assert.ok(paddle.verifyAccountSignature(cc.body.metadata.account_id, cc.body.metadata.sig), "checkout metadata carries a valid signed account id");
+  ok("Dodo API: checkout, portal link and prorated plan change send the right requests; malformed IDs are refused");
 
   // Plan limits through the real export queue (row cap per plan).
   const { encryptSecret: enc } = { encryptSecret };
@@ -272,7 +295,7 @@ try {
   assert.match(job.error_detail, /free plan allows 1,000 rows/);
   ok("limits: the free plan's 1,000-row cap stops a bigger export with an upgrade hint");
 
-  await send(subEvent("subscription.created", { subId: "sub_c1", price: "pri_starter01", custom: custom(C.accountId) }));
+  await send(subEvent("subscription.created", { subId: "sub_c1", price: "pdt_starter01", custom: custom(C.accountId) }));
   job = await mkJob();
   await drainQueue();
   job = (await admin.from("export_jobs").select("*").eq("id", job.id).single()).data;
@@ -297,8 +320,8 @@ try {
   for (const u of users) await admin.auth.admin.deleteUser(u);
   const { data: accs } = await admin.from("accounts").select("id").like("name", `bill-${tag}-%`);
   for (const a of accs ?? []) await admin.from("accounts").delete().eq("id", a.id);
-  await admin.from("paddle_events").delete().like("event_id", "evt_%");
-  fakePaddle.close();
+  await admin.from("billing_events").delete().like("event_id", "msg_%");
+  fakeDodo.close();
   await fake.close();
   console.log("cleaned up test data");
 }

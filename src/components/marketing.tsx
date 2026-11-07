@@ -72,7 +72,7 @@ export function MarketingFooter() {
       <div className="border-t border-line">
         <div className="mx-auto max-w-[1200px] px-4 sm:px-6 py-6 flex flex-wrap items-center justify-between gap-3 text-xs text-muted">
           <p>© 2026 {operatorName()}. All rights reserved.</p>
-          <p>Payments are handled by Paddle, our Merchant of Record.</p>
+          <p>Payments are handled by Dodo Payments, our Merchant of Record.</p>
         </div>
       </div>
     </footer>

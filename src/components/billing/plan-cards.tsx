@@ -1,30 +1,17 @@
 "use client";
 
-import Script from "next/script";
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect } from "react";
 import { Icon } from "@/components/icons";
 import { Notice } from "@/components/notice";
 import { Button, Card, Chip } from "@/components/ui";
 import type { AppSlug } from "@/lib/apps";
 import { PLANS, PLAN_COMMON } from "@/lib/billing/plans";
-import { changePlan, openPortal } from "./actions";
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-declare global {
-  interface Window {
-    Paddle?: any;
-  }
-}
+import { changePlan, openPortal, startCheckout } from "./actions";
 
 type Props = {
   app: AppSlug;
-  env: "sandbox" | "production";
-  token: string;
-  priceIds: Record<string, string>;
-  accountId: string;
-  accountSig: string;
-  email: string;
+  planAvailable: Record<string, boolean>;
   isOwner: boolean;
   currentPlan: string;
   sub: { status: string; periodEnd: string | null; cancelAtPeriodEnd: boolean } | null;
@@ -32,68 +19,24 @@ type Props = {
 
 export function PlanCards(p: Props) {
   const router = useRouter();
-  const [ready, setReady] = useState(false);
-  const [prices, setPrices] = useState<Record<string, string>>({});
-  const [paid, setPaid] = useState(false); // checkout just completed; waiting for the webhook
+  const [checkoutState, checkoutAction, starting] = useActionState(startCheckout, undefined);
   const [changeState, changeAction, changing] = useActionState(changePlan, undefined);
   const [portalState, portalAction, opening] = useActionState(openPortal, undefined);
   const hasActiveSub = !!p.sub && ["active", "trialing", "past_due"].includes(p.sub.status);
 
-  function init() {
-    const Paddle = window.Paddle;
-    if (!Paddle) return;
-    if (p.env === "sandbox") Paddle.Environment.set("sandbox");
-    Paddle.Initialize({
-      token: p.token,
-      eventCallback: (e: any) => {
-        if (e?.name === "checkout.completed") setPaid(true);
-      },
-    });
-    setReady(true);
-    const items = Object.values(p.priceIds).map((priceId) => ({ priceId, quantity: 1 }));
-    if (items.length) {
-      Paddle.PricePreview({ items })
-        .then((r: any) => {
-          const out: Record<string, string> = {};
-          for (const li of r?.data?.details?.lineItems ?? []) {
-            const cycle = li.price?.billingCycle;
-            out[li.price.id] = `${li.formattedTotals?.total ?? ""}${cycle ? ` / ${cycle.interval}` : ""}`;
-          }
-          setPrices(out);
-        })
-        .catch(() => undefined);
-    }
-  }
-
-  // After a payment, re-read our records until the webhook has activated the plan (up to ~60s).
+  // Back from checkout (?checkout=done): re-read our records until the webhook has activated the plan (up to ~60s).
   useEffect(() => {
-    if (!paid) return;
+    if (p.currentPlan !== "free" || new URLSearchParams(window.location.search).get("checkout") !== "done") return;
     const t = setInterval(() => router.refresh(), 3000);
     const stop = setTimeout(() => clearInterval(t), 60_000);
     return () => {
       clearInterval(t);
       clearTimeout(stop);
     };
-  }, [paid, router]);
-
-  function checkout(plan: string) {
-    const priceId = p.priceIds[plan];
-    if (!priceId || !window.Paddle) return;
-    window.Paddle.Checkout.open({
-      items: [{ priceId, quantity: 1 }],
-      customer: { email: p.email },
-      customData: { account_id: p.accountId, sig: p.accountSig, app: p.app },
-      settings: { displayMode: "overlay", theme: "light", variant: "one-page" },
-    });
-  }
+  }, [p.currentPlan, router]);
 
   return (
     <>
-      <Script src="https://cdn.paddle.com/paddle/v2/paddle.js" strategy="afterInteractive" onLoad={init} />
-
-      {paid && p.currentPlan === "free" && (
-        <Notice tone="success" className="mb-6">Payment received. Activating your plan…</Notice>
-      )}
       {p.sub?.status === "past_due" && (
         <Notice tone="error" className="mb-6">Your last payment didn&apos;t go through. Update your payment method to keep your plan.</Notice>
       )}
@@ -106,8 +49,7 @@ export function PlanCards(p: Props) {
       <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
         {PLANS[p.app].map((plan) => {
           const current = plan.key === p.currentPlan;
-          const priceId = plan.key === "free" ? undefined : p.priceIds[plan.key];
-          const unavailable = plan.key !== "free" && !priceId;
+          const unavailable = plan.key !== "free" && !p.planAvailable[plan.key];
           return (
             <Card key={plan.key} featured={current || plan.recommended} className={`!p-6 flex flex-col ${current ? "!border-primary/50" : ""}`}>
               <div className="flex items-center justify-between">
@@ -116,7 +58,7 @@ export function PlanCards(p: Props) {
               </div>
               <p className="mt-1 text-sm text-muted">{plan.blurb}</p>
               <p className="mt-5 text-[28px] leading-[1.1] font-light tabular min-h-[31px]">
-                {plan.key === "free" ? "Free" : priceId ? prices[priceId] || "…" : "–"}
+                {plan.key === "free" ? "Free" : <>{plan.priceLabel}<span className="text-sm text-muted"> / month</span></>}
               </p>
               <ul className="mt-5 space-y-2 text-sm text-muted flex-1">
                 {plan.features.map((f) => (
@@ -142,16 +84,19 @@ export function PlanCards(p: Props) {
                   <Button type="submit" size="sm" className="mt-6 w-full" disabled={changing}>{changing ? "Switching…" : `Switch to ${plan.name}`}</Button>
                 </form>
               ) : (
-                <Button size="sm" className="mt-6" disabled={!ready} onClick={() => checkout(plan.key)}>
-                  {ready ? `Choose ${plan.name}` : "Loading…"}
-                </Button>
+                <form action={checkoutAction}>
+                  <input type="hidden" name="app" value={p.app} />
+                  <input type="hidden" name="plan" value={plan.key} />
+                  <Button type="submit" size="sm" className="mt-6 w-full" disabled={starting}>{starting ? "Opening checkout…" : `Choose ${plan.name}`}</Button>
+                  <p className="mt-2 text-xs text-muted">3-day free trial</p>
+                </form>
               )}
             </Card>
           );
         })}
       </div>
 
-      {(changeState?.error || portalState?.error) && <Notice tone="error" className="mt-5">{changeState?.error ?? portalState?.error}</Notice>}
+      {(checkoutState?.error || changeState?.error || portalState?.error) && <Notice tone="error" className="mt-5">{checkoutState?.error ?? changeState?.error ?? portalState?.error}</Notice>}
       {changeState?.message && <Notice tone="success" className="mt-5">{changeState.message}</Notice>}
 
       <p className="mt-6 text-sm text-muted">{PLAN_COMMON[p.app]}</p>
@@ -163,7 +108,7 @@ export function PlanCards(p: Props) {
         </form>
       )}
       <p className="mt-8 text-xs text-muted max-w-xl">
-        Payments are processed by Paddle, our merchant of record. Taxes are calculated at checkout.
+        Payments are processed by Dodo Payments, our Merchant of Record. Taxes are calculated at checkout. Every paid plan starts with a 3-day free trial.
       </p>
     </>
   );

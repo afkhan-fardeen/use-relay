@@ -2,7 +2,7 @@ import { Card, PageHeader } from "@/components/ui";
 import { appInfo, type AppSlug } from "@/lib/apps";
 import { requireSession } from "@/lib/dal";
 import { getEntitlements } from "@/lib/billing/entitlements";
-import { billingConfigured, paddleEnv, priceIds, signAccount } from "@/lib/billing/paddle";
+import { billingConfigured, productIds } from "@/lib/billing/dodo";
 import { supabaseServer } from "@/lib/supabase/server";
 import { PlanCards } from "./plan-cards";
 
@@ -33,15 +33,10 @@ export async function AppBilling({ app }: { app: AppSlug }) {
 
   return (
     <>
-      <PageHeader title="Billing" sub={`Choose a plan for ${info.fullName}. Payments are handled securely by Paddle. Other Klyroo apps bill separately.`} />
+      <PageHeader title="Billing" sub={`Choose a plan for ${info.fullName}. Payments are handled securely by Dodo Payments. Other Klyroo apps bill separately.`} />
       <PlanCards
         app={app}
-        env={paddleEnv()}
-        token={process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN!}
-        priceIds={priceIds(app)}
-        accountId={session.accountId}
-        accountSig={signAccount(session.accountId)}
-        email={session.email}
+        planAvailable={Object.fromEntries(Object.keys(productIds(app)).map((k) => [k, true]))}
         isOwner={session.role === "owner"}
         currentPlan={ent.plan === "beta" ? "free" : ent.plan}
         sub={sub ? { status: sub.status, periodEnd: sub.current_period_end, cancelAtPeriodEnd: sub.cancel_at_period_end } : null}

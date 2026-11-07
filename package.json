@@ -17,7 +17,7 @@
     "test:apps": "node --env-file=.env.local scripts/test-apps.mjs",
     "check:launch": "node scripts/check-launch.mjs",
     "test:qr": "node scripts/test-qr.mjs",
-    "paddle:catalog": "node scripts/paddle-catalog.mjs"
+    "dodo:catalog": "node --env-file=.env.local scripts/dodo-catalog.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

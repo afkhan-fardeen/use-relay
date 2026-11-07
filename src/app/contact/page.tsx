@@ -14,7 +14,7 @@ export default function Contact() {
       </Section>
       <Section title="Billing and refunds">
         <p>
-          Payments are handled by Paddle, our Merchant of Record. For invoices or refunds, visit <A href="https://paddle.net">paddle.net</A> or email us. See our <A href="/refunds">refund policy</A>.
+          Payments are handled by Dodo Payments, our Merchant of Record. For invoices, use the customer portal on your app&apos;s Billing page. For refunds, email us. See our <A href="/refunds">refund policy</A>.
         </p>
       </Section>
       <Section title="Company">
