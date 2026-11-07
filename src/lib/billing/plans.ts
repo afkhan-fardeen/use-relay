@@ -80,22 +80,53 @@ export const EXPORT_PLANS: PlanInfo[] = [
 ];
 
 // ───────── Klyroo QR (preview: nothing to buy yet) ─────────
+// Limits: maxDynamic (dynamic links), scansPerMonth. Every feature is still "Soon": the app is a preview.
+// Going over the scan limit never switches a printed code off: it keeps redirecting and the owner is asked to upgrade.
 export const QR_PLANS: PlanInfo[] = [
   {
     key: "free",
     name: "Free",
-    blurb: "Free while QR is in preview.",
+    blurb: "One-off prints, personal contact cards, Wi-Fi stickers.",
     priceLabel: "£0",
-    features: [{ text: "Try the designer" }, { text: "Saving and downloads", soon: true }],
-    limits: {},
+    features: [
+      { text: "Unlimited static QR codes", soon: true },
+      { text: "Made in your browser, no account needed", soon: true },
+      { text: "Custom colours, styles and your logo", soon: true },
+      { text: "PNG and SVG downloads", soon: true },
+      { text: "Links, Wi-Fi, contact cards, email, SMS and phone", soon: true },
+    ],
+    limits: { maxDynamic: 0, scansPerMonth: 0 },
   },
   {
-    key: "plus",
-    name: "Plus",
-    blurb: "Save, download and add your logo.",
-    priceLabel: "TBC",
-    features: [{ text: "Saved codes", soon: true }, { text: "PNG and SVG downloads", soon: true }, { text: "Your logo", soon: true }],
-    limits: {},
+    key: "pro",
+    name: "Pro",
+    blurb: "Multi-store operators, marketing links, packaging and event flyers.",
+    priceLabel: "£20",
+    recommended: true,
+    features: [
+      { text: "Up to 25 dynamic links", soon: true },
+      { text: "20,000 scans a month", soon: true },
+      { text: "Edit the destination any time", soon: true },
+      { text: "Scan analytics: visitors, trends, top codes", soon: true },
+      { text: "Custom short link names", soon: true },
+      { text: "Priority email support" },
+    ],
+    limits: { maxDynamic: 25, scansPerMonth: 20_000 },
+  },
+  {
+    key: "business",
+    name: "Business / API",
+    blurb: "High-volume campaigns, custom routing domains and agency seats.",
+    priceLabel: "£45",
+    features: [
+      { text: "Unlimited dynamic links", soon: true },
+      { text: "100,000 scans a month", soon: true },
+      { text: "Custom routing domains", soon: true },
+      { text: "Agency seats and projects", soon: true },
+      { text: "API access", soon: true },
+      { text: "Priority support" },
+    ],
+    limits: { maxDynamic: 1_000_000, scansPerMonth: 100_000 },
   },
 ];
 
@@ -112,27 +143,5 @@ export const BETA_LIMITS: Record<AppSlug, Limits> = {
   qr: {},
 };
 
-/** What Klyroo QR plans to offer. Shown as "Planned" on the pricing page; not for sale and not priced yet. */
-export const QR_PLANNED: { name: string; points: string[] }[] = [
-  {
-    name: "Free, forever",
-    points: [
-      "Unlimited static QR codes, created in your browser (no account needed)",
-      "Custom colours and styles, and your logo",
-      "PNG and SVG downloads, up to 2048px",
-      "Links, Wi-Fi, contact cards, email, SMS and phone",
-      "A few dynamic codes whose destination you can edit",
-    ],
-  },
-  {
-    name: "Plus",
-    points: [
-      "Unlimited dynamic QR codes, with logos",
-      "Scan analytics: visitors, daily trends, top codes",
-      "Custom short links",
-      "Projects and team members",
-      "No Klyroo branding on scan pages",
-      "Higher creation rate and priority support",
-    ],
-  },
-];
+/** What Klyroo QR plans to offer. Shown as "Planned" on the pricing page; not for sale yet. */
+export const QR_PLANNED = QR_PLANS;

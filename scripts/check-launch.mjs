@@ -44,6 +44,7 @@ check("Domain", "health endpoint answers", health.status === 200);
 check("Product", "home page says what the product does", /Klyroo Export/.test(body["/"]) && /Klyroo QR/.test(body["/"]));
 check("Product", "Export page describes the product and features", /Shopify/.test(body["/apps/export"]) && /templates/i.test(body["/apps/export"]));
 check("Pricing", "pricing page shows plans and prices (£19, £49, £99)", ["£19", "£49", "£99"].every((x) => (body["/pricing"] || "").includes(x)));
+check("Pricing", "pricing page lists the planned QR plans (£20, £45)", ["£20", "£45"].every((x) => (body["/pricing"] || "").includes(x)));
 check("Pricing", "pricing page states currency and cancel-any-time", /GBP/.test(body["/pricing"]) && /Cancel any time/i.test(body["/pricing"]));
 
 // 4. Terms

@@ -12,7 +12,7 @@ process.env.PADDLE_WEBHOOK_SECRET = "pdl_ntfset_test_secret";
 process.env.PADDLE_PRICE_EXPORT_STARTER = "pri_starter01";
 process.env.PADDLE_PRICE_EXPORT_GROWTH = "pri_growth01";
 process.env.PADDLE_PRICE_EXPORT_SCALE = "pri_scale01";
-process.env.PADDLE_PRICE_QR_PLUS = "pri_qrplus01"; // a QR price is accepted too, but QR has no plans for sale yet
+process.env.PADDLE_PRICE_QR_PRO = "pri_qrpro01"; // QR has its own prices and its own subscription
 process.env.PADDLE_API_KEY = "pdl_test_key";
 
 const paddle = await import("../src/lib/billing/paddle.ts");
@@ -202,15 +202,15 @@ try {
   ok("webhook: one active subscription per account; plan switches on a known subscription update the plan");
 
   // Each app bills separately: the same account can hold an Export plan and a QR plan at once.
-  r = await send(subEvent("subscription.created", { subId: "sub_b_qr", price: "pri_qrplus01", custom: custom(B.accountId) }));
+  r = await send(subEvent("subscription.created", { subId: "sub_b_qr", price: "pri_qrpro01", custom: custom(B.accountId) }));
   assert.deepEqual([r.status, r.body.applied], [200, true], JSON.stringify(r.body));
   const { data: bSubs } = await admin.from("subscriptions").select("app, plan, status").eq("account_id", B.accountId).order("app");
-  assert.deepEqual(bSubs.map((x) => `${x.app}:${x.plan}`), ["export:scale", "qr:plus"]);
+  assert.deepEqual(bSubs.map((x) => `${x.app}:${x.plan}`), ["export:scale", "qr:pro"]);
   assert.equal((await getEntitlements(B.accountId, "export")).plan, "scale");
-  assert.equal((await getEntitlements(B.accountId, "qr")).plan, "plus");
-  r = await send(subEvent("subscription.created", { subId: "sub_b_qr2", price: "pri_qrplus01", custom: custom(B.accountId) }));
+  assert.equal((await getEntitlements(B.accountId, "qr")).plan, "pro");
+  r = await send(subEvent("subscription.created", { subId: "sub_b_qr2", price: "pri_qrpro01", custom: custom(B.accountId) }));
   assert.deepEqual([r.body.applied, r.body.reason], [false, "account already has an active subscription"]);
-  await send(subEvent("subscription.canceled", { subId: "sub_b_qr", price: "pri_qrplus01", status: "canceled", at: new Date(Date.now() + 90_000).toISOString(), extra: { current_billing_period: { ends_at: new Date(Date.now() - 1000).toISOString() } } }));
+  await send(subEvent("subscription.canceled", { subId: "sub_b_qr", price: "pri_qrpro01", status: "canceled", at: new Date(Date.now() + 90_000).toISOString(), extra: { current_billing_period: { ends_at: new Date(Date.now() - 1000).toISOString() } } }));
   assert.equal((await getEntitlements(B.accountId, "qr")).plan, "free");
   assert.equal((await getEntitlements(B.accountId, "export")).plan, "scale", "cancelling QR never touches Export");
   ok("per-app billing: one account holds an Export plan and a QR plan at the same time; cancelling one leaves the other alone");
@@ -224,7 +224,7 @@ try {
   const ua = anon();
   await ua.auth.signInWithPassword({ email: B.email, password: B.password });
   const own = await ua.from("subscriptions").select("plan");
-  assert.deepEqual(own.data.map((x) => x.plan).sort(), ["plus", "scale"]);
+  assert.deepEqual(own.data.map((x) => x.plan).sort(), ["pro", "scale"]);
   const other = anon();
   await other.auth.signInWithPassword({ email: A.email, password: A.password });
   const theirs = await other.from("subscriptions").select("plan");

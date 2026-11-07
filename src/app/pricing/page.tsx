@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing";
-import { Button, Card, Chip, Eyebrow } from "@/components/ui";
+import { Button, Card, Chip } from "@/components/ui";
 import { APPS } from "@/lib/apps";
 import { EXPORT_PLANS, QR_PLANNED } from "@/lib/billing/plans";
 
@@ -51,19 +51,25 @@ export default function Pricing() {
             <h2 className="text-[26px] leading-[1.12] font-light">Klyroo QR</h2>
             <Chip tone="info">Preview</Chip>
           </div>
-          <p className="mt-2 text-muted">{APPS.find((a) => a.slug === "qr")!.tagline} Free while in preview. Paid plans will be announced before launch.</p>
-          <div className="mt-8 grid md:grid-cols-2 gap-4 max-w-4xl">
+          <p className="mt-2 text-muted">{APPS.find((a) => a.slug === "qr")!.tagline} Free while in preview. The plans below are planned and open at launch.</p>
+          <div className="mt-8 grid md:grid-cols-3 gap-4">
             {QR_PLANNED.map((p) => (
-              <Card key={p.name} className="!p-6">
-                <Eyebrow>Planned</Eyebrow>
-                <h3 className="mt-2 text-[22px] leading-[26px] font-light">{p.name}</h3>
-                <ul className="mt-4 space-y-2.5 text-[15px] text-muted">
-                  {p.points.map((x) => <li key={x} className="flex gap-3"><span aria-hidden className="text-muted">○</span>{x}</li>)}
+              <Card key={p.key} featured={p.recommended} className={`!p-6 flex flex-col ${p.recommended ? "!border-primary/50" : ""}`}>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-[22px] leading-[26px] font-light">{p.name}</h3>
+                  <Chip tone="outline">Planned</Chip>
+                </div>
+                <p className="mt-1 text-sm text-muted">{p.blurb}</p>
+                <p className="mt-5 text-[40px] leading-[44px] font-normal tabular">{p.priceLabel}{p.key !== "free" && <span className="text-base font-normal text-muted"> /mo</span>}</p>
+                <ul className="mt-6 space-y-3 text-[15px] text-muted flex-1">
+                  {p.features.map((f) => (
+                    <li key={f.text} className="flex gap-3"><span aria-hidden className="text-muted">○</span><span>{f.text}</span></li>
+                  ))}
                 </ul>
               </Card>
             ))}
           </div>
-          <p className="mt-4 text-xs text-muted">Not yet for sale. <Link href="/apps/qr" className="text-primary">See Klyroo QR</Link>.</p>
+          <p className="mt-4 text-xs text-muted">Not yet for sale. If a code passes its scan limit it keeps working, and we ask you to upgrade. <Link href="/apps/qr" className="text-primary">See Klyroo QR</Link>.</p>
         </section>
 
         <p className="mt-16 text-sm text-muted max-w-2xl">

@@ -20,7 +20,7 @@ const browser = await chromium.launch({ executablePath: "/Applications/Google Ch
 
 async function withServer(port, extraEnv, fn) {
   const env = { ...process.env, NODE_ENV: "development", ...extraEnv };
-  for (const k of ["NEXT_PUBLIC_PADDLE_CLIENT_TOKEN", "PADDLE_WEBHOOK_SECRET", "PADDLE_PRICE_EXPORT_STARTER", "PADDLE_PRICE_EXPORT_GROWTH", "PADDLE_PRICE_EXPORT_SCALE", "PADDLE_PRICE_QR_PLUS"]) if (!(k in extraEnv)) delete env[k];
+  for (const k of ["NEXT_PUBLIC_PADDLE_CLIENT_TOKEN", "PADDLE_WEBHOOK_SECRET", "PADDLE_PRICE_EXPORT_STARTER", "PADDLE_PRICE_EXPORT_GROWTH", "PADDLE_PRICE_EXPORT_SCALE", "PADDLE_PRICE_QR_PRO"]) if (!(k in extraEnv)) delete env[k];
   const server = spawn("node", ["node_modules/next/dist/bin/next", "dev", "-p", String(port)], { env, stdio: ["ignore", "pipe", "pipe"] });
   let log = "";
   server.stdout.on("data", (d) => (log += d));

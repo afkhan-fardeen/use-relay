@@ -13,28 +13,28 @@ A QR code generator in two parts:
 | **Static codes** | The content is baked into the picture. Free forever, no account needed. | In the visitor's browser only. Nothing is sent to a server. |
 | **Dynamic codes** | The code points at a short link we host, so the destination can be edited later. Scans are counted. | A small redirect service we run, separate from the app. |
 
-## 2. Features and plans
+## 2. Plans (decided)
 
-Feature set modelled on the reference you shared (a free tier plus one paid "Advanced" tier), adapted for Klyroo. Prices are placeholders to decide.
+| Plan | Price (GBP) | Dynamic links | Scans a month | Who it is for |
+|---|---|---|---|---|
+| **Free** | £0, forever | 0 (static only) | Unlimited (direct link, we never see the scan) | One-off prints, personal contact cards, Wi-Fi stickers |
+| **Pro** (recommended) | **£20 / month** | Up to 25 | 20,000 | Multi-store operators, marketing links, packaging, event flyers |
+| **Business / API** | **£45 / month** | Unlimited | 100,000 | High-volume campaigns, custom routing domains, agency seats |
 
-| | **Free (forever)** | **Plus** | Later: **Team** |
-|---|---|---|---|
-| Static codes | Unlimited, in the browser, no account | Same | Same |
-| Styling | Colours and styles, logo upload | Same | Same |
-| Export | PNG and SVG, up to 2048 px | Same | Same |
-| Content types | URL, Wi-Fi, vCard, email, SMS, phone, text | Same | Same |
-| Dynamic codes | **3 active** (not 3 per day) | Unlimited, with logos | Unlimited |
-| Edit destination | Yes | Yes | Yes |
-| Scan analytics | Total scans | Unique visitors, daily trend, top codes, country and device | Same, plus export |
-| Short links | Klyroo short domain | Custom slug (`short.domain/s/your-brand`) | Custom domain |
-| Projects | 2 | 10 | More |
-| Team members per project | 2 | 10 | More |
-| Creation rate | Standard | 30 new dynamic codes an hour | Higher |
-| Branding on scan pages | Small "Made with Klyroo" | None | None |
-| Support | Standard email | Priority | Priority + chat |
-| **Suggested price** | £0 | **£5/mo early-adopter, £9/mo after** | £19/mo (decide later) |
+What each plan includes:
 
-**Why 3 active dynamic codes, not 3 a day:** a daily allowance invites accounts that churn out codes to abuse the redirect domain. A fixed number of active codes is easy to explain and cheap to run.
+- **Free:** unlimited static codes made in the browser (no account), colours and styles, logo, PNG and SVG up to 2048 px, URL, Wi-Fi, contact card, email, SMS and phone.
+- **Pro:** everything in Free, plus dynamic links (edit the destination any time), scan analytics (visitors, trends, top codes), custom short link names, priority email support.
+- **Business / API:** everything in Pro, plus custom routing domains, agency seats and projects, API access, priority support.
+
+All of the above is "Soon" on the site until built. Billing env names: `PADDLE_PRICE_QR_PRO`, `PADDLE_PRICE_QR_BUSINESS`.
+
+### Notes on this pricing
+- **£20 is a premium price.** Comparable tools advertise unlimited dynamic codes for roughly £5 to £9 a month. Pro only justifies £20 if it is clearly sold to businesses (multi-store, packaging, events) and the analytics are strong. Watch free-to-Pro conversion. If it is weak, add a small bridge plan (for example £8 for 5 dynamic links and 2,000 scans) rather than cutting Pro.
+- **Scan limits must never break a printed code.** When a code passes its monthly limit, it **keeps redirecting**. We email the owner and show an upgrade prompt in the app. Only block at a hard ceiling that is clearly abuse (for example 3× the limit in a month). This is a promise to write into the terms.
+- **Free has no dynamic codes,** which removes the biggest abuse and cost risk from the free tier and keeps Free simple to explain.
+- **Business / API features** (custom domains, agency seats, API) are the largest builds. Do not sell the plan before they exist; list it as Planned.
+- **Monthly scan counting** needs a reliable counter per code and per account. Plan it in Phase 3.
 
 ## 3. How it is built
 
@@ -61,10 +61,9 @@ Feature set modelled on the reference you shared (a free tier plus one paid "Adv
 | **4. Analytics and Plus plan** | Unique visitors, trends, top codes, custom slugs, Paddle product and billing. | Paddle price for QR |
 | **5. Teams** | Members per project, invites, roles. | Email sending |
 
-## 6. Decisions needed
+## 6. Decisions still needed
 
 1. Short-link domain name for redirects.
-2. Final prices (the early-adopter £5 then £9 pattern, or something else).
-3. Free dynamic limit (3 active is the recommendation).
-4. Lapse policy (30-day grace is the recommendation).
-5. Whether Phase 1 launches as a public SEO tool before accounts exist (recommended).
+2. Over-limit rule: keep redirecting (recommended) and the hard-ceiling multiple.
+3. Lapse policy: 30-day grace before codes show a "paused" page (recommended).
+4. Whether Phase 1 launches as a public SEO tool before accounts exist (recommended).

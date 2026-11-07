@@ -7,7 +7,7 @@ Billing is switched on per app: Export turns on when its prices are set; QR stay
 ## 1. In the Paddle **sandbox** dashboard (sandbox-vendors.paddle.com)
 
 1. **Catalog → Products:** create one product per Klyroo app. For **Klyroo Export** create three recurring monthly prices in GBP:
-   Starter £19, Growth £49, Scale £99. (Klyroo QR gets its own product and prices later; each app bills separately.). Copy each price ID (`pri_...`).
+   Starter £19, Growth £49, Scale £99. (Klyroo QR gets its own product later: Pro £20 and Business / API £45, with env `PADDLE_PRICE_QR_PRO` and `PADDLE_PRICE_QR_BUSINESS`; each app bills separately.). Copy each price ID (`pri_...`).
 2. **Developer tools → Authentication:**
    - create a **client-side token** (`test_...`)
    - create an **API key** with these permissions: `customer.read`, `customer_portal_session.write`,
