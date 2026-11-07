@@ -10,8 +10,8 @@ process.env.NODE_ENV = "test";
 process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN = "test_token";
 process.env.PADDLE_WEBHOOK_SECRET = "pdl_ntfset_test_secret";
 process.env.PADDLE_PRICE_STARTER = "pri_starter01";
-process.env.PADDLE_PRICE_PRO = "pri_pro01";
-process.env.PADDLE_PRICE_AGENCY = "pri_agency01";
+process.env.PADDLE_PRICE_GROWTH = "pri_growth01";
+process.env.PADDLE_PRICE_SCALE = "pri_scale01";
 process.env.PADDLE_API_KEY = "pdl_test_key";
 
 const paddle = await import("../src/lib/billing/paddle.ts");
@@ -53,12 +53,12 @@ ok("checkout account token can't be reused for another account");
   const future = new Date(Date.now() + 86_400_000).toISOString();
   const past = new Date(Date.now() - 86_400_000).toISOString();
   assert.equal(planFor(null), "free");
-  assert.equal(planFor({ plan: "pro", status: "active", current_period_end: future }), "pro");
-  assert.equal(planFor({ plan: "pro", status: "trialing", current_period_end: future }), "pro");
+  assert.equal(planFor({ plan: "growth", status: "active", current_period_end: future }), "growth");
+  assert.equal(planFor({ plan: "growth", status: "trialing", current_period_end: future }), "growth");
   assert.equal(planFor({ plan: "starter", status: "past_due", current_period_end: past }), "starter", "past_due keeps access while Paddle retries");
-  assert.equal(planFor({ plan: "pro", status: "canceled", current_period_end: future }), "pro", "canceled keeps access until the period ends");
-  assert.equal(planFor({ plan: "pro", status: "canceled", current_period_end: past }), "free");
-  assert.equal(planFor({ plan: "pro", status: "paused", current_period_end: future }), "free");
+  assert.equal(planFor({ plan: "growth", status: "canceled", current_period_end: future }), "growth", "canceled keeps access until the period ends");
+  assert.equal(planFor({ plan: "growth", status: "canceled", current_period_end: past }), "free");
+  assert.equal(planFor({ plan: "growth", status: "paused", current_period_end: future }), "free");
   assert.equal(planFor({ plan: "weird", status: "active", current_period_end: future }), "free");
 }
 ok("plan rules: active/trialing/past_due keep the plan; canceled until period end; paused or unknown falls to free");
@@ -109,7 +109,7 @@ async function mkAccount(label) {
   const { data: m } = await admin.from("members").select("account_id").eq("user_id", data.user.id).single();
   return { accountId: m.account_id, email, password };
 }
-const subEvent = (type, { subId = "sub_01abc", status = "active", price = "pri_pro01", custom, at = new Date().toISOString(), extra = {} } = {}) => {
+const subEvent = (type, { subId = "sub_01abc", status = "active", price = "pri_growth01", custom, at = new Date().toISOString(), extra = {} } = {}) => {
   const body = JSON.stringify({
     event_id: `evt_${randomUUID().replace(/-/g, "")}`, event_type: type, occurred_at: at,
     data: { id: subId, status, customer_id: "ctm_01abc", items: [{ price: { id: price } }], custom_data: custom, current_billing_period: { ends_at: new Date(Date.now() + 30 * 86_400_000).toISOString() }, ...extra },
@@ -141,8 +141,8 @@ try {
   r = await send(created);
   assert.deepEqual([r.status, r.body.applied], [200, true], JSON.stringify(r.body));
   let sub = await getSub(A.accountId);
-  assert.deepEqual([sub.plan, sub.status, sub.paddle_subscription_id, sub.paddle_customer_id], ["pro", "active", "sub_01abc", "ctm_01abc"]);
-  assert.equal((await getEntitlements(A.accountId)).plan, "pro");
+  assert.deepEqual([sub.plan, sub.status, sub.paddle_subscription_id, sub.paddle_customer_id], ["growth", "active", "sub_01abc", "ctm_01abc"]);
+  assert.equal((await getEntitlements(A.accountId)).plan, "growth");
   ok("webhook: a signed subscription.created activates the plan for the right account");
 
   // Duplicate delivery.
@@ -158,7 +158,7 @@ try {
   r = await send(subEvent("subscription.updated", { custom: custom(A.accountId), status: "active", at: new Date(Date.now() - 600_000).toISOString() }));
   assert.deepEqual([r.body.applied, r.body.reason], [false, "stale event"]);
   assert.equal((await getSub(A.accountId)).status, "past_due");
-  assert.equal((await getEntitlements(A.accountId)).plan, "pro", "past_due still has access");
+  assert.equal((await getEntitlements(A.accountId)).plan, "growth", "past_due still has access");
   ok("webhook: out-of-order older events are ignored; past_due keeps access");
 
   // Scheduled cancellation, then final cancellation.
@@ -167,7 +167,7 @@ try {
   await send(subEvent("subscription.canceled", { custom: custom(A.accountId), status: "canceled", at: new Date(Date.now() + 20_000).toISOString() }));
   sub = await getSub(A.accountId);
   assert.equal(sub.status, "canceled");
-  assert.equal((await getEntitlements(A.accountId)).plan, "pro", "paid through the period end");
+  assert.equal((await getEntitlements(A.accountId)).plan, "growth", "paid through the period end");
   await admin.from("subscriptions").update({ current_period_end: new Date(Date.now() - 1000).toISOString() }).eq("account_id", A.accountId);
   assert.equal((await getEntitlements(A.accountId)).plan, "free");
   ok("webhook: scheduled cancel is recorded; canceled keeps access until the paid period ends, then drops to free");
@@ -191,13 +191,13 @@ try {
   // One active subscription per account.
   r = await send(subEvent("subscription.created", { subId: "sub_b1", price: "pri_starter01", custom: custom(B.accountId) }));
   assert.equal(r.body.applied, true);
-  r = await send(subEvent("subscription.created", { subId: "sub_b2", price: "pri_agency01", custom: custom(B.accountId) }));
+  r = await send(subEvent("subscription.created", { subId: "sub_b2", price: "pri_scale01", custom: custom(B.accountId) }));
   assert.deepEqual([r.body.applied, r.body.reason], [false, "account already has an active subscription"]);
   assert.equal((await getSub(B.accountId)).plan, "starter");
   // A known subscription's later events don't need to re-prove the account (plan switch via Paddle).
-  r = await send(subEvent("subscription.updated", { subId: "sub_b1", price: "pri_agency01", custom: undefined, at: new Date(Date.now() + 30_000).toISOString() }));
+  r = await send(subEvent("subscription.updated", { subId: "sub_b1", price: "pri_scale01", custom: undefined, at: new Date(Date.now() + 30_000).toISOString() }));
   assert.equal(r.body.applied, true);
-  assert.equal((await getSub(B.accountId)).plan, "agency");
+  assert.equal((await getSub(B.accountId)).plan, "scale");
   ok("webhook: one active subscription per account; plan switches on a known subscription update the plan");
 
   // Event log.
@@ -209,12 +209,12 @@ try {
   const ua = anon();
   await ua.auth.signInWithPassword({ email: B.email, password: B.password });
   const own = await ua.from("subscriptions").select("plan");
-  assert.deepEqual(own.data.map((x) => x.plan), ["agency"]);
+  assert.deepEqual(own.data.map((x) => x.plan), ["scale"]);
   const other = anon();
   await other.auth.signInWithPassword({ email: A.email, password: A.password });
   const theirs = await other.from("subscriptions").select("plan");
-  assert.deepEqual(theirs.data.map((x) => x.plan), ["pro"], "A sees only A's row");
-  const tamper = await ua.from("subscriptions").update({ plan: "agency" }).eq("account_id", B.accountId);
+  assert.deepEqual(theirs.data.map((x) => x.plan), ["growth"], "A sees only A's row");
+  const tamper = await ua.from("subscriptions").update({ plan: "scale" }).eq("account_id", B.accountId);
   assert.ok(tamper.error, "users cannot edit subscriptions");
   const anonRead = await anon().from("subscriptions").select("*");
   assert.ok(anonRead.error || anonRead.data.length === 0, "anonymous sees nothing");
@@ -230,12 +230,12 @@ try {
   assert.equal(pc.auth, "Bearer pdl_test_key");
   assert.deepEqual(pc.body, { subscription_ids: ["sub_01abc"] });
   assert.equal(await paddle.createPortalLink("not-a-customer"), null);
-  const ch = await paddle.changeSubscriptionPlan("sub_01abc", "pri_pro01");
+  const ch = await paddle.changeSubscriptionPlan("sub_01abc", "pri_growth01");
   assert.deepEqual(ch, { ok: true });
   const patch = calls.find((c) => c.method === "PATCH");
   assert.equal(patch.url, "/subscriptions/sub_01abc");
-  assert.deepEqual(patch.body, { items: [{ price_id: "pri_pro01", quantity: 1 }], proration_billing_mode: "prorated_immediately" });
-  assert.equal((await paddle.changeSubscriptionPlan("../evil", "pri_pro01")).ok, false);
+  assert.deepEqual(patch.body, { items: [{ price_id: "pri_growth01", quantity: 1 }], proration_billing_mode: "prorated_immediately" });
+  assert.equal((await paddle.changeSubscriptionPlan("../evil", "pri_growth01")).ok, false);
   ok("Paddle API: portal link and prorated plan change send the right requests; malformed IDs are refused");
 
   // Plan limits through the real export queue (row cap per plan).

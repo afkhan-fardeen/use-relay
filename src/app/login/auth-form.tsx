@@ -28,6 +28,16 @@ export function AuthForm() {
       </div>
 
       <form action={action} className="space-y-5">
+        {mode === "signup" && (
+          <>
+            <Field label="Your name">
+              <input name="fullName" required maxLength={80} autoComplete="name" className={inputCls} placeholder="Alex Morgan" defaultValue={state?.fullName ?? ""} />
+            </Field>
+            <Field label="Company" hint="Optional. Shown as your account name.">
+              <input name="company" maxLength={80} autoComplete="organization" className={inputCls} placeholder="Northwind Active" defaultValue={state?.company ?? ""} />
+            </Field>
+          </>
+        )}
         <Field label="Email">
           <input name="email" type="email" required autoComplete="email" className={inputCls} placeholder="you@brand.com" defaultValue={state?.email ?? ""} />
         </Field>

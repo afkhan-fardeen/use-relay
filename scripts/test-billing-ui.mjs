@@ -14,11 +14,13 @@ const ok = (n) => { pass++; console.log("ok  ", n); };
 const email = `billui-${tag}@example.com`;
 const password = randomUUID();
 const { data: u } = await admin.auth.admin.createUser({ email, password, email_confirm: true });
+const { data: mem } = await admin.from("members").select("account_id").eq("user_id", u.user.id).single();
+await admin.from("account_apps").insert({ account_id: mem.account_id, app: "export" });
 const browser = await chromium.launch({ executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", headless: true });
 
 async function withServer(port, extraEnv, fn) {
   const env = { ...process.env, NODE_ENV: "development", ...extraEnv };
-  for (const k of ["NEXT_PUBLIC_PADDLE_CLIENT_TOKEN", "PADDLE_WEBHOOK_SECRET", "PADDLE_PRICE_STARTER", "PADDLE_PRICE_PRO", "PADDLE_PRICE_AGENCY"]) if (!(k in extraEnv)) delete env[k];
+  for (const k of ["NEXT_PUBLIC_PADDLE_CLIENT_TOKEN", "PADDLE_WEBHOOK_SECRET", "PADDLE_PRICE_STARTER", "PADDLE_PRICE_GROWTH", "PADDLE_PRICE_SCALE"]) if (!(k in extraEnv)) delete env[k];
   const server = spawn("node", ["node_modules/next/dist/bin/next", "dev", "-p", String(port)], { env, stdio: ["ignore", "pipe", "pipe"] });
   let log = "";
   server.stdout.on("data", (d) => (log += d));
@@ -43,7 +45,7 @@ try {
     await login(page, base);
     await page.goto(`${base}/app/billing`, { waitUntil: "networkidle" });
     await page.waitForSelector("text=Free during the beta");
-    assert.equal(await page.locator("text=Choose Pro").count(), 0);
+    assert.equal(await page.locator("text=Choose Growth").count(), 0);
     ok("without Paddle keys the page says 'Free during the beta' and offers no checkout");
   });
 
@@ -51,7 +53,7 @@ try {
     NEXT_PUBLIC_PADDLE_CLIENT_TOKEN: "test_0000000000000000000000000000000000",
     PADDLE_WEBHOOK_SECRET: "pdl_ntfset_test",
     PADDLE_PRICE_STARTER: "pri_starter01",
-    PADDLE_PRICE_PRO: "pri_pro01",
+    PADDLE_PRICE_GROWTH: "pri_growth01",
     NEXT_PUBLIC_PADDLE_ENV: "sandbox",
   }, async (base) => {
     const page = await (await browser.newContext({ viewport: { width: 1440, height: 1000 } })).newPage();
@@ -61,11 +63,11 @@ try {
     await login(page, base);
     await page.goto(`${base}/app/billing`, { waitUntil: "domcontentloaded" });
     await page.waitForSelector("h2:has-text('Starter')");
-    for (const n of ["Free", "Starter", "Pro", "Agency"]) assert.ok(await page.locator(`h2:has-text("${n}")`).count() === 1, n);
+    for (const n of ["Free", "Starter", "Growth", "Scale"]) assert.ok(await page.locator(`h2:has-text("${n}")`).count() === 1, n);
     assert.ok(await page.locator("text=Current").count() >= 1);
-    assert.ok(await page.locator('button:has-text("Not available yet")').count() === 1, "Agency has no price configured, so it can't be bought");
+    assert.ok(await page.locator('button:has-text("Not available yet")').count() === 1, "Scale has no price configured, so it can't be bought");
     ok("with keys the four plans render, Free is current, and a plan without a configured price can't be bought");
-    await page.waitForSelector('button:has-text("Choose Pro")', { timeout: 30000 });
+    await page.waitForSelector('button:has-text("Choose Growth")', { timeout: 30000 });
     ok("Paddle.js loads and enables checkout buttons");
     assert.deepEqual(errors, [], "no uncaught browser errors");
     ok("no uncaught errors in the browser");

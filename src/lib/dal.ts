@@ -2,7 +2,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 
-export type Session = { userId: string; email: string; accountId: string; role: "owner" | "member" };
+export type Session = { userId: string; email: string; name: string; accountId: string; role: "owner" | "member" };
 
 /** Verified session or null. Always asks Supabase (does not trust the cookie alone). */
 export async function getSession(): Promise<Session | null> {
@@ -17,7 +17,13 @@ export async function getSession(): Promise<Session | null> {
     .limit(1)
     .maybeSingle();
   if (!m) return null;
-  return { userId: data.user.id, email: data.user.email ?? "", accountId: m.account_id, role: m.role as Session["role"] };
+  return {
+    userId: data.user.id,
+    email: data.user.email ?? "",
+    name: String(data.user.user_metadata?.full_name ?? ""),
+    accountId: m.account_id,
+    role: m.role as Session["role"],
+  };
 }
 
 /** For pages and layouts: sends signed-out visitors to /login. */

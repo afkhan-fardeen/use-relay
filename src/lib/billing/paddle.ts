@@ -10,7 +10,7 @@ export function paddleEnv(): PaddleEnv {
   return process.env.NEXT_PUBLIC_PADDLE_ENV === "production" ? "production" : "sandbox";
 }
 
-/** price ID → plan, from env (PADDLE_PRICE_STARTER / _PRO / _AGENCY). */
+/** price ID → plan, from env (PADDLE_PRICE_STARTER / _GROWTH / _SCALE). */
 export function priceMap(): Record<string, PaidPlan> {
   const out: Record<string, PaidPlan> = {};
   for (const p of PAID_PLANS) {

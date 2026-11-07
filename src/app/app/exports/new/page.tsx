@@ -1,10 +1,12 @@
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { supabaseServer } from "@/lib/supabase/server";
 import { Builder } from "./builder";
 
 export const metadata = { title: "New export — Klyroo Export" };
 
 export default async function NewExportPage() {
+  await connection(); // request-time only: reads the signed-in user
   const supabase = await supabaseServer();
   const { data } = await supabase
     .from("stores")

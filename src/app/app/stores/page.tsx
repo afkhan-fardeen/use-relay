@@ -1,4 +1,5 @@
 import { StatusChip } from "@/components/status";
+import { connection } from "next/server";
 import { Card, Chip, Eyebrow, PageHeader } from "@/components/ui";
 import { resources } from "@/lib/export";
 import { supabaseServer } from "@/lib/supabase/server";
@@ -16,6 +17,7 @@ function when(iso: string | null) {
 }
 
 export default async function StoresPage() {
+  await connection(); // request-time only: reads the signed-in user
   const supabase = await supabaseServer();
   const { data: stores } = await supabase
     .from("stores")

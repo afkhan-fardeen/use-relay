@@ -1,11 +1,21 @@
 import Link from "next/link";
+import { connection } from "next/server";
+import { redirect } from "next/navigation";
 import { StatusChip } from "@/components/status";
 import { Button, Card, Chip, Eyebrow, PageHeader } from "@/components/ui";
+import { APPS, isAppSlug } from "@/lib/apps";
 import { getResource, num, templates, type ResourceId } from "@/lib/export";
 import { supabaseServer } from "@/lib/supabase/server";
 
 export default async function Home() {
+  await connection(); // request-time only: reads the signed-in user
   const supabase = await supabaseServer();
+  const { data: appRows } = await supabase.from("account_apps").select("app");
+  const enabled = (appRows ?? []).map((r) => r.app).filter(isAppSlug);
+  if (!enabled.includes("export")) {
+    const first = APPS.find((a) => enabled.includes(a.slug));
+    redirect(first ? first.href : "/onboarding");
+  }
   const [{ data: stores }, { data: jobs }] = await Promise.all([
     supabase.from("stores").select("id").eq("status", "connected").limit(1),
     supabase.from("export_jobs").select("id, resource, status, rows_written, created_at, config").order("created_at", { ascending: false }).limit(5),

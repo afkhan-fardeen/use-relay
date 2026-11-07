@@ -10,10 +10,10 @@ import { createClient } from "@supabase/supabase-js";
 import { startFakeShopify } from "./fake-shopify.mjs";
 
 process.env.NODE_ENV = "test";
-const { buildQuery, searchFilter } = await import("../src/lib/export/queries.ts");
-const { createProcessor, toBulkLines, LimitError } = await import("../src/lib/export/processors.ts");
+const { buildQuery, searchFilter, QUERY_KEYS } = await import("../src/lib/export/queries.ts");
+const { createProcessor, toBulkLines, LimitError, GETTER_KEYS } = await import("../src/lib/export/processors.ts");
 const { csvLine } = await import("../src/lib/export/csv.ts");
-const { validateConfig, templates } = await import("../src/lib/export.ts");
+const { validateConfig, templates, resources } = await import("../src/lib/export.ts");
 
 let pass = 0;
 const ok = (n) => { pass++; console.log("ok  ", n); };
@@ -139,6 +139,57 @@ ok("oversized exports are stopped with a clear limit error");
 }
 ok("live-preview responses flatten into the same shape as bulk output");
 
+// 11. Every catalog column is wired end to end: label → GraphQL selection → row value.
+for (const r of resources) {
+  const keys = r.fields.map((f) => f.key);
+  assert.equal(new Set(keys).size, keys.length, `${r.id}: duplicate keys`);
+  for (const k of keys) {
+    assert.ok(QUERY_KEYS[r.id].includes(k), `${r.id}.${k} has no GraphQL selection`);
+    assert.ok(GETTER_KEYS[r.id].includes(k), `${r.id}.${k} has no row getter`);
+  }
+  for (const k of GETTER_KEYS[r.id]) assert.ok(keys.includes(k), `${r.id}.${k} is produced but not in the catalog`);
+}
+ok(`catalog is fully wired: ${resources.map((r) => `${r.fields.length} ${r.id}`).join(", ")} columns each have a query selection and a row getter`);
+
+// 12. Selecting EVERY column (plus metafields) still gives a valid bulk query within Shopify's limits.
+for (const r of resources) {
+  const cols = r.fields.map((f) => f.key);
+  if (r.metafields) cols.push("mf:custom.material");
+  if (r.id === "products") cols.push("vmf:custom.care");
+  const q = buildQuery(cfg({ resource: r.id, columns: cols }));
+  parse(q);
+  assert.ok(connections(q) <= 5, `${r.id}: ${connections(q)} connections with everything selected`);
+  parse(buildQuery(cfg({ resource: r.id, columns: cols }), 10, 5));
+}
+ok("selecting every column (and metafields) stays valid GraphQL and within the 5-connection limit");
+
+// 13. New columns read correctly: options, collections, media, variant metafield, tracking.
+{
+  const rows = [];
+  const p = createProcessor(cfg({ columns: ["handle", "option1_name", "option1_value", "option2_value", "collections", "images", "barcode", "vmf:custom.care", "taxable", "inventory_policy", "category", "gift_card", "options", "weight"] }), (r) => rows.push(r));
+  [
+    { id: "gid://shopify/Product/1", handle: "leg", category: { fullName: "Apparel > Pants" }, isGiftCard: false, options: [{ name: "Color" }, { name: "Size" }] },
+    { id: "gid://shopify/ProductVariant/11", __parentId: "gid://shopify/Product/1", selectedOptions: [{ name: "Color", value: "Black" }, { name: "Size", value: "S" }], taxable: true, inventoryPolicy: "DENY", vmf0: { value: "Wash cold" } },
+    { id: "gid://shopify/Collection/5", __parentId: "gid://shopify/Product/1", handle: "bestsellers" },
+    { id: "gid://shopify/Collection/6", __parentId: "gid://shopify/Product/1", handle: "new" },
+    { id: "gid://shopify/MediaImage/9", __parentId: "gid://shopify/Product/1", preview: { image: { url: "https://cdn/x.jpg" } } },
+    { id: "gid://shopify/MediaImage/10", __parentId: "gid://shopify/Product/1", preview: { image: { url: "https://cdn/y.jpg" } } },
+    { value: "123", __parentId: "gid://shopify/ProductVariant/11" },
+  ].forEach((l) => p.push(l));
+  p.finish();
+  assert.deepEqual(rows[0], ["leg", "Color", "Black", "S", "bestsellers, new", "https://cdn/x.jpg | https://cdn/y.jpg", "123", "Wash cold", "true", "deny", "Apparel > Pants", "false", "Color, Size", ""]);
+}
+{
+  const rows = [];
+  const p = createProcessor(cfg({ resource: "orders", columns: ["order", "tracking_company", "tracking_number", "bill_city", "customer_name", "ship_price", "line_id", "line_product_id"] }), (r) => rows.push(r));
+  [
+    { id: "gid://shopify/Order/1", name: "#1", billingAddress: { city: "Leeds" }, customer: { displayName: "Ann Lee" }, shippingLine: { originalPriceSet: { shopMoney: { amount: "4.99" } } }, fulfillments: [{ trackingInfo: [{ company: "DPD", number: "TRK1", url: "https://t/1" }] }] },
+    { id: "gid://shopify/LineItem/777", __parentId: "gid://shopify/Order/1", product: { legacyResourceId: "42" } },
+  ].forEach((l) => p.push(l));
+  assert.deepEqual(rows[0], ["#1", "DPD", "TRK1", "Leeds", "Ann Lee", "4.99", "777", "42"]);
+}
+ok("new columns read correctly: options, collections, media URLs, barcode, variant metafield, tracking, billing, IDs");
+
 // ───────────── Part 2: end to end ─────────────
 const { encryptSecret } = await import("../src/lib/crypto.ts");
 const { drainQueue, cleanupExpiredFiles } = await import("../src/lib/export/queue.ts");
@@ -198,7 +249,7 @@ try {
   const { text, file } = await fileText(job.id);
   assert.equal(
     text,
-    "Handle,Title,Status,Tags,SKU code,Variant title,Price,Barcode,SEO title,Inventory quantity\r\n" +
+    "Handle,Title,Status,Tags,SKU code,Variant title,Price,Variant barcode,SEO title,Inventory quantity\r\n" +
       "leggings,Leggings,active,new,'-LEG,Black / S,29.00,0123456789,'=Bad,5\r\n",
   );
   assert.equal(file.row_count, 1);

@@ -13,7 +13,7 @@ export function planFor(sub: Sub, now = Date.now()): PlanKey {
   if (!sub) return "free";
   const paidStatus = sub.status === "active" || sub.status === "trialing" || sub.status === "past_due"; // past_due: Paddle is still retrying payment
   const paidThrough = sub.status === "canceled" && sub.current_period_end && new Date(sub.current_period_end).getTime() > now;
-  if (paidStatus || paidThrough) return (["starter", "pro", "agency"].includes(sub.plan) ? sub.plan : "free") as PlanKey;
+  if (paidStatus || paidThrough) return (["starter", "growth", "scale"].includes(sub.plan) ? sub.plan : "free") as PlanKey;
   return "free";
 }
 

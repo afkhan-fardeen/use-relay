@@ -1,4 +1,5 @@
 import { Card, Chip, PageHeader } from "@/components/ui";
+import { connection } from "next/server";
 import { requireSession } from "@/lib/dal";
 import { getEntitlements } from "@/lib/billing/entitlements";
 import { billingConfigured, paddleEnv, priceIds, signAccount } from "@/lib/billing/paddle";
@@ -6,6 +7,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 import { PlanCards } from "./plan-cards";
 
 export default async function BillingPage() {
+  await connection(); // request-time only: reads the signed-in user
   const session = await requireSession();
 
   if (!billingConfigured()) {

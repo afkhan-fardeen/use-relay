@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button, Card, Chip, Eyebrow, Field, PageHeader, inputCls } from "@/components/ui";
 import {
   MF_KEY,
+  VMF_KEY,
   columnLabel,
   fileName,
   getResource,
@@ -61,6 +62,7 @@ export function Builder({ stores }: { stores: StoreOpt[] }) {
   const [name, setName] = useState(tpl?.name ?? "My export");
   const [query, setQuery] = useState("");
   const [mfInput, setMfInput] = useState("");
+  const [mfLevel, setMfLevel] = useState<"mf" | "vmf">("mf");
   const [mfError, setMfError] = useState("");
 
   const config: ExportConfig = { storeId, resource, columns, renames, status, tag, dateFrom, dateTo, format, name };
@@ -158,14 +160,28 @@ export function Builder({ stores }: { stores: StoreOpt[] }) {
     });
   };
   function addMetafield() {
-    const key = `mf:${mfInput.trim().toLowerCase()}`;
-    if (!MF_KEY.test(key)) { setMfError("Use the format namespace.key, for example custom.material"); return; }
+    const key = `${mfLevel}:${mfInput.trim().toLowerCase()}`;
+    if (!(mfLevel === "mf" ? MF_KEY : VMF_KEY).test(key)) { setMfError("Use the format namespace.key, for example custom.material"); return; }
     if (columns.includes(key)) { setMfError("Already added."); return; }
     setMfError("");
     setMfInput("");
     setColumns((c) => [...c, key]);
     touch();
   }
+  const groupKeys = (g: string) => res.fields.filter((x) => x.group === g).map((x) => x.key);
+  function setGroup(g: string, on: boolean) {
+    const keys = groupKeys(g);
+    setColumns((c) => (on ? [...c, ...keys.filter((k) => !c.includes(k))] : c.filter((k) => !keys.includes(k))));
+    touch();
+  }
+  const selectFast = () => {
+    const fast = res.fields.filter((x) => x.speed !== "slow").map((x) => x.key);
+    setColumns((c) => [...c.filter((k) => !res.fields.some((x) => x.key === k)), ...fast]);
+    touch();
+  };
+  const clearAll = () => { setColumns((c) => c.filter((k) => MF_KEY.test(k) || VMF_KEY.test(k))); touch(); };
+  const selectedFields = res.fields.filter((x) => columns.includes(x.key));
+  const slowSelected = selectedFields.filter((x) => x.speed === "slow");
 
   const label = (k: string) => renames[k] || columnLabel(res, k);
   const groups: Record<string, typeof res.fields> = {};
@@ -262,17 +278,23 @@ export function Builder({ stores }: { stores: StoreOpt[] }) {
             )}
           </Section>
 
-          <Section n={3} title="Columns" hint="Pick, reorder and rename. The Shopify field name is shown under each label.">
+          <Section n={3} title="Columns" hint="Pick, reorder and rename. Slow columns need extra data from Shopify, so the export takes longer.">
+            <div className="flex flex-wrap items-center gap-2 mb-5">
+              <Chip tone={columns.length ? "primary" : "danger"}>{columns.length} selected</Chip>
+              <Chip tone={slowSelected.length ? "info" : "outline"}>{slowSelected.length ? `Slower: ${slowSelected.length} slow column${slowSelected.length === 1 ? "" : "s"}` : "Fast export"}</Chip>
+              <span className="flex-1" />
+              <button type="button" className="text-xs text-primary hover:text-primary-hover" onClick={() => { setColumns(defaultCols(resource)); setRenames({}); touch(); }}>Essentials</button>
+              <button type="button" className="text-xs text-primary hover:text-primary-hover" onClick={selectFast}>All fast columns</button>
+              <button type="button" className="text-xs text-muted hover:text-ink" onClick={clearAll}>Clear</button>
+            </div>
+
             <div className="grid gap-8">
               <div className="order-1">
-                <div className="flex items-center justify-between mb-2">
-                  <Eyebrow>In your file ({columns.length})</Eyebrow>
-                  <button type="button" className="text-xs text-muted hover:text-ink" onClick={() => { setColumns(defaultCols(resource)); setRenames({}); touch(); }}>Reset</button>
-                </div>
+                <Eyebrow>In your file, in this order</Eyebrow>
                 {columns.length === 0 ? (
-                  <p className="text-sm text-danger border border-danger/40 rounded-ctl p-4">Pick at least one column.</p>
+                  <p className="mt-2 text-sm text-danger border border-danger/40 rounded-ctl p-4">Pick at least one column.</p>
                 ) : (
-                  <ol className="space-y-1.5 max-h-[300px] overflow-y-auto pr-1">
+                  <ol className="mt-2 space-y-1.5 max-h-[300px] overflow-y-auto pr-1">
                     {columns.map((k, i) => (
                       <li key={k} className="flex items-center gap-2 rounded-ctl border border-line px-2 py-1.5">
                         <span className="w-5 text-center text-xs text-muted tabular">{i + 1}</span>
@@ -283,7 +305,8 @@ export function Builder({ stores }: { stores: StoreOpt[] }) {
                           maxLength={100}
                           onChange={(e) => setRenames((r) => ({ ...r, [k]: e.target.value }))}
                         />
-                        {MF_KEY.test(k) && <Chip tone="outline">metafield</Chip>}
+                        {(MF_KEY.test(k) || VMF_KEY.test(k)) && <Chip tone="outline">metafield</Chip>}
+                        {res.fields.find((x) => x.key === k)?.speed === "slow" && <Chip tone="info">Slow</Chip>}
                         <button type="button" aria-label="Move up" disabled={i === 0} onClick={() => move(k, -1)} className="size-7 rounded text-muted hover:text-ink disabled:opacity-30">↑</button>
                         <button type="button" aria-label="Move down" disabled={i === columns.length - 1} onClick={() => move(k, 1)} className="size-7 rounded text-muted hover:text-ink disabled:opacity-30">↓</button>
                         <button type="button" aria-label="Remove" onClick={() => toggle(k)} className="size-7 rounded text-muted hover:text-danger">✕</button>
@@ -292,32 +315,53 @@ export function Builder({ stores }: { stores: StoreOpt[] }) {
                   </ol>
                 )}
               </div>
+
               <div className="order-2">
-                <input className={`${inputCls} !h-10 text-sm`} placeholder="Search columns" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search columns" />
-                <div className="mt-4 max-h-[360px] overflow-y-auto pr-1 grid sm:grid-cols-2 gap-x-6 gap-y-5">
-                  {Object.entries(groups).map(([g, fs]) => (
-                    <fieldset key={g}>
-                      <legend className="text-[13px] text-muted mb-2">{g}</legend>
-                      <ul className="space-y-1">
-                        {fs.map((x) => (
-                          <li key={x.key}>
-                            <label className="flex items-start gap-3 rounded-ctl px-2 py-1.5 hover:bg-wash cursor-pointer">
-                              <input type="checkbox" className="mt-1.5 size-4 accent-[#533AFD]" checked={columns.includes(x.key)} onChange={() => toggle(x.key)} />
-                              <span>
-                                <span className="block text-sm leading-5">{x.label}</span>
-                                <span className="block text-xs text-muted font-mono">{x.shopify}</span>
-                              </span>
-                            </label>
-                          </li>
-                        ))}
-                      </ul>
-                    </fieldset>
-                  ))}
+                <input className={`${inputCls} !h-10 text-sm`} placeholder={`Search ${res.fields.length} columns`} value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search columns" />
+                <div className="mt-4 space-y-2 max-h-[440px] overflow-y-auto pr-1">
+                  {Object.entries(groups).map(([g, fs]) => {
+                    const all = groupKeys(g);
+                    const on = all.filter((k) => columns.includes(k)).length;
+                    const slow = res.fields.some((x) => x.group === g && x.speed === "slow");
+                    return (
+                      <details key={g} open={!!query || on > 0} className="rounded-ctl border border-line">
+                        <summary className="flex items-center gap-3 px-4 py-3 cursor-pointer select-none list-none">
+                          <span className="text-sm">{g}</span>
+                          <span className="text-xs text-muted tabular">{on}/{all.length}</span>
+                          {slow && <Chip tone="info">Has slow columns</Chip>}
+                          <span className="flex-1" />
+                          <button type="button" className="text-xs text-primary hover:text-primary-hover" onClick={(e) => { e.preventDefault(); setGroup(g, on < all.length); }}>
+                            {on < all.length ? "Select all" : "Clear"}
+                          </button>
+                        </summary>
+                        <ul className="px-2 pb-3 grid sm:grid-cols-2 gap-x-4">
+                          {fs.map((x) => (
+                            <li key={x.key}>
+                              <label className="flex items-start gap-3 rounded-ctl px-2 py-1.5 hover:bg-wash cursor-pointer">
+                                <input type="checkbox" className="mt-1.5 size-4 accent-[#533AFD]" checked={columns.includes(x.key)} onChange={() => toggle(x.key)} />
+                                <span className="min-w-0">
+                                  <span className="flex items-center gap-2 text-sm leading-5">{x.label}{x.speed === "slow" && <Chip tone="info">Slow</Chip>}</span>
+                                  <span className="block text-xs text-muted font-mono truncate">{x.shopify}</span>
+                                </span>
+                              </label>
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    );
+                  })}
                 </div>
+
                 {res.metafields && (
                   <div className="mt-6 pt-5 border-t border-line">
                     <Field label="Add a metafield" hint="Type namespace.key, like custom.material. We read its value.">
                       <div className="flex gap-2">
+                        {resource === "products" && (
+                          <select aria-label="Metafield level" className={`${inputCls} !h-10 text-sm !w-[130px] shrink-0`} value={mfLevel} onChange={(e) => setMfLevel(e.target.value as "mf" | "vmf")}>
+                            <option value="mf">Product</option>
+                            <option value="vmf">Variant</option>
+                          </select>
+                        )}
                         <input className={`${inputCls} !h-10 text-sm`} value={mfInput} onChange={(e) => setMfInput(e.target.value)} placeholder="custom.material" onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addMetafield(); } }} />
                         <Button type="button" variant="secondary" size="sm" className="!h-10" onClick={addMetafield}>Add</Button>
                       </div>

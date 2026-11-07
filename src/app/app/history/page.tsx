@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { connection } from "next/server";
 import { AutoRefresh } from "@/components/auto-refresh";
 import { StatusChip } from "@/components/status";
 import { Button, Card, PageHeader } from "@/components/ui";
@@ -22,6 +23,7 @@ function ago(iso: string) {
 }
 
 export default async function HistoryPage() {
+  await connection(); // request-time only: reads the signed-in user
   const supabase = await supabaseServer();
   const { data: jobs } = await supabase
     .from("export_jobs")

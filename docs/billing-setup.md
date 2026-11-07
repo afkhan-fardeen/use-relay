@@ -1,12 +1,12 @@
 # Billing setup (Paddle sandbox)
 
 Billing is off until the variables below are set. With them unset, everyone is on the free beta
-(30 exports an hour, 250k rows, 25 stores) and the Billing page says "Free during the beta".
+(30 exports an hour, 250k rows, 5 stores) and the Billing page says "Free during the beta".
 
 ## 1. In the Paddle **sandbox** dashboard (sandbox-vendors.paddle.com)
 
 1. **Catalog → Products:** create one product, "Klyroo Export", then three recurring monthly prices:
-   Starter, Pro, Agency. Copy each price ID (`pri_...`).
+   Starter, Growth, Scale (currency: GBP). Copy each price ID (`pri_...`).
 2. **Developer tools → Authentication:**
    - create a **client-side token** (`test_...`)
    - create an **API key** with these permissions: `customer.read`, `customer_portal_session.write`,
@@ -28,8 +28,8 @@ Billing is off until the variables below are set. With them unset, everyone is o
 | `PADDLE_API_KEY` | the sandbox API key |
 | `PADDLE_WEBHOOK_SECRET` | the notification destination secret |
 | `PADDLE_PRICE_STARTER` | `pri_...` |
-| `PADDLE_PRICE_PRO` | `pri_...` |
-| `PADDLE_PRICE_AGENCY` | `pri_...` |
+| `PADDLE_PRICE_GROWTH` | `pri_...` |
+| `PADDLE_PRICE_SCALE` | `pri_...` |
 
 `NEXT_PUBLIC_*` values are baked in at build time: redeploy after changing them.
 

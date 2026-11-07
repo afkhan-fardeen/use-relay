@@ -32,6 +32,7 @@ async function mkUser(label, withStore, scopes) {
   assert.ifError(error);
   users.push(data.user.id);
   const { data: m } = await admin.from("members").select("account_id").eq("user_id", data.user.id).single();
+  await admin.from("account_apps").insert({ account_id: m.account_id, app: "export" });
   let storeId = null;
   if (withStore) {
     storeId = randomUUID();

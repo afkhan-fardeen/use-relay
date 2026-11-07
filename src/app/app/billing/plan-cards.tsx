@@ -119,7 +119,12 @@ export function PlanCards(p: Props) {
                 {plan.key === "free" ? "Free" : priceId ? prices[priceId] || "…" : "–"}
               </p>
               <ul className="mt-5 space-y-2 text-sm text-muted flex-1">
-                {plan.features.map((f) => <li key={f} className="flex gap-2"><span aria-hidden className="text-primary">✓</span>{f}</li>)}
+                {plan.features.map((f) => (
+                  <li key={f.text} className="flex gap-2">
+                    <span aria-hidden className={f.soon ? "text-muted" : "text-primary"}>{f.soon ? "○" : "✓"}</span>
+                    <span className={f.soon ? "text-muted" : ""}>{f.text}{f.soon && <span className="ml-2 text-[11px] text-secondary">Soon</span>}</span>
+                  </li>
+                ))}
               </ul>
 
               {current ? (

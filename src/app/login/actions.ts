@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { supabaseServer } from "@/lib/supabase/server";
 
-export type AuthState = { error?: string; message?: string; email?: string } | undefined;
+export type AuthState = { error?: string; message?: string; email?: string; fullName?: string; company?: string } | undefined;
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -31,9 +31,13 @@ export async function signIn(_prev: AuthState, formData: FormData): Promise<Auth
 
 export async function signUp(_prev: AuthState, formData: FormData): Promise<AuthState> {
   const { email, password } = read(formData);
-  if (!EMAIL.test(email)) return { error: "Enter a valid email address.", email };
-  if (password.length < 10) return { error: "Use a password of at least 10 characters.", email };
-  if (password.length > 200) return { error: "That password is too long.", email };
+  const fullName = String(formData.get("fullName") ?? "").trim();
+  const company = String(formData.get("company") ?? "").trim();
+  if (!fullName || fullName.length > 80) return { error: "Enter your name (up to 80 characters).", email, fullName, company };
+  if (company.length > 80) return { error: "Company name can be up to 80 characters.", email, fullName, company };
+  if (!EMAIL.test(email)) return { error: "Enter a valid email address.", email, fullName, company };
+  if (password.length < 10) return { error: "Use a password of at least 10 characters.", email, fullName, company };
+  if (password.length > 200) return { error: "That password is too long.", email, fullName, company };
 
   const h = await headers();
   const host = h.get("x-forwarded-host") ?? h.get("host");
@@ -44,14 +48,14 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: origin ? `${origin}/auth/callback` : undefined },
+    options: { emailRedirectTo: origin ? `${origin}/auth/callback` : undefined, data: { full_name: fullName, company } },
   });
   if (error) {
-    if (/already|registered/i.test(error.message)) return { error: "An account with this email already exists. Log in instead.", email };
-    if (/rate|too many/i.test(error.message)) return { error: "Too many attempts. Wait a few minutes and try again.", email };
-    return { error: "We couldn't create your account. Try again.", email };
+    if (/already|registered/i.test(error.message)) return { error: "An account with this email already exists. Log in instead.", email, fullName, company };
+    if (/rate|too many/i.test(error.message)) return { error: "Too many attempts. Wait a few minutes and try again.", email, fullName, company };
+    return { error: "We couldn't create your account. Try again.", email, fullName, company };
   }
-  if (data.session) redirect("/app/stores");
+  if (data.session) redirect("/onboarding");
   return { message: "Check your email for a confirmation link, then come back and log in.", email };
 }
 
