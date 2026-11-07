@@ -1,16 +1,13 @@
 "use client";
 
 import { useActionState } from "react";
+import { Notice } from "@/components/notice";
 import { Button, Field, inputCls } from "@/components/ui";
 import { connectStore, disconnectStore, testStore, type StoreState } from "./actions";
 
-function Notice({ state }: { state: StoreState }) {
+function StateNotice({ state }: { state: StoreState }) {
   if (!state) return null;
-  return state.error ? (
-    <p role="alert" className="text-sm text-danger">{state.error}</p>
-  ) : state.message ? (
-    <p role="status" className="text-sm text-primary">{state.message}</p>
-  ) : null;
+  return state.error ? <Notice tone="error">{state.error}</Notice> : state.message ? <Notice tone="success">{state.message}</Notice> : null;
 }
 
 export function ConnectForm() {
@@ -26,7 +23,7 @@ export function ConnectForm() {
       <Field label="Client secret" hint="Encrypted before it is saved. You can revoke it in Shopify at any time.">
         <input name="clientSecret" type="password" required className={inputCls} autoComplete="new-password" spellCheck={false} />
       </Field>
-      <Notice state={state} />
+      <StateNotice state={state} />
       <Button type="submit" className="w-full" disabled={pending}>
         {pending ? "Testing connection…" : "Test and connect"}
       </Button>
@@ -53,8 +50,8 @@ export function StoreActions({ storeId, connected }: { storeId: string; connecte
           </Button>
         </form>
       </div>
-      <Notice state={testState} />
-      <Notice state={discState} />
+      <StateNotice state={testState} />
+      <StateNotice state={discState} />
     </div>
   );
 }

@@ -3,9 +3,11 @@
 import Script from "next/script";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
+import { Icon } from "@/components/icons";
+import { Notice } from "@/components/notice";
 import { Button, Card, Chip } from "@/components/ui";
 import type { AppSlug } from "@/lib/apps";
-import { PLANS } from "@/lib/billing/plans";
+import { PLANS, PLAN_COMMON } from "@/lib/billing/plans";
 import { changePlan, openPortal } from "./actions";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -90,14 +92,10 @@ export function PlanCards(p: Props) {
       <Script src="https://cdn.paddle.com/paddle/v2/paddle.js" strategy="afterInteractive" onLoad={init} />
 
       {paid && p.currentPlan === "free" && (
-        <Card featured className="!p-5 mb-6">
-          <p className="text-sm" role="status">Payment received. Activating your plan…</p>
-        </Card>
+        <Notice tone="success" className="mb-6">Payment received. Activating your plan…</Notice>
       )}
       {p.sub?.status === "past_due" && (
-        <Card className="!p-5 mb-6 !border-danger/40">
-          <p role="alert" className="text-sm text-danger">Your last payment didn&apos;t go through. Update your payment method to keep your plan.</p>
-        </Card>
+        <Notice tone="error" className="mb-6">Your last payment didn&apos;t go through. Update your payment method to keep your plan.</Notice>
       )}
       {p.sub?.cancelAtPeriodEnd && p.sub.periodEnd && (
         <Card className="!p-5 mb-6">
@@ -123,8 +121,8 @@ export function PlanCards(p: Props) {
               <ul className="mt-5 space-y-2 text-sm text-muted flex-1">
                 {plan.features.map((f) => (
                   <li key={f.text} className="flex gap-2">
-                    <span aria-hidden className={f.soon ? "text-muted" : "text-primary"}>{f.soon ? "○" : "✓"}</span>
-                    <span className={f.soon ? "text-muted" : ""}>{f.text}{f.soon && <span className="ml-2 text-[11px] text-secondary">Soon</span>}</span>
+                    <Icon name="check" size={16} className="mt-0.5 shrink-0 text-primary" />
+                    <span>{f.text}</span>
                   </li>
                 ))}
               </ul>
@@ -153,11 +151,10 @@ export function PlanCards(p: Props) {
         })}
       </div>
 
-      {(changeState?.error || changeState?.message || portalState?.error) && (
-        <p role={changeState?.error || portalState?.error ? "alert" : "status"} className={`mt-5 text-sm ${changeState?.error || portalState?.error ? "text-danger" : "text-primary"}`}>
-          {changeState?.error ?? portalState?.error ?? changeState?.message}
-        </p>
-      )}
+      {(changeState?.error || portalState?.error) && <Notice tone="error" className="mt-5">{changeState?.error ?? portalState?.error}</Notice>}
+      {changeState?.message && <Notice tone="success" className="mt-5">{changeState.message}</Notice>}
+
+      <p className="mt-6 text-sm text-muted">{PLAN_COMMON[p.app]}</p>
 
       {p.isOwner && hasActiveSub && (
         <form action={portalAction} className="mt-8">

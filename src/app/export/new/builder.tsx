@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { Notice } from "@/components/notice";
 import { Button, Card, Chip, Eyebrow, Field, PageHeader, inputCls } from "@/components/ui";
 import {
   MF_KEY,
@@ -366,7 +367,7 @@ export function Builder({ stores }: { stores: StoreOpt[] }) {
                         <Button type="button" variant="secondary" size="sm" className="!h-10" onClick={addMetafield}>Add</Button>
                       </div>
                     </Field>
-                    {mfError && <p role="alert" className="mt-2 text-sm text-danger">{mfError}</p>}
+                    {mfError && <Notice tone="error" className="mt-3">{mfError}</Notice>}
                   </div>
                 )}
               </div>
@@ -375,7 +376,7 @@ export function Builder({ stores }: { stores: StoreOpt[] }) {
 
           <Section n={4} title="Format">
             <div className="grid sm:grid-cols-2 gap-4">
-              <Field label="File type" hint="“CSV for Excel” adds a UTF-8 marker so accents open correctly. Native .xlsx is planned.">
+              <Field label="File type" hint="“CSV for Excel” adds a UTF-8 marker so accents open correctly.">
                 <select className={inputCls} value={format} onChange={(e) => { setFormat(e.target.value as FileFormat); touch(); }}>
                   <option value="csv-bom">CSV for Excel</option>
                   <option value="csv">CSV (UTF-8)</option>
@@ -400,7 +401,7 @@ export function Builder({ stores }: { stores: StoreOpt[] }) {
             ) : !preview ? (
               <p className="mt-6 text-sm text-muted">{previewing ? "Fetching rows from Shopify…" : "Preview appears here."}</p>
             ) : !preview.ok ? (
-              <p role="alert" className="mt-6 text-sm text-danger">{preview.error}</p>
+              <Notice tone="error" className="mt-6">{preview.error}</Notice>
             ) : preview.empty ? (
               <p className="mt-6 text-sm text-muted">No rows match these filters.</p>
             ) : (
@@ -431,7 +432,7 @@ export function Builder({ stores }: { stores: StoreOpt[] }) {
             {(phase === "idle" || phase === "starting") && (
               <>
                 <p className="mt-3 text-sm text-muted">{columns.length} columns · {format === "tsv" ? "TSV" : "CSV"} · {filename}</p>
-                {runError && <p role="alert" className="mt-3 text-sm text-danger">{runError}</p>}
+                {runError && <Notice tone="error" className="mt-3">{runError}</Notice>}
                 <Button className="w-full mt-5" onClick={run} disabled={columns.length === 0 || phase === "starting"}>
                   {phase === "starting" ? "Starting…" : "Run export"}
                 </Button>
@@ -452,7 +453,7 @@ export function Builder({ stores }: { stores: StoreOpt[] }) {
             )}
             {phase === "done" && job && (
               <div className="mt-3" role="status" aria-live="polite">
-                <p className="text-sm flex items-center gap-2"><span aria-hidden className="size-2 rounded-full bg-primary" />Ready: {job.rows.toLocaleString("en-US")} rows.</p>
+                <Notice tone="success">Ready: {job.rows.toLocaleString("en-US")} rows.</Notice>
                 {job.errorDetail && <p className="mt-2 text-xs text-muted">{job.errorDetail}</p>}
                 {job.fileId && (
                   <a href={`/api/exports/${job.fileId}/download`} className="mt-5 inline-flex w-full items-center justify-center h-12 rounded-ctl bg-primary text-white hover:bg-primary-hover">
@@ -467,8 +468,8 @@ export function Builder({ stores }: { stores: StoreOpt[] }) {
               </div>
             )}
             {phase === "failed" && (
-              <div className="mt-3" role="alert">
-                <p className="text-sm text-danger">{job?.errorDetail ?? "The export failed."}</p>
+              <div className="mt-3">
+                <Notice tone="error">{job?.errorDetail ?? "The export failed."}</Notice>
                 <Button className="w-full mt-5" onClick={run}>Try again</Button>
                 <Button variant="secondary" size="sm" className="w-full mt-3" onClick={() => setPhase("idle")}>Edit settings</Button>
               </div>

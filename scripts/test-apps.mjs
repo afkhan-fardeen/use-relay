@@ -92,9 +92,9 @@ try {
   await page.goto(`${base}/`, { waitUntil: "networkidle" });
   for (const t of ["Klyroo Export", "Klyroo QR", "Own plan".length ? "Start with Export" : ""]) assert.ok(await page.locator(`text=${t}`).count() >= 1, t);
   await page.goto(`${base}/apps/export`, { waitUntil: "networkidle" });
-  for (const t of ["£19", "£49", "£99", "Recommended"]) assert.ok(await page.locator(`text=${t}`).count() >= 1, t);
+  for (const t of ["£19", "£49", "£99", "Most popular"]) assert.ok(await page.locator(`text=${t}`).count() >= 1, t);
   await page.goto(`${base}/apps/qr`, { waitUntil: "networkidle" });
-  assert.ok(await page.locator("text=Klyroo QR · Preview").count() === 1);
+  assert.ok(await page.locator("text=Make a free QR code").count() >= 1);
   ok("company home lists both apps; Export page shows the £19 / £49 / £99 plans; QR has its own page");
 
   // Onboarding: pick ONE app to start with.
@@ -135,7 +135,7 @@ try {
   await page.waitForURL("**/export");
   await page.waitForSelector('aside:visible nav a:has-text("New export")');
   assert.ok(await page.locator('aside:visible nav a:has-text("New export")').count() === 1);
-  assert.deepEqual(await page.locator('aside:visible nav a').allTextContents(), ["Home", "New export", "Schedules", "History", "Destinations", "Stores", "Billing"], "Export shows only Export's menu");
+  assert.deepEqual(await page.locator('aside:visible nav a').allTextContents(), ["Home", "New export", "History", "Stores", "Billing", "Help"], "Export shows only Export's menu");
   await page.goto(`${base}/export/billing`, { waitUntil: "networkidle" });
   await page.waitForSelector("text=Klyroo Export");
   ok("the app switcher moves between apps; each app has its own menu and billing page");
@@ -146,14 +146,34 @@ try {
   await page.waitForSelector("text=Northwind Active");
   ok("account page shows the account name and a separate billing link per app");
 
-  // QR preview pages.
+  // QR app end to end: static save, dynamic save, redirect, scan counting, switch-off.
   await page.goto(`${base}/qr/new`, { waitUntil: "networkidle" });
-  assert.ok(await page.locator('button:has-text("Save code")').isDisabled());
-  await page.fill('input[maxlength="300"]', "https://example.com/changed");
-  await page.waitForSelector('svg[role=img]');
-  await page.goto(`${base}/qr/library`, { waitUntil: "networkidle" });
-  await page.waitForSelector("text=Spring collection");
-  ok("QR preview pages render (designer with disabled save, library with sample data)");
+  await page.fill('input[placeholder*="https"]', "https://example.com/static");
+  await page.waitForSelector("[aria-label=\"QR code preview\"] svg");
+  await page.click('button:has-text("Save to my codes")');
+  await page.waitForURL(/\/qr\/[0-9a-f-]{36}/);
+  ok("a static QR code can be saved");
+  await page.goto(`${base}/qr/new`, { waitUntil: "networkidle" });
+  await page.fill('input[placeholder*="https"]', "https://example.com/landing");
+  await page.click('[role=radio]:has-text("Dynamic")');
+  const slug = `t${tag}`;
+  await page.fill('input[placeholder="spring-sale"]', slug);
+  await page.click('button:has-text("Save dynamic code")');
+  await page.waitForURL(/\/qr\/[0-9a-f-]{36}/);
+  const dynId = page.url().split("/").pop();
+  const hit = await fetch(`${base}/r/${slug}`, { redirect: "manual", headers: { "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)" } });
+  assert.equal(hit.status, 302);
+  assert.equal(hit.headers.get("location"), "https://example.com/landing");
+  let scans = 0;
+  for (let i = 0; i < 10 && !scans; i++) { scans = (await admin.from("qr_scans").select("id", { count: "exact", head: true }).eq("code_id", dynId)).count || 0; if (!scans) await new Promise((r) => setTimeout(r, 500)); }
+  assert.equal(scans, 1, "one scan recorded");
+  ok("a dynamic code redirects to its destination and the scan is recorded");
+  await admin.from("qr_codes").update({ active: false }).eq("id", dynId);
+  const off = await fetch(`${base}/r/${slug}`, { redirect: "manual" });
+  assert.notEqual(off.status, 302);
+  const missing = await fetch(`${base}/r/does-not-exist-${tag}`, { redirect: "manual" });
+  assert.equal(missing.status, 404);
+  ok("a switched-off code and an unknown code do not redirect");
 
   // Manage apps: can't switch everything off; turning one off hides it.
   await page.goto(`${base}/account/apps`, { waitUntil: "networkidle" });

@@ -2,6 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useActionState, useState } from "react";
+import { Notice } from "@/components/notice";
 import { Button, Field, inputCls } from "@/components/ui";
 import { resendConfirmation, signIn, signUp } from "./actions";
 
@@ -54,8 +55,8 @@ export function AuthForm() {
             className={inputCls}
           />
         </Field>
-        {state?.error && <p role="alert" className="text-sm text-danger">{state.error}</p>}
-        {state?.message && <p role="status" className="text-sm text-primary">{state.message}</p>}
+        {state?.error && <Notice tone="error">{state.error}</Notice>}
+        {state?.message && <Notice tone="success">{state.message}</Notice>}
         <Button type="submit" className="w-full" disabled={pending}>
           {pending ? "One moment…" : mode === "signup" ? "Create account" : "Log in"}
         </Button>
@@ -68,8 +69,8 @@ export function AuthForm() {
           <button type="submit" disabled={resending} className="mt-1 text-sm text-primary hover:text-primary-hover disabled:opacity-50">
             {resending ? "Sending…" : "resend the confirmation email"}
           </button>
-          {resent?.message && <p role="status" className="mt-2 text-sm text-primary">{resent.message}</p>}
-          {resent?.error && <p role="alert" className="mt-2 text-sm text-danger">{resent.error}</p>}
+          {resent?.message && <Notice tone="success" className="mt-3">{resent.message}</Notice>}
+          {resent?.error && <Notice tone="error" className="mt-3">{resent.error}</Notice>}
         </form>
       )}
     </div>

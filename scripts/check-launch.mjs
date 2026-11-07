@@ -21,7 +21,7 @@ async function get(path, init) {
 const strip = (html) => html.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&apos;|&#x27;|&#39;/g, "'").replace(/\s+/g, " ");
 
 // 1. Pages are public (HTTP 200 without logging in)
-const pages = ["/", "/apps/export", "/apps/qr", "/pricing", "/terms", "/privacy", "/refunds", "/contact", "/robots.txt", "/sitemap.xml"];
+const pages = ["/", "/apps/export", "/apps/qr", "/pricing", "/docs", "/docs/export/getting-started", "/docs/qr/getting-started", "/qr-code-generator", "/terms", "/privacy", "/refunds", "/contact", "/robots.txt", "/sitemap.xml"];
 const body = {};
 for (const p of pages) {
   const r = await get(p);
@@ -37,6 +37,7 @@ if (BASE.startsWith("https://")) {
   check("Domain", "www redirects to the main domain", !!www && [301, 302, 307, 308].includes(www.status), www ? `HTTP ${www.status}` : "no response");
   void w;
 }
+for (const p of ["/", "/apps/export", "/apps/qr", "/pricing"]) check("Honesty", `${p} has no Soon/Planned/Preview labels`, !/\b(coming soon|planned|in preview|soon)\b/i.test(body[p] || ""));
 const health = await get("/api/health");
 check("Domain", "health endpoint answers", health.status === 200);
 
@@ -44,7 +45,7 @@ check("Domain", "health endpoint answers", health.status === 200);
 check("Product", "home page says what the product does", /Klyroo Export/.test(body["/"]) && /Klyroo QR/.test(body["/"]));
 check("Product", "Export page describes the product and features", /Shopify/.test(body["/apps/export"]) && /templates/i.test(body["/apps/export"]));
 check("Pricing", "pricing page shows plans and prices (£19, £49, £99)", ["£19", "£49", "£99"].every((x) => (body["/pricing"] || "").includes(x)));
-check("Pricing", "pricing page lists the planned QR plans (£20, £45)", ["£20", "£45"].every((x) => (body["/pricing"] || "").includes(x)));
+check("Pricing", "pricing page lists the QR plans (£20, £45)", ["£20", "£45"].every((x) => (body["/pricing"] || "").includes(x)));
 check("Pricing", "pricing page states currency and cancel-any-time", /GBP/.test(body["/pricing"]) && /Cancel any time/i.test(body["/pricing"]));
 
 // 4. Terms

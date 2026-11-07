@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { AppPicker } from "@/components/app-picker";
-import { Logo } from "@/components/sidebar";
+import { Logo } from "@/components/logo";
 import { isAppSlug, type AppSlug } from "@/lib/apps";
 import { requireSession } from "@/lib/dal";
 import { supabaseServer } from "@/lib/supabase/server";

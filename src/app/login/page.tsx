@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { Logo } from "@/components/sidebar";
+import { Logo } from "@/components/logo";
 import { Card } from "@/components/ui";
 import { AuthForm } from "./auth-form";
 

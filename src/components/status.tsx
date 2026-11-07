@@ -3,7 +3,7 @@ import { Chip } from "@/components/ui";
 export function StatusChip({ status }: { status: string }) {
   switch (status) {
     case "succeeded":
-      return <Chip>Succeeded</Chip>;
+      return <Chip tone="success">Succeeded</Chip>;
     case "queued":
       return <Chip tone="info">Queued</Chip>;
     case "starting":
@@ -16,7 +16,7 @@ export function StatusChip({ status }: { status: string }) {
     case "failed":
       return <Chip tone="danger">Failed</Chip>;
     case "connected":
-      return <Chip>Connected</Chip>;
+      return <Chip tone="success">Connected</Chip>;
     case "needs_attention":
       return <Chip tone="danger">Reconnect</Chip>;
     case "disconnected":

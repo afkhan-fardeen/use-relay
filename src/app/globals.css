@@ -13,6 +13,8 @@
   --color-line: #e6e8f0;
   --color-line-strong: #b9b9f9; /* tertiary: soft outlines */
   --color-danger: #d92d20;
+  --color-success: #137a48; /* confirmations and "done" states (contrast 5.9 on white) */
+  --color-warning: #b54708; /* cautions that are not errors */
   /* Quiet tint derived from tertiary, for hover and selected states */
   --color-wash: rgb(185 185 249 / 0.14);
 

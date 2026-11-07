@@ -61,9 +61,11 @@ export function Card({
 }
 
 /** Chip: fully rounded, lightly outlined, violet text on a quiet surface. */
-export function Chip({ children, tone = "primary" }: { children: ReactNode; tone?: "primary" | "outline" | "danger" | "info" }) {
+export function Chip({ children, tone = "primary" }: { children: ReactNode; tone?: "primary" | "outline" | "danger" | "info" | "success" | "warning" }) {
   const tones = {
     primary: "bg-surface text-primary border border-line-strong",
+    success: "bg-success/[0.07] text-success border border-success/30",
+    warning: "bg-warning/[0.07] text-warning border border-warning/30",
     info: "bg-secondary/[0.06] text-secondary border border-secondary/25",
     outline: "bg-surface text-muted border border-line",
     danger: "bg-surface text-danger border border-danger/40",

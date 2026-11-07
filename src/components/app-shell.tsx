@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { MobileBar, Sidebar } from "@/components/sidebar";
-import { Chip } from "@/components/ui";
-import { appInfo, isAppSlug, type AppSlug } from "@/lib/apps";
+import { isAppSlug, type AppSlug } from "@/lib/apps";
 import { requireSession } from "@/lib/dal";
 import { supabaseServer } from "@/lib/supabase/server";
 
@@ -25,22 +24,14 @@ export async function AppShell({ area, children }: { area: ShellArea; children: 
     if (!apps.includes(area)) redirect("/account/apps"); // this app isn't switched on for the account
   }
   const store = stores?.[0];
-  const status = area !== "account" ? appInfo(area).status : "live";
+  const nav = { area, email: session.email, name: session.name, apps, storeName: store ? store.shop_domain.replace(".myshopify.com", "") : null };
 
   return (
     <div className="flex flex-1 min-h-screen">
-      <Sidebar area={area} email={session.email} name={session.name} apps={apps} storeName={store ? store.shop_domain.replace(".myshopify.com", "") : null} />
+      <Sidebar {...nav} />
       <div className="flex-1 min-w-0">
-        <MobileBar area={area} apps={apps} />
-        <header className="flex flex-wrap items-center justify-between gap-3 px-6 lg:px-10 h-16 border-b border-line">
-          <div className="flex items-center gap-3 text-sm">
-            <Chip tone="info">{status === "preview" ? "Preview" : "Beta"}</Chip>
-            <span className="text-muted hidden sm:inline">
-              {area === "qr" ? "Free while QR is in preview." : "Free while we test. Klyroo only reads your store data."}
-            </span>
-          </div>
-        </header>
-        <main className="px-6 lg:px-10 py-10 max-w-[1280px]">{children}</main>
+        <MobileBar {...nav} />
+        <main className="px-4 sm:px-6 lg:px-10 py-8 lg:py-10 max-w-[1280px]">{children}</main>
       </div>
     </div>
   );

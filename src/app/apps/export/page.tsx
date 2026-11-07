@@ -1,165 +1,93 @@
+import Link from "next/link";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing";
-import { Button, Card, Chip, Eyebrow } from "@/components/ui";
-import { EXPORT_PLANS } from "@/lib/billing/plans";
-import { templates } from "@/lib/export";
+import { CtaBand, Faq, Feature, PlanGrid, SectionHead, Steps, TrustRow } from "@/components/marketing-blocks";
+import { Button, Chip } from "@/components/ui";
+import { resources, templates } from "@/lib/export";
 
-const features = [
-  { t: "Templates for real jobs", d: "Orders for your 3PL, a full catalog, inventory by location, a customer list for email. Pick one and run it.", chip: `${templates.length} templates` },
-  { t: "Build your own", d: "Choose the data, filter it, pick and rename the columns, and check a live preview before you run.", chip: "Live preview" },
-  { t: "Runs on a schedule", d: "Hourly, daily, weekly or monthly. Only changed records if you want, so files stay small.", chip: "Coming soon" },
-  { t: "Delivered for you", d: "Send files to email, Google Drive, Dropbox or SFTP. Failures email you with a one-click retry.", chip: "Coming soon" },
-  { t: "Built for big stores", d: "Uses Shopify bulk operations and background jobs, so large exports finish instead of timing out.", chip: "1M+ rows" },
-  { t: "Read-only and private", d: "We only ask for read access. Credentials are encrypted and files are served through short-lived links.", chip: "Never writes" },
-];
+export const metadata = {
+  title: "Klyroo Export — Shopify data to spreadsheets",
+  description: "Export Shopify products, orders, customers, inventory and collections to CSV. Hundreds of columns, a live preview, ready-made templates and read-only access.",
+};
 
-const steps = [
-  { n: "01", t: "Connect your store", d: "Create a read-only app in Shopify and paste its credentials. It takes about two minutes." },
-  { n: "02", t: "Pick a template", d: "Start from a ready-made export or build one. Check the preview." },
-  { n: "03", t: "Run or schedule", d: "Download the file now, or send it somewhere on a schedule." },
-];
-
-export const metadata = { title: "Klyroo Export — Shopify data exports" };
+const COLUMNS = resources.reduce((n, r) => n + r.fields.length, 0);
 
 export default function ExportLanding() {
   return (
     <div className="flex-1">
-      <MarketingHeader tool="Export" anchors={[{ href: "#features", label: "Features" }, { href: "#how", label: "How it works" }, { href: "#pricing", label: "Pricing" }]} />
+      <MarketingHeader tool="Export" anchors={[{ href: "#features", label: "Features" }, { href: "#how", label: "How it works" }, { href: "#pricing", label: "Pricing" }, { href: "/docs/export/getting-started", label: "Docs" }]} />
 
-      <section className="mx-auto max-w-[1200px] px-6 pt-24 pb-20 text-center">
+      <section className="mx-auto max-w-[1200px] px-4 sm:px-6 pt-14 sm:pt-20 pb-16 text-center">
         <Chip tone="info">Klyroo Export · for Shopify</Chip>
-        <h1 className="mt-8 mx-auto max-w-[900px] text-[40px] sm:text-[56px] leading-[1.08] tracking-[-0.02em] font-light">
-          Every Shopify export, ready in minutes.
+        <h1 className="mt-6 mx-auto max-w-[860px] text-[40px] sm:text-[56px] leading-[1.05] tracking-[-0.025em] font-light">
+          Every Shopify export, <span className="text-primary">ready in minutes.</span>
         </h1>
-        <p className="mt-6 mx-auto max-w-[640px] text-[17px] leading-[27px] text-muted">
-          Products, orders, customers and inventory to CSV, on a schedule, delivered to your 3PL, your accountant or your inbox. No code and no API.
+        <p className="mt-6 mx-auto max-w-[640px] text-[18px] leading-[28px] text-muted">
+          Products, orders, customers, inventory and collections to CSV. Pick a template or choose your own columns, check a live preview, and download. No code, no API.
         </p>
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-          <Button href="/login?app=export">Start free</Button>
-          <Button variant="secondary" href="#pricing">See pricing</Button>
+        <div className="mt-9 flex flex-col sm:flex-row gap-3 justify-center">
+          <Button href="/login?app=export" className="w-full sm:w-auto">Start free</Button>
+          <Button href="#pricing" variant="secondary" className="w-full sm:w-auto">See pricing</Button>
         </div>
-        <p className="mt-4 text-sm text-muted">Read-only access. No card to start.</p>
+        <div className="mt-7 flex justify-center"><TrustRow items={["Read-only access", "No card needed", "30-day money-back"]} /></div>
       </section>
 
-      <section className="mx-auto max-w-[1200px] px-6 pb-24">
-        <Card featured className="!p-6 sm:!p-10">
-          <div className="grid lg:grid-cols-[1fr_320px] gap-10 items-start">
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-3 mb-6">
-                <Eyebrow>Orders for 3PL</Eyebrow>
-                <Chip tone="outline">paid</Chip>
-                <Chip tone="info">Every day 06:00</Chip>
-              </div>
-              <div className="overflow-x-auto rounded-ctl border border-line">
-                <table className="w-full text-xs whitespace-nowrap">
-                  <thead>
-                    <tr className="text-left text-muted border-b border-line">
-                      {["Order", "Ship to", "City", "SKU", "Qty"].map((h) => <th key={h} className="px-4 py-3 font-normal">{h}</th>)}
-                    </tr>
-                  </thead>
-                  <tbody className="tabular">
-                    {[
-                      ["#10420", "Maya Reyes", "Austin", "LEG-BL-M-100", "1"],
-                      ["#10421", "Jo Okafor", "Leeds", "JAC-SA-L-101", "2"],
-                      ["#10422", "Dee Lindqvist", "Lyon", "TEE-OL-S-102", "1"],
-                      ["#10423", "Lena Patel", "Toronto", "BOT-SL-XS-103", "3"],
-                    ].map((r) => (
-                      <tr key={r[0]} className="border-b border-line last:border-0">
-                        {r.map((c, i) => <td key={i} className="px-4 py-3">{c}</td>)}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div className="rounded-card border border-line p-6 bg-canvas">
-              <Eyebrow>Delivered</Eyebrow>
-              <p className="mt-2 text-[22px] leading-[26px] font-normal">sftp.eastcoast3pl.com</p>
-              <p className="text-sm text-muted mt-1">orders_2026-11-06.csv · 1,284 rows</p>
-              <div className="my-5 border-t border-line" />
-              <div className="flex items-center gap-2 text-sm"><span aria-hidden className="size-2 rounded-full bg-primary" />Succeeded in 34s</div>
-              <div className="flex items-center gap-2 text-sm mt-2 text-muted"><span aria-hidden className="size-2 rounded-full bg-secondary" />Next run tomorrow, 06:00</div>
-            </div>
-          </div>
-        </Card>
-        <p className="mt-4 text-center text-xs text-muted">Illustrative example. Scheduled runs and delivery are coming soon; today you download the file.</p>
-      </section>
-
-      <section id="features" className="mx-auto max-w-[1200px] px-6 py-24 border-t border-line">
-        <Eyebrow>What you get</Eyebrow>
-        <h2 className="mt-4 max-w-[680px] text-[37px] leading-[44px] font-light">The spreadsheet your team keeps asking for.</h2>
-        <div className="mt-12 grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {features.map((f) => (
-            <Card key={f.t}>
-              <Chip tone="info">{f.chip}</Chip>
-              <h3 className="mt-6 text-[22px] leading-[26px] font-light">{f.t}</h3>
-              <p className="mt-3 text-[15px] leading-6 text-muted">{f.d}</p>
-            </Card>
-          ))}
+      <section id="features" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
+        <SectionHead eyebrow="What you get" title={`${COLUMNS}+ columns, and the right ones in two clicks.`} sub="Everything Shopify holds about your catalog and orders, laid out the way your team, your 3PL or your accountant needs it." />
+        <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Feature icon="list" title={`${templates.length} ready-made templates`}>Orders for your 3PL, a full catalog, inventory by location, customer lists and more. Pick one and run it.</Feature>
+          <Feature icon="plus" title="Build your own">Choose the data, filter it, pick, reorder and rename the columns to match the system that will read the file.</Feature>
+          <Feature icon="history" title="Live preview">See real rows from your store before you export, so you know the file is right before you run it.</Feature>
+          <Feature icon="store" title="Built for big stores">Exports run in the background and finish even on large stores. Leave the page and come back to History.</Feature>
+          <Feature icon="apps" title="Metafields included">Add any product, variant, order, customer or collection metafield as a column on every plan.</Feature>
+          <Feature icon="download" title="Read-only and private">We only read your store. Files are private, download links are short-lived, and files are deleted after 7 days.</Feature>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1200px] px-6 py-24 border-t border-line">
-        <Eyebrow>Templates</Eyebrow>
-        <h2 className="mt-4 text-[37px] leading-[44px] font-light">Start from the job, not the field list.</h2>
+      <section className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
+        <SectionHead eyebrow="Templates" title="Start from the job, not the field list." />
         <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {templates.map((t) => (
-            <div key={t.id} className="border border-line rounded-card p-6">
-              <p className="text-[13px] font-normal text-secondary">{t.category}</p>
-              <h3 className="mt-4 font-light">{t.name}</h3>
+            <div key={t.id} className="border border-line rounded-card p-6 bg-surface">
+              <p className="text-sm text-primary">{t.category}</p>
+              <h3 className="mt-3 text-[17px] font-normal">{t.name}</h3>
               <p className="mt-2 text-sm text-muted">{t.blurb}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section id="how" className="mx-auto max-w-[1200px] px-6 py-24 border-t border-line">
-        <Eyebrow>How it works</Eyebrow>
-        <h2 className="mt-4 text-[37px] leading-[44px] font-light">From connect to first file in three minutes.</h2>
-        <ol className="mt-12 grid md:grid-cols-3 gap-4">
-          {steps.map((s) => (
-            <li key={s.n} className="border border-line rounded-card p-8">
-              <span className="text-primary font-normal text-sm">{s.n}</span>
-              <h3 className="mt-6 text-[22px] leading-[26px] font-light">{s.t}</h3>
-              <p className="mt-3 text-[15px] leading-6 text-muted">{s.d}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
-
-      <section id="pricing" className="mx-auto max-w-[1200px] px-6 py-24 border-t border-line">
-        <Eyebrow>Pricing</Eyebrow>
-        <h2 className="mt-4 text-[37px] leading-[44px] font-light">Simple plans. No per-row surprises.</h2>
-        <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {EXPORT_PLANS.map((p) => (
-            <Card key={p.key} featured={p.recommended} className={`!p-6 flex flex-col ${p.recommended ? "!border-primary/50" : ""}`}>
-              <div className="flex items-center justify-between">
-                <h3 className="text-[22px] leading-[26px] font-light">{p.name}</h3>
-                {p.recommended && <Chip tone="info">Recommended</Chip>}
-              </div>
-              <p className="mt-1 text-sm text-muted">{p.blurb}</p>
-              <p className="mt-5 text-[40px] leading-[44px] font-normal tabular">{p.priceLabel}{p.key !== "free" && <span className="text-base font-normal text-muted"> /mo</span>}</p>
-              <ul className="mt-6 space-y-3 text-[15px] text-muted flex-1">
-                {p.features.map((f) => (
-                  <li key={f.text} className="flex gap-3">
-                    <span aria-hidden className={f.soon ? "text-muted" : "text-primary"}>{f.soon ? "○" : "✓"}</span>
-                    <span>{f.text}{f.soon && <span className="ml-2 text-[11px] text-secondary">Soon</span>}</span>
-                  </li>
-                ))}
-              </ul>
-              <Button variant={p.recommended ? "primary" : "secondary"} href="/login?app=export" className="mt-8 w-full">{p.key === "free" ? "Start free" : `Choose ${p.name}`}</Button>
-            </Card>
-          ))}
+      <section id="how" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
+        <SectionHead eyebrow="How it works" title="From connect to first file in three minutes." />
+        <div className="mt-12">
+          <Steps items={[
+            ["Connect your store", "Create a read-only app in Shopify and paste its credentials. About two minutes."],
+            ["Pick a template", "Start from a ready-made export or build your own, and check the preview."],
+            ["Download your file", "Run the export and download the CSV when it's ready. It's kept in History for 7 days."],
+          ]} />
+          <p className="mt-6 text-sm text-muted">Need help connecting? Read the <Link href="/docs/export/connect-shopify" className="text-primary">connection guide</Link>.</p>
         </div>
-        <p className="mt-4 text-xs text-muted">Prices in GBP per month, per Klyroo app. “Soon” items are on the roadmap and not included yet. Final prices are confirmed at checkout.</p>
       </section>
 
-      <section className="mx-auto max-w-[1200px] px-6 pb-24">
-        <Card featured className="!p-12 text-center">
-          <h2 className="text-[40px] leading-[1.05] tracking-[-0.02em] font-light max-w-[640px] mx-auto">Stop copy-pasting from Shopify.</h2>
-          <div className="mt-8 flex justify-center"><Button href="/login?app=export">Start free</Button></div>
-        </Card>
+      <section id="pricing" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
+        <SectionHead eyebrow="Pricing" title="Pay for stores and export size. Nothing else." sub="Every plan has every column and every template. Plans differ only by how many stores you connect and how many rows an export can have." />
+        <div className="mt-12"><PlanGrid app="export" /></div>
       </section>
 
+      <section className="mx-auto max-w-[900px] px-4 sm:px-6 py-20 border-t border-line">
+        <SectionHead eyebrow="Questions" title="Good to know." center />
+        <div className="mt-12">
+          <Faq items={[
+            ["Will it change anything in my store?", "No. Klyroo Export only reads data. The credentials you create have read-only permissions."],
+            ["What counts as a row?", "One row in the file. Products export one row per variant, and orders export one row per line item."],
+            ["What if my export is bigger than my plan allows?", "The export stops with a clear message. You can narrow it with filters, or upgrade for a higher limit."],
+            ["Can I export orders older than 60 days?", "Yes, if you add the optional read_all_orders permission to your Shopify app."],
+            ["How long are my files kept?", "7 days. After that they're deleted automatically."],
+            ["Do the plans have different features?", "No. Only the number of stores and the rows per export differ."],
+          ]} />
+        </div>
+      </section>
+
+      <CtaBand title="Stop copy-pasting from Shopify." sub="Connect a store and run your first export for free." href="/login?app=export" label="Start free" />
       <MarketingFooter />
     </div>
   );

@@ -44,9 +44,9 @@ try {
     page.setDefaultTimeout(60000);
     await login(page, base);
     await page.goto(`${base}/export/billing`, { waitUntil: "networkidle" });
-    await page.waitForSelector("text=Free during the beta");
+    await page.waitForSelector("text=Free for now");
     assert.equal(await page.locator("text=Choose Growth").count(), 0);
-    ok("without Paddle keys the page says 'Free during the beta' and offers no checkout");
+    ok('without Paddle keys the page says Free for now and offers no checkout');
   });
 
   await withServer(3342, {
@@ -73,9 +73,9 @@ try {
     ok("Paddle.js loads and enables checkout buttons");
     // Each app bills separately: Export has plans for sale, QR does not.
     await page.goto(`${base}/qr/billing`, { waitUntil: "domcontentloaded" });
-    await page.waitForSelector("text=Free while in preview");
+    await page.waitForSelector("text=Free for now");
     assert.equal(await page.locator('button:has-text("Choose")').count(), 0);
-    ok("QR billing is separate: it stays free in preview even while Export has paid plans");
+    ok("QR billing is separate: it stays free for now even while Export has paid plans");
     assert.deepEqual(errors, [], "no uncaught browser errors");
     ok("no uncaught errors in the browser");
   });

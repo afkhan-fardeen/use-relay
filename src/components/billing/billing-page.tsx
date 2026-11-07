@@ -1,4 +1,4 @@
-import { Card, Chip, PageHeader } from "@/components/ui";
+import { Card, PageHeader } from "@/components/ui";
 import { appInfo, type AppSlug } from "@/lib/apps";
 import { requireSession } from "@/lib/dal";
 import { getEntitlements } from "@/lib/billing/entitlements";
@@ -14,12 +14,11 @@ export async function AppBilling({ app }: { app: AppSlug }) {
   if (!billingConfigured(app)) {
     return (
       <>
-        <PageHeader title="Billing" sub={`Plans and payments for ${info.fullName}.`} actions={<Chip tone="info">{info.status === "preview" ? "Preview" : "Beta"}</Chip>} />
+        <PageHeader title="Billing" sub={`Plans and payments for ${info.fullName}.`} />
         <Card featured className="!p-8 max-w-2xl">
-          <h2 className="text-[22px] leading-[1.2] font-light">{info.status === "preview" ? "Free while in preview" : "Free during the beta"}</h2>
+          <h2 className="text-[22px] leading-[1.2] font-light">Free for now</h2>
           <p className="mt-3 text-sm text-muted leading-[22px]">
-            Billing isn&apos;t switched on for {info.fullName} yet, so there&apos;s nothing to pay. {info.slug === "export" && "While we test, each account can run up to 30 exports an hour and keep files for 7 days. "}
-            We&apos;ll announce pricing before anything changes. Each Klyroo app has its own plan, so this never affects your other apps.
+            Paid plans for {info.fullName} aren&apos;t switched on yet, so everything is free and there&apos;s nothing to pay. We&apos;ll tell you before that changes. Each Klyroo app has its own plan, so this never affects your other apps.
           </p>
         </Card>
       </>

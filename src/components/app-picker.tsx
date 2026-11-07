@@ -2,6 +2,7 @@
 
 import { startTransition, useActionState, useState } from "react";
 import { saveApps } from "@/app/onboarding/actions";
+import { Notice } from "@/components/notice";
 import { Button, Chip } from "@/components/ui";
 import { APPS, type AppSlug } from "@/lib/apps";
 
@@ -36,10 +37,7 @@ export function AppPicker({ initial, submitLabel, mode, intent }: Props) {
                 <h2 className="text-[22px] leading-[1.2] font-light">{a.fullName}</h2>
                 <span aria-hidden className={`grid place-items-center size-6 rounded-full border text-xs ${on ? "bg-primary border-primary text-white" : "border-line-strong text-transparent"}`}>✓</span>
               </div>
-              <div className="mt-2 flex gap-2">
-                {a.status === "live" ? <Chip>Live</Chip> : <Chip tone="info">Preview</Chip>}
-                <Chip tone="outline">Own plan</Chip>
-              </div>
+              <div className="mt-2"><Chip tone="outline">Own plan</Chip></div>
               <p className="mt-3 text-sm text-muted">{a.tagline}</p>
               <ul className="mt-4 space-y-1.5 text-sm text-muted">
                 {a.points.map((p) => <li key={p} className="flex gap-2"><span aria-hidden className="text-primary">·</span>{p}</li>)}
@@ -48,8 +46,8 @@ export function AppPicker({ initial, submitLabel, mode, intent }: Props) {
           );
         })}
       </div>
-      {state?.error && <p role="alert" className="mt-5 text-sm text-danger">{state.error}</p>}
-      {state?.message && <p role="status" className="mt-5 text-sm text-primary">{state.message}</p>}
+      {state?.error && <Notice tone="error" className="mt-5">{state.error}</Notice>}
+      {state?.message && <Notice tone="success" className="mt-5">{state.message}</Notice>}
       <div className="mt-6 flex items-center gap-4">
         <Button type="submit" disabled={pending}>{pending ? "Saving…" : submitLabel}</Button>
         <p className="text-xs text-muted">Each app is separate, with its own plan and billing. You can add another any time.</p>
