@@ -91,6 +91,8 @@ async function applySubscription(event: Json): Promise<{ applied: boolean; reaso
 
   // Which account? Trust only a signed account id (set by our checkout), or a subscription we already know.
   const { data: known } = await db.from("subscriptions").select("account_id").eq("provider_subscription_id", subscriptionId).maybeSingle();
+  // A payment that failed before the subscription ever started (declined card): nothing to record.
+  if (sub.status === "failed" && !known) return { applied: false, reason: "failed before activation" };
   let accountId: string | null = known?.account_id ?? null;
   if (!accountId) {
     const md = (sub.metadata ?? {}) as Json;

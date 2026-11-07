@@ -183,6 +183,12 @@ try {
   assert.equal((await getEntitlements(A.accountId)).plan, "free", "a real cancellation ends paid access");
   ok("webhook: a scheduled cancel keeps access; the final cancellation drops the account to free");
 
+  // A declined first payment (status "failed" before any subscription existed) records nothing.
+  r = await send(subEvent("subscription.failed", { subId: "sub_declined", status: "failed", custom: custom(A.accountId) }));
+  assert.deepEqual([r.body.applied, r.body.reason], [false, "failed before activation"]);
+  assert.equal((await admin.from("subscriptions").select("id").eq("provider_subscription_id", "sub_declined")).data.length, 0);
+  ok("webhook: a declined first payment records no subscription");
+
   // Failed renewals: on_hold has no access; an unpaid (pending) subscription is not recorded.
   await send(subEvent("subscription.on_hold", { subId: "sub_hold", price: "pdt_starter01", status: "on_hold", custom: custom((await mkAccount("h")).accountId) }));
   r = await send(subEvent("subscription.updated", { subId: "sub_pend", status: "pending", custom: custom(A.accountId) }));
