@@ -70,7 +70,7 @@ export default function Privacy() {
         <UL items={[
           "Export files are deleted automatically 7 days after they are created.",
           "Your Shopify credentials are deleted when you disconnect a store.",
-          "Account, job history and subscription records are kept while your account is open. When you ask us to delete your account we delete or anonymise them, except billing records we must keep by law.",
+          "Account, job history and subscription records are kept while your account is open. When you delete your account (Account > Delete account) or ask us to, we delete or anonymise them, except billing records we must keep by law.",
           "Operational logs are kept for a limited period set by our hosting providers.",
         ]} />
       </Section>

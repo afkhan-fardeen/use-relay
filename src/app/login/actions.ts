@@ -3,6 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { isAppSlug } from "@/lib/apps";
+import { allow } from "@/lib/ratelimit";
 import { supabaseServer } from "@/lib/supabase/server";
 
 export type AuthState = { error?: string; message?: string; email?: string; fullName?: string; company?: string } | undefined;
@@ -76,4 +77,39 @@ export async function resendConfirmation(_prev: AuthState, formData: FormData): 
     return { error: "We couldn't send the email. Try again shortly.", email };
   }
   return { message: "Sent. Check your inbox and your spam folder.", email };
+}
+
+async function origin(): Promise<string | undefined> {
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  const proto = h.get("x-forwarded-proto") ?? (host?.startsWith("localhost") ? "http" : "https");
+  return host ? `${proto}://${host}` : undefined;
+}
+
+/** Sends a reset link. The answer is always the same, so nobody can use this to find out who has an account. */
+export async function requestPasswordReset(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  if (!EMAIL.test(email)) return { error: "Enter a valid email address.", email };
+  const h = await headers();
+  const ip = (h.get("x-forwarded-for") ?? "").split(",")[0].trim() || "unknown";
+  if (!allow(`reset:${ip}`, 10, 3_600_000) || !allow(`reset:${email}`, 3, 3_600_000)) return { error: "Too many requests. Try again in an hour.", email };
+  const o = await origin();
+  const supabase = await supabaseServer();
+  await supabase.auth.resetPasswordForEmail(email, { redirectTo: o ? `${o}/auth/callback?next=/reset-password` : undefined });
+  return { message: "If there is an account for that email, we have sent a link to reset the password. It can take a minute. Check spam too.", email };
+}
+
+/** The signed-in recovery session sets a new password. */
+export async function setNewPassword(_prev: AuthState, formData: FormData): Promise<AuthState> {
+  const password = String(formData.get("password") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+  if (password.length < 10) return { error: "Use a password of at least 10 characters." };
+  if (password.length > 200) return { error: "That password is too long." };
+  if (password !== confirm) return { error: "The two passwords don't match." };
+  const supabase = await supabaseServer();
+  const { data } = await supabase.auth.getUser();
+  if (!data.user) return { error: "This reset link has expired. Ask for a new one." };
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { error: /same|different/i.test(error.message) ? "Choose a password you haven't used before." : "We couldn't change the password. Try again." };
+  redirect("/app");
 }

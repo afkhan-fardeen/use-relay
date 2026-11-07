@@ -13,6 +13,7 @@ import path from "node:path";
 import { getEntitlements } from "../billing/entitlements.ts";
 import { columnLabel, fileName, getResource, validateConfig, type ExportConfig } from "../export.ts";
 import { FRIENDLY, ShopifyError } from "../shopify.ts";
+import { reportError } from "../report.ts";
 import { supabaseAdmin } from "../supabase/admin.ts";
 import { JobError, pollBulk, startBulk, streamJsonl, waitForBulk } from "./bulk.ts";
 import { csvLine } from "./csv.ts";
@@ -209,7 +210,7 @@ async function handleFailure(job: JobRow, worker: string, e: unknown): Promise<v
     retryable = e.code === "unavailable" || e.code === "unexpected";
     authProblem = TERMINAL_SHOPIFY.has(e.code);
   } else {
-    console.error("export job crashed", { job: job.id, attempt: job.attempt, error: e instanceof Error ? e.message : String(e) });
+    reportError("export job", e, { job: job.id, attempt: job.attempt });
   }
 
   const now = new Date();

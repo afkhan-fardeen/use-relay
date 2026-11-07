@@ -1,6 +1,7 @@
 // Processes a Dodo Payments webhook delivery: verify → record once → apply → mark processed.
 // Safe to retry: deliveries are at-least-once and can arrive out of order.
 
+import { reportError } from "../report.ts";
 import { supabaseAdmin } from "../supabase/admin.ts";
 import { productMap, verifyAccountSignature, verifyDodoSignature } from "./dodo.ts";
 
@@ -65,7 +66,7 @@ export async function processDodoWebhook(rawBody: string, h: WebhookHeaders, now
     return { status: 200, body: { ok: true, applied: result.applied, reason: result.reason } };
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
-    console.error("billing webhook failed", { eventId, eventType, error: message });
+    reportError("billing webhook", e, { eventId, eventType });
     await finish("error", message.slice(0, 300));
     return { status: 500, body: { error: "processing_failed" } }; // Dodo will retry
   }

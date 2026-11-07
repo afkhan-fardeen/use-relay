@@ -1,4 +1,5 @@
 import { createHmac, createHash } from "node:crypto";
+import { reportError } from "@/lib/report";
 import { allow } from "@/lib/ratelimit";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -56,7 +57,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
     p_visitor: visitor,
   });
   if (error) {
-    console.error("qr redirect failed", error.message);
+    reportError("qr redirect", error);
     return new Response("Temporarily unavailable. Please scan again in a moment.", { status: 503, headers: { "retry-after": "5" } });
   }
   if (!data) return notFound();

@@ -2,6 +2,7 @@
 // Runs inside the web server process (Render keeps it alive); started after enqueue and by /api/tick.
 
 import { hostname } from "node:os";
+import { reportError } from "../report.ts";
 import { supabaseAdmin } from "../supabase/admin.ts";
 import { runJob, type JobRow } from "./run.ts";
 
@@ -27,7 +28,7 @@ export async function drainQueue(maxJobs = 25): Promise<number> {
       done++;
     }
   } catch (e) {
-    console.error("queue: drain crashed", e instanceof Error ? e.message : String(e));
+    reportError("queue drain", e);
   } finally {
     draining = false;
   }

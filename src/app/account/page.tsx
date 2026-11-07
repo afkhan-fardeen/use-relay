@@ -4,6 +4,7 @@ import { Button, Card, Chip, Eyebrow, PageHeader } from "@/components/ui";
 import { APPS, isAppSlug } from "@/lib/apps";
 import { requireSession } from "@/lib/dal";
 import { supabaseServer } from "@/lib/supabase/server";
+import { ChangePassword, DeleteAccount } from "./security";
 
 export const metadata = { title: "Account — Klyroo" };
 
@@ -53,6 +54,10 @@ export default async function AccountHome() {
           </ul>
           <div className="mt-6"><Button variant="secondary" size="sm" href="/account/apps">Add or remove apps</Button></div>
         </Card>
+      </div>
+      <div className="mt-6 grid gap-6 max-w-4xl">
+        <ChangePassword />
+        <DeleteAccount isOwner={session.role === "owner"} />
       </div>
     </>
   );

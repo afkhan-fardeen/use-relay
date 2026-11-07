@@ -20,6 +20,8 @@ if (mode || dodoKeys.some((k) => process.env[k])) {
   if (mode === "test_mode" && process.env.DODO_PAYMENTS_API_KEY && !process.env.DODO_PAYMENTS_API_KEY.startsWith("dodo_test_")) problems.push("test_mode with a non-test API key");
 }
 if (prod) {
+  if (!process.env.ADMIN_EMAILS) problems.push("ADMIN_EMAILS is empty, so nobody can open /admin");
+  if (!process.env.ERROR_WEBHOOK_URL) problems.push("ERROR_WEBHOOK_URL is empty, so server errors are only in the Render logs (optional but recommended)");
   problems.push(...need(["NEXT_PUBLIC_SITE_URL"], "short links and the checkout return address"));
   if (mode !== "live_mode") problems.push("production should use DODO_PAYMENTS_ENVIRONMENT=live_mode once Dodo verification is approved");
   if (!(process.env.NEXT_PUBLIC_SITE_URL || "").startsWith("https://")) problems.push("NEXT_PUBLIC_SITE_URL must be https in production");

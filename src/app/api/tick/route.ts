@@ -1,4 +1,5 @@
 import { timingSafeEqual } from "node:crypto";
+import { reportError } from "@/lib/report";
 import { after } from "next/server";
 import { cleanupExpiredFiles, drainQueue } from "@/lib/export/queue";
 import { supabaseAdmin } from "@/lib/supabase/admin";
@@ -26,7 +27,7 @@ export async function POST(req: Request) {
   const db = supabaseAdmin();
   const reaped = await db.rpc("reap_expired_jobs");
   if (reaped.error) {
-    console.error("tick: reap failed", reaped.error.message);
+    reportError("tick reap", reaped.error);
     return Response.json({ ok: false, error: "reap_failed" }, { status: 500 });
   }
 
@@ -35,7 +36,7 @@ export async function POST(req: Request) {
     await drainQueue();
     await cleanupExpiredFiles();
     const purged = await db.rpc("purge_old_data"); // old scans, webhook deliveries and job events
-    if (purged.error) console.error("tick: purge failed", purged.error.message);
+    if (purged.error) reportError("tick purge", purged.error);
   });
 
   return Response.json({ ok: true, requeued: reaped.data, at: new Date().toISOString() });

@@ -144,3 +144,10 @@ export async function changeSubscriptionPlan(subscriptionId: string, productId: 
   const r = await dodo("POST", `/subscriptions/${subscriptionId}/change-plan`, { product_id: productId, quantity: 1, proration_billing_mode: "prorated_immediately" }, 20_000);
   return r.ok ? { ok: true } : { ok: false, error: r.detail || "The plan couldn't be changed. Try again." };
 }
+
+/** Cancel a subscription right now (used when an account is deleted, so nobody is billed afterwards). */
+export async function cancelSubscriptionNow(subscriptionId: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (!/^sub_[A-Za-z0-9]+$/.test(subscriptionId)) return { ok: false, error: "Invalid subscription." };
+  const r = await dodo("PATCH", `/subscriptions/${subscriptionId}`, { status: "cancelled", cancel_reason: "cancelled_by_customer" }, 20_000);
+  return r.ok ? { ok: true } : { ok: false, error: r.detail };
+}

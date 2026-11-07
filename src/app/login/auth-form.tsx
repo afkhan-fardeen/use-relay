@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useActionState, useState } from "react";
 import { Notice } from "@/components/notice";
@@ -7,7 +8,8 @@ import { Button, Field, inputCls } from "@/components/ui";
 import { resendConfirmation, signIn, signUp } from "./actions";
 
 export function AuthForm() {
-  const wanted = useSearchParams().get("app");
+  const params = useSearchParams();
+  const wanted = params.get("app");
   const [mode, setMode] = useState<"signup" | "login">("signup");
   const [state, action, pending] = useActionState(mode === "signup" ? signUp : signIn, undefined);
   const [resent, resend, resending] = useActionState(resendConfirmation, undefined);
@@ -55,6 +57,8 @@ export function AuthForm() {
             className={inputCls}
           />
         </Field>
+        {mode === "login" && <p className="-mt-2 text-sm"><Link href="/forgot-password" className="text-primary hover:text-primary-hover">Forgot your password?</Link></p>}
+        {params.get("link") === "expired" && !state && <Notice tone="warning">That email link has expired or was already used. Log in, or ask for a new one.</Notice>}
         {state?.error && <Notice tone="error">{state.error}</Notice>}
         {state?.message && <Notice tone="success">{state.message}</Notice>}
         <Button type="submit" className="w-full" disabled={pending}>

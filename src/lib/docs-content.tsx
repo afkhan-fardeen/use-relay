@@ -30,8 +30,17 @@ export const DOCS: DocPage[] = [
         <P>Open <strong className="font-normal">Account → Apps</strong> to switch apps on or off. Turning an app off only hides it. Nothing is deleted. Use the app switcher at the top of the sidebar to move between your apps.</P>
         <H2>Billing</H2>
         <P>Every app has its own <strong className="font-normal">Billing</strong> page in its sidebar. Plans are monthly and you can cancel from that page at any time. Payments are handled by Dodo Payments, our Merchant of Record. See the <A href="/refunds">refund policy</A> for the 30-day money-back guarantee.</P>
+        <H2>Forgot your password?</H2>
+        <Steps items={[
+          { title: "Ask for a link", body: <P>On the <A href="/login">log in</A> screen choose <strong className="font-normal">Forgot your password?</strong> and enter your email.</P> },
+          { title: "Open the email", body: <P>We email a link that works once. Check spam if you don&apos;t see it within a minute.</P> },
+          { title: "Choose a new password", body: <P>Use at least 10 characters. You&apos;re signed in straight away.</P> },
+        ]} />
+        <P>To change your password while signed in, open <strong className="font-normal">Account</strong> and use <strong className="font-normal">Password</strong>.</P>
+        <H2>Deleting your account</H2>
+        <P>Open <strong className="font-normal">Account</strong>, scroll to <strong className="font-normal">Delete account</strong>, type your email and password. This cancels any paid plan first, then permanently removes your stores, saved QR codes, export history and files. Printed dynamic QR codes stop working. It can&apos;t be undone, and only the account owner can do it.</P>
         <H2>Need something else?</H2>
-        <P>To change your email address or delete your account and data, email {mail}.</P>
+        <P>To change your email address, or if anything here doesn&apos;t work, email {mail}.</P>
       </>
     ),
   },

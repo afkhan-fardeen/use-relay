@@ -89,7 +89,7 @@ export default function Terms() {
       <Section n={10} title="Your data">
         <p>
           You own your data and the files you export. We process it only to provide the service. Our <A href="/privacy">privacy policy</A> explains what we collect and how we protect it.
-          Export files are stored privately and deleted automatically after a limited time. You can ask us to delete your account and data at any time.
+          Export files are stored privately and deleted automatically after a limited time. You can delete your account and data yourself at any time from the Account page.
         </p>
       </Section>
 
