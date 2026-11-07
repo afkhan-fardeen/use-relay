@@ -6,6 +6,10 @@ export const metadata = { title: "Refund policy — Klyroo", description: "How r
 export default function Refunds() {
   return (
     <LegalPage title="Refund policy" intro="We want you to be confident trying Klyroo. If a paid plan isn't right for you, you can get your money back as described below.">
+      <Section title="About our plans">
+        <p>Klyroo plans are digital software subscriptions, billed monthly in GBP. There are no physical goods to return.</p>
+      </Section>
+
       <Section title="30-day money-back guarantee">
         <p>
           If you subscribe to a paid plan of any Klyroo app for the first time, you can ask for a full refund within <strong className="font-normal">30 days</strong> of your first payment for that app. No reason is needed.

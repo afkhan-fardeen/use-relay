@@ -46,6 +46,9 @@ export default function Privacy() {
           </table>
         </div>
         <p>We do not sell personal data and we do not use exported store data for advertising or to build profiles.</p>
+        <p>
+          <strong className="font-normal">Roles.</strong> For your account, billing and QR codes we are the controller. For the store data you choose to export (which can include your customers&apos; personal data) you are the controller and we are your processor: we handle it only to build the files you ask for, on your instructions. For people who scan your QR codes, we count scans for you without cookies and without storing IP addresses (see the table above).
+        </p>
       </Section>
 
       <Section n={3} title="Who we share it with">
@@ -55,7 +58,7 @@ export default function Privacy() {
           <><strong className="font-normal">Render</strong> for application hosting (Singapore).</>,
           <><strong className="font-normal">Dodo Payments</strong>, our Merchant of Record, which sells our plans, collects payment and handles tax, invoices and refunds. Dodo Payments acts as an independent controller of your payment data under its own <A href="https://dodopayments.com/legal/privacy-policy">privacy policy</A>.</>,
           <><strong className="font-normal">Shopify</strong>, the source of the data you ask us to export.</>,
-          "Email providers we use to send account emails. These do not receive your exported store data.",
+          <><strong className="font-normal">Resend</strong>, which delivers our account emails (confirmation and password reset). It receives your email address and the message content, not your exported store data.</>,
           "Professional advisers, and public authorities where we are legally required to.",
         ]} />
       </Section>

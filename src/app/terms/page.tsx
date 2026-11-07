@@ -17,7 +17,8 @@ export default function Terms() {
       <Section n={2} title="The services">
         <p>
           <strong className="font-normal">Klyroo Export</strong> lets you export data from your Shopify store, such as products, orders, customers, inventory and collections, to spreadsheet files.
-          <strong className="font-normal"> Klyroo QR</strong> lets you design QR codes. Klyroo QR is currently a preview and some features are not yet available.
+          <strong className="font-normal"> Klyroo QR</strong> lets you design QR codes for links, text, Wi-Fi, contact cards, email, SMS and phone numbers, and create dynamic links whose destination you can change and whose scans you can count.
+          Both are online software services delivered instantly through your browser. We sell no physical goods and no manual services.
           Each Klyroo app is a separate service with its own plans and billing. Using one does not require you to use another.
         </p>
       </Section>
@@ -34,7 +35,9 @@ export default function Terms() {
         <UL items={[
           "Klyroo Export asks for read-only access to your store using credentials you create in your own Shopify account. We never change your store.",
           "You are responsible for the permissions you grant, for keeping your Shopify credentials safe, and for complying with Shopify's terms. You can revoke access at any time in Shopify.",
-          "Exports can include personal data about your customers. You are responsible for having a lawful basis to use that data and for how you store and share the files you download.",
+          "You may connect only a store you own or are authorised to manage, and only to export your own store's data. Klyroo Export is not a tool for collecting data from stores or people you have no right to.",
+          "Exports can include personal data about your customers. For that data you are the controller and we act as your processor: we handle it only to build the files you ask for. You are responsible for having a lawful basis to use it and for how you store and share the files you download.",
+          "Do not use exported customer data for spam or unsolicited mass outreach, or share it in ways your customers and the law do not allow.",
         ]} />
       </Section>
 
@@ -44,7 +47,7 @@ export default function Terms() {
           "Dynamic codes point to a short link on useklyroo.com that redirects to the destination you choose. You are responsible for the destination and for having the right to link to it.",
           "Each plan includes a number of dynamic links and scans a month. If you pass the scan limit, your codes keep working and we may ask you to upgrade. If you downgrade or cancel, existing dynamic links keep redirecting but you cannot create new ones beyond your plan.",
           "If you delete a dynamic code, or we remove it under these terms, printed copies stop working. Check your codes before printing.",
-          "We may disable a dynamic link that breaks these terms or is reported as harmful. Report abuse to " + COMPANY.supportEmail + ".",
+          "We may disable or delete a dynamic link that breaks these terms or is reported as harmful, with or without notice where harm is likely. To report a link, email " + COMPANY.supportEmail + " with the short address (for example useklyroo.com/r/name); we aim to act on reports within two business days.",
           "We cannot guarantee that every device or camera will scan every code. Test printed codes before use.",
         ]} />
       </Section>
@@ -56,7 +59,11 @@ export default function Terms() {
           "connect a store you do not own or have permission to access;",
           "attempt to break, probe, overload or bypass the limits of the service;",
           "resell or provide the service to others except as a legitimate agency working for your own clients;",
-          "use Klyroo QR to create codes that link to malicious, deceptive, infringing or illegal content, including phishing, malware or scams.",
+          "use Klyroo QR to create codes that link to malicious, deceptive, infringing or illegal content, including phishing, malware, scams, counterfeit or pirated goods;",
+          "use Klyroo QR to point to adult or sexually explicit content, gambling, illegal or age-restricted goods (such as drugs, vapes or weapons), or anything that incites violence or harm;",
+          "make misleading claims through a QR code destination, or hide where a code really leads;",
+          "send automated or abusive traffic to our systems, including to our short links, to inflate scan counts;",
+          "use Klyroo to bypass the terms or limits of Shopify or of any other platform.",
         ]} />
       </Section>
 

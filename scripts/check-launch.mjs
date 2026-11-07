@@ -52,11 +52,16 @@ const terms = body["/terms"] || "";
 check("Terms", "names Dodo Payments as Merchant of Record", /Dodo Payments is the Merchant of Record/.test(terms));
 check("Terms", "covers acceptable use, IP, termination, liability, governing law", ["Acceptable use", "Intellectual property", "Suspension and termination", "Liability", "Governing law"].every((x) => terms.includes(x)));
 check("Terms", "has contact details", terms.includes(COMPANY.supportEmail));
+check("Terms", "has no stale preview / coming-soon wording", !/preview|coming soon|not yet available/i.test(terms));
+check("Terms", "acceptable use covers QR abuse, spam and platform bypass", /phishing/i.test(terms) && /spam/i.test(terms) && /bypass/i.test(terms));
+check("Terms", "says Export processes the merchant's own store data (controller/processor)", /processor/i.test(terms));
+check("Terms", "explains the free trial and monthly renewal", /3-day free trial/.test(terms) && /renew every month/.test(terms));
 
 // 5. Refunds
 const refunds = body["/refunds"] || "";
 const days = [...refunds.matchAll(/(\d+)[- ]day/gi)].map((m) => Number(m[1]));
 check("Refunds", "refund window is between 14 and 90 days", days.some((d) => d >= 14 && d <= 90), `found: ${days.join(", ") || "none"}`);
+check("Contact", "states a response time and how to report abuse", /business days/.test(body["/contact"] || "") && /Report a QR code/.test(body["/contact"] || ""));
 check("Refunds", "explains the free trial and cancelling", /free trial/i.test(refunds) && /cancel/i.test(refunds));
 check("Refunds", 'does not say "all sales are final" / "no refunds"', !/all sales are final|no refunds/i.test(refunds));
 check("Refunds", "tells buyers how to request a refund (by email)", refunds.includes(COMPANY.supportEmail));
