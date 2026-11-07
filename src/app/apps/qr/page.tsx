@@ -1,6 +1,8 @@
 import { FakeQr } from "@/components/fake-qr";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing";
+import Link from "next/link";
 import { Button, Card, Chip, Eyebrow } from "@/components/ui";
+import { QR_PLANNED } from "@/lib/billing/plans";
 
 export const metadata = { title: "Klyroo QR — QR code generator" };
 
@@ -38,6 +40,22 @@ export default function QrLanding() {
           ))}
         </div>
         <p className="mt-4 text-xs text-muted">The graphics above are samples and are not scannable.</p>
+      </section>
+
+      <section className="mx-auto max-w-[1200px] px-6 pb-24">
+        <Eyebrow>Planned plans</Eyebrow>
+        <h2 className="mt-4 text-[32px] leading-[1.1] font-light">Free to start. Paid only when you grow.</h2>
+        <div className="mt-8 grid md:grid-cols-2 gap-4 max-w-4xl">
+          {QR_PLANNED.map((p) => (
+            <Card key={p.name} className="!p-6">
+              <h3 className="text-[22px] leading-[26px] font-light">{p.name}</h3>
+              <ul className="mt-4 space-y-2.5 text-[15px] text-muted">
+                {p.points.map((x) => <li key={x} className="flex gap-3"><span aria-hidden>○</span>{x}</li>)}
+              </ul>
+            </Card>
+          ))}
+        </div>
+        <p className="mt-4 text-xs text-muted">These are plans, not yet released. Pricing will be announced before launch. See <Link href="/pricing" className="text-primary">pricing</Link>.</p>
       </section>
       <MarketingFooter />
     </div>

@@ -111,3 +111,28 @@ export const BETA_LIMITS: Record<AppSlug, Limits> = {
   export: { maxStores: 5, maxRows: 250_000, exportsPerHour: 30 },
   qr: {},
 };
+
+/** What Klyroo QR plans to offer. Shown as "Planned" on the pricing page; not for sale and not priced yet. */
+export const QR_PLANNED: { name: string; points: string[] }[] = [
+  {
+    name: "Free, forever",
+    points: [
+      "Unlimited static QR codes, created in your browser (no account needed)",
+      "Custom colours and styles, and your logo",
+      "PNG and SVG downloads, up to 2048px",
+      "Links, Wi-Fi, contact cards, email, SMS and phone",
+      "A few dynamic codes whose destination you can edit",
+    ],
+  },
+  {
+    name: "Plus",
+    points: [
+      "Unlimited dynamic QR codes, with logos",
+      "Scan analytics: visitors, daily trends, top codes",
+      "Custom short links",
+      "Projects and team members",
+      "No Klyroo branding on scan pages",
+      "Higher creation rate and priority support",
+    ],
+  },
+];

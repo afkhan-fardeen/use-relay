@@ -60,6 +60,34 @@ export default function Home() {
           ))}
         </ol>
       </section>
+      <section className="mx-auto max-w-[1200px] px-6 py-20 border-t border-line">
+        <Eyebrow>Why Klyroo</Eyebrow>
+        <div className="mt-8 grid md:grid-cols-3 gap-4">
+          {[
+            ["Read-only by design", "Klyroo Export only reads your Shopify data. It never changes your store."],
+            ["Private by default", "Credentials are encrypted. Export files are private and deleted after 7 days."],
+            ["Real people", "Questions go to a real inbox. We reply within one working day."],
+          ].map(([t, d]) => (
+            <div key={t} className="border border-line rounded-card p-8">
+              <h3 className="text-[22px] leading-[26px] font-light">{t}</h3>
+              <p className="mt-3 text-[15px] leading-6 text-muted">{d}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[1200px] px-6 pb-24">
+        <Card featured className="!p-10 flex flex-wrap items-center justify-between gap-6">
+          <div>
+            <h2 className="text-[26px] leading-[1.12] font-light">Simple, separate pricing</h2>
+            <p className="mt-2 text-muted max-w-xl">Klyroo Export starts free, with paid plans from £19 a month. Klyroo QR is free while in preview. Each app has its own plan.</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Button href="/pricing">See pricing</Button>
+            <Link href="/contact" className="text-sm text-primary hover:text-primary-hover">Contact us →</Link>
+          </div>
+        </Card>
+      </section>
       <MarketingFooter />
     </div>
   );

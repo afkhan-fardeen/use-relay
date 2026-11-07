@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Suspense } from "react";
 import { Logo } from "@/components/sidebar";
 import { Card } from "@/components/ui";
@@ -14,6 +15,9 @@ export default function Login() {
           <Suspense fallback={null}>
             <AuthForm />
           </Suspense>
+          <p className="mt-6 text-xs text-muted">
+            By creating an account you agree to our <Link href="/terms" className="text-primary">Terms</Link> and <Link href="/privacy" className="text-primary">Privacy policy</Link>.
+          </p>
         </Card>
       </div>
     </main>

@@ -41,7 +41,7 @@ export const APPS: AppInfo[] = [
     name: "QR",
     fullName: "Klyroo QR",
     tagline: "Create branded QR codes for packaging, flyers and your store.",
-    points: ["Links, Wi-Fi, text and more", "Your colours and logo", "Download as PNG or SVG"],
+    points: ["Free static codes, made in your browser", "Dynamic codes you can edit any time", "Scan analytics and short links"],
     status: "preview",
     href: "/qr",
     marketing: "/apps/qr",

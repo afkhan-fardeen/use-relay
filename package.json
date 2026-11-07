@@ -14,7 +14,8 @@
     "test:ui": "node --conditions=react-server --env-file=.env.local scripts/test-ui.mjs",
     "test:billing": "node --conditions=react-server --env-file=.env.local scripts/test-billing.mjs",
     "test:billing-ui": "node --env-file=.env.local scripts/test-billing-ui.mjs",
-    "test:apps": "node --env-file=.env.local scripts/test-apps.mjs"
+    "test:apps": "node --env-file=.env.local scripts/test-apps.mjs",
+    "check:launch": "node scripts/check-launch.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
