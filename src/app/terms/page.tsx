@@ -73,7 +73,7 @@ export default function Terms() {
           <A href="https://dodopayments.com/legal/privacy-policy">privacy policy</A> applies to the payment data it collects.
         </p>
         <UL items={[
-          "Paid plans are subscriptions that renew every month until you cancel. Prices are shown in pounds sterling (GBP) and taxes are calculated at checkout.",
+          "Paid plans are subscriptions that renew every month until you cancel. Our prices are set in pounds sterling (GBP). Checkout may show an equivalent amount in your local currency, and taxes are calculated at checkout.",
           "Every paid plan starts with a 3-day free trial. You are not charged during the trial. Cancel before it ends and you pay nothing; otherwise the first payment is taken when it ends.",
           "You can cancel at any time from the Billing page of the app or through the customer portal. Cancellation takes effect at the end of the period you have paid for, and you keep your plan until then.",
           "If a payment fails, it is retried automatically. If it still cannot be collected, your plan may move to the Free plan.",

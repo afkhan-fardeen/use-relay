@@ -20,6 +20,7 @@ const tag = randomUUID().slice(0, 6);
 let pass = 0;
 const ok = (n) => { pass++; console.log("ok  ", n); };
 const users = [];
+const accountIds = [];
 const subsToCancel = new Set();
 
 async function mkUser(label, app = "export") {
@@ -30,6 +31,7 @@ async function mkUser(label, app = "export") {
   users.push(data.user.id);
   const { data: m } = await admin.from("members").select("account_id").eq("user_id", data.user.id).single();
   await admin.from("account_apps").insert({ account_id: m.account_id, app });
+  accountIds.push(m.account_id);
   return { email, password, accountId: m.account_id };
 }
 const getSub = async (accountId, app = "export") => (await admin.from("subscriptions").select("*").eq("account_id", accountId).eq("app", app).maybeSingle()).data;
@@ -181,7 +183,6 @@ try {
   await browser.close();
   for (const id of subsToCancel) await dodo("PATCH", `/subscriptions/${id}`, { status: "cancelled" }).catch(() => undefined);
   for (const id of users) await admin.auth.admin.deleteUser(id);
-  const { data: accs } = await admin.from("accounts").select("id").like("name", `%dodo-e2e-${tag}%`);
-  for (const a of accs ?? []) await admin.from("accounts").delete().eq("id", a.id);
+  for (const id of accountIds) await admin.from("accounts").delete().eq("id", id);
   console.log("cleaned up test data");
 }

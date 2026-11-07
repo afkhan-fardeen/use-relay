@@ -12,7 +12,7 @@ export default function Pricing() {
         <section className="mx-auto max-w-[1200px] px-4 sm:px-6 pt-14 sm:pt-20 pb-6 text-center">
           <h1 className="text-[40px] sm:text-[52px] leading-[1.08] tracking-[-0.025em] font-light">Simple pricing, separate per app</h1>
           <p className="mt-5 mx-auto max-w-2xl text-[18px] leading-[28px] text-muted">
-            Pay only for the apps you use. Prices are in pounds sterling (GBP) per month, taxes are added at checkout, and you can cancel any time. Every first purchase has a 30-day money-back guarantee.
+            Pay only for the apps you use. Prices are in pounds sterling (GBP) per month (checkout may show your local currency), taxes are added at checkout, and you can cancel any time. Every first purchase has a 30-day money-back guarantee.
           </p>
         </section>
 

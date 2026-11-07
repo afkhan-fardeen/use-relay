@@ -29,6 +29,12 @@ All paid plans are monthly, in GBP, with a 3-day free trial. Free plans are not 
 
 Billing stays "Free for now" until the key, the webhook secret and at least one product exist for that app.
 
+## Verified end to end (test mode)
+
+`npm run test:dodo` drives the real deployed site and Dodo test mode: checkout with the 3-day trial, test-card payment, signed webhook, access, customer portal, plan change, scheduled and immediate cancellation, and a declined card. It confirmed that checkout metadata (the signed account id) reaches the webhook.
+
+Checkout may display prices in the buyer's local currency (Dodo's adaptive currency); the catalog price stays in GBP.
+
 ## Test mode checklist
 
 1. `npm run dodo:catalog` and copy the printed `DODO_PRODUCT_*` lines to Render.
