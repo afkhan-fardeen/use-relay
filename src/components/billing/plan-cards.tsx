@@ -4,7 +4,8 @@ import Script from "next/script";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
 import { Button, Card, Chip } from "@/components/ui";
-import { PLANS, type PaidPlan, type PlanKey } from "@/lib/billing/plans";
+import type { AppSlug } from "@/lib/apps";
+import { PLANS } from "@/lib/billing/plans";
 import { changePlan, openPortal } from "./actions";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -15,14 +16,15 @@ declare global {
 }
 
 type Props = {
+  app: AppSlug;
   env: "sandbox" | "production";
   token: string;
-  priceIds: Partial<Record<PaidPlan, string>>;
+  priceIds: Record<string, string>;
   accountId: string;
   accountSig: string;
   email: string;
   isOwner: boolean;
-  currentPlan: PlanKey;
+  currentPlan: string;
   sub: { status: string; periodEnd: string | null; cancelAtPeriodEnd: boolean } | null;
 };
 
@@ -72,13 +74,13 @@ export function PlanCards(p: Props) {
     };
   }, [paid, router]);
 
-  function checkout(plan: PaidPlan) {
+  function checkout(plan: string) {
     const priceId = p.priceIds[plan];
     if (!priceId || !window.Paddle) return;
     window.Paddle.Checkout.open({
       items: [{ priceId, quantity: 1 }],
       customer: { email: p.email },
-      customData: { account_id: p.accountId, sig: p.accountSig },
+      customData: { account_id: p.accountId, sig: p.accountSig, app: p.app },
       settings: { displayMode: "overlay", theme: "light", variant: "one-page" },
     });
   }
@@ -104,15 +106,15 @@ export function PlanCards(p: Props) {
       )}
 
       <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        {PLANS.map((plan) => {
+        {PLANS[p.app].map((plan) => {
           const current = plan.key === p.currentPlan;
-          const priceId = plan.key === "free" ? undefined : p.priceIds[plan.key as PaidPlan];
+          const priceId = plan.key === "free" ? undefined : p.priceIds[plan.key];
           const unavailable = plan.key !== "free" && !priceId;
           return (
-            <Card key={plan.key} featured={current} className={`!p-6 flex flex-col ${current ? "!border-primary/50" : ""}`}>
+            <Card key={plan.key} featured={current || plan.recommended} className={`!p-6 flex flex-col ${current ? "!border-primary/50" : ""}`}>
               <div className="flex items-center justify-between">
                 <h2 className="text-[22px] leading-[26px] font-light">{plan.name}</h2>
-                {current && <Chip>Current</Chip>}
+                {current ? <Chip>Current</Chip> : plan.recommended ? <Chip tone="info">Recommended</Chip> : null}
               </div>
               <p className="mt-1 text-sm text-muted">{plan.blurb}</p>
               <p className="mt-5 text-[28px] leading-[1.1] font-light tabular min-h-[31px]">
@@ -137,11 +139,12 @@ export function PlanCards(p: Props) {
                 <Button size="sm" className="mt-6" disabled>Not available yet</Button>
               ) : hasActiveSub ? (
                 <form action={changeAction}>
+                  <input type="hidden" name="app" value={p.app} />
                   <input type="hidden" name="plan" value={plan.key} />
                   <Button type="submit" size="sm" className="mt-6 w-full" disabled={changing}>{changing ? "Switching…" : `Switch to ${plan.name}`}</Button>
                 </form>
               ) : (
-                <Button size="sm" className="mt-6" disabled={!ready} onClick={() => checkout(plan.key as PaidPlan)}>
+                <Button size="sm" className="mt-6" disabled={!ready} onClick={() => checkout(plan.key)}>
                   {ready ? `Choose ${plan.name}` : "Loading…"}
                 </Button>
               )}
@@ -158,6 +161,7 @@ export function PlanCards(p: Props) {
 
       {p.isOwner && hasActiveSub && (
         <form action={portalAction} className="mt-8">
+          <input type="hidden" name="app" value={p.app} />
           <Button type="submit" variant="secondary" size="sm" disabled={opening}>{opening ? "Opening…" : "Manage payment method, invoices or cancel"}</Button>
         </form>
       )}

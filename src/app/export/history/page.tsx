@@ -39,13 +39,13 @@ export default async function HistoryPage() {
       <PageHeader
         title="History"
         sub="Every export and its result. Files are kept for 7 days."
-        actions={<Button size="sm" href="/app/exports/new">New export</Button>}
+        actions={<Button size="sm" href="/export/new">New export</Button>}
       />
       {list.length === 0 ? (
         <Card className="!p-8 max-w-xl">
           <h2 className="text-[19px] font-light">No exports yet</h2>
           <p className="mt-2 text-sm text-muted">Pick a template on the home page to run your first export.</p>
-          <div className="mt-5"><Button variant="secondary" size="sm" href="/app">Browse templates</Button></div>
+          <div className="mt-5"><Button variant="secondary" size="sm" href="/export">Browse templates</Button></div>
         </Card>
       ) : (
         <Card padded={false} className="overflow-hidden">
@@ -83,7 +83,7 @@ export default async function HistoryPage() {
                       <td className="px-6 py-4 text-right whitespace-nowrap">
                         {file && <a href={`/api/exports/${file.id}/download`} className="inline-flex items-center h-9 px-4 rounded-ctl border border-line-strong text-primary text-sm hover:bg-wash">Download</a>}
                         {expired && <span className="text-xs text-muted">Expired</span>}
-                        {j.status === "failed" && <Link href="/app/exports/new" className="text-sm text-primary hover:text-primary-hover">Try again</Link>}
+                        {j.status === "failed" && <Link href="/export/new" className="text-sm text-primary hover:text-primary-hover">Try again</Link>}
                         {ACTIVE.includes(j.status) && <span className="text-xs text-secondary">In progress</span>}
                       </td>
                     </tr>

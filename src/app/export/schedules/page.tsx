@@ -10,7 +10,7 @@ export default function SchedulesPage() {
           You&apos;ll be able to save any export, choose how often it runs, and have each new file sent to your email or delivered to a destination.
           Until then, run exports on demand and download them from History.
         </p>
-        <div className="mt-6"><Button href="/app/exports/new">Run an export now</Button></div>
+        <div className="mt-6"><Button href="/export/new">Run an export now</Button></div>
       </Card>
     </>
   );

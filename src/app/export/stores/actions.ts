@@ -89,7 +89,7 @@ export async function connectStore(_prev: StoreState, formData: FormData): Promi
   if (sec.error) return fail("We couldn't save the credentials securely. Try again.");
 
   await db.from("audit_log").insert({ account_id: session.accountId, actor_id: session.userId, action: "store.connected", target: domain, meta: { scopes: info.scopes } });
-  revalidatePath("/app/stores");
+  revalidatePath("/export/stores");
   return { ok: true, message: `Connected ${info.name} (${domain}).` };
 }
 
@@ -112,7 +112,7 @@ export async function testStore(_prev: StoreState, formData: FormData): Promise<
       .from("stores")
       .update({ status: "connected", granted_scopes: info.scopes, currency_code: info.currencyCode, last_checked_at: new Date().toISOString(), last_error: null })
       .eq("id", store.id);
-    revalidatePath("/app/stores");
+    revalidatePath("/export/stores");
     return { ok: true, message: `Connection is healthy. ${info.scopes.length} permission${info.scopes.length === 1 ? "" : "s"} granted.` };
   } catch (e) {
     const message = e instanceof ShopifyError ? e.message : FRIENDLY.unexpected;
@@ -121,7 +121,7 @@ export async function testStore(_prev: StoreState, formData: FormData): Promise<
       .from("stores")
       .update({ ...(terminal ? { status: "needs_attention" } : {}), last_checked_at: new Date().toISOString(), last_error: message })
       .eq("id", store.id);
-    revalidatePath("/app/stores");
+    revalidatePath("/export/stores");
     return { error: message };
   }
 }
@@ -140,6 +140,6 @@ export async function disconnectStore(_prev: StoreState, formData: FormData): Pr
   await db.from("store_secrets").delete().eq("store_id", store.id);
   await db.from("stores").update({ status: "disconnected", last_error: null }).eq("id", store.id);
   await db.from("audit_log").insert({ account_id: session.accountId, actor_id: session.userId, action: "store.disconnected", target: store.shop_domain });
-  revalidatePath("/app/stores");
+  revalidatePath("/export/stores");
   return { ok: true, message: "Store disconnected and its credentials deleted." };
 }

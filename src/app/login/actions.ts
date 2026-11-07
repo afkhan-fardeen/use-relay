@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { isAppSlug } from "@/lib/apps";
 import { supabaseServer } from "@/lib/supabase/server";
 
 export type AuthState = { error?: string; message?: string; email?: string; fullName?: string; company?: string } | undefined;
@@ -48,7 +49,7 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: origin ? `${origin}/auth/callback` : undefined, data: { full_name: fullName, company } },
+    options: { emailRedirectTo: origin ? `${origin}/auth/callback` : undefined, data: { full_name: fullName, company, preferred_app: isAppSlug(formData.get("app")) ? formData.get("app") : null } },
   });
   if (error) {
     if (/already|registered/i.test(error.message)) return { error: "An account with this email already exists. Log in instead.", email, fullName, company };

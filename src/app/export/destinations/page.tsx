@@ -9,7 +9,7 @@ export default function DestinationsPage() {
         <p className="mt-3 text-sm text-muted leading-[22px]">
           Planned destinations: email, Google Drive, Dropbox and SFTP. For now, every export is available to download from History for 7 days.
         </p>
-        <div className="mt-6"><Button variant="secondary" href="/app/history">Open History</Button></div>
+        <div className="mt-6"><Button variant="secondary" href="/export/history">Open History</Button></div>
       </Card>
     </>
   );

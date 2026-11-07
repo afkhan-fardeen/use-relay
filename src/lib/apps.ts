@@ -1,16 +1,18 @@
-// Klyroo's apps. One account can switch on any of them; the sidebar shows the current app's menu.
-// Client-safe (no secrets, no Node-only imports).
+// Klyroo is the company. Each app is its own product with its own pages, plans and billing.
+// One Klyroo account can use any of them, or just one. Client-safe (no secrets).
 
 export type AppSlug = "export" | "qr";
 
 export type AppNavItem = { href: string; label: string };
 export type AppInfo = {
   slug: AppSlug;
-  name: string;
+  name: string; // short name, used inside the app
+  fullName: string; // product name, used on marketing pages
   tagline: string;
   points: string[];
   status: "live" | "preview";
-  href: string; // where the app starts
+  href: string; // the app's home inside the signed-in area
+  marketing: string; // the app's public product page
   nav: AppNavItem[];
 };
 
@@ -18,37 +20,53 @@ export const APPS: AppInfo[] = [
   {
     slug: "export",
     name: "Export",
+    fullName: "Klyroo Export",
     tagline: "Get your Shopify data into spreadsheets.",
     points: ["Products, orders, customers, inventory and collections", "Hundreds of columns, with a live preview", "Download as CSV in minutes"],
     status: "live",
-    href: "/app",
+    href: "/export",
+    marketing: "/apps/export",
     nav: [
-      { href: "/app", label: "Home" },
-      { href: "/app/exports/new", label: "New export" },
-      { href: "/app/schedules", label: "Schedules" },
-      { href: "/app/history", label: "History" },
-      { href: "/app/destinations", label: "Destinations" },
+      { href: "/export", label: "Home" },
+      { href: "/export/new", label: "New export" },
+      { href: "/export/schedules", label: "Schedules" },
+      { href: "/export/history", label: "History" },
+      { href: "/export/destinations", label: "Destinations" },
+      { href: "/export/stores", label: "Stores" },
+      { href: "/export/billing", label: "Billing" },
     ],
   },
   {
     slug: "qr",
-    name: "QR Codes",
+    name: "QR",
+    fullName: "Klyroo QR",
     tagline: "Create branded QR codes for packaging, flyers and your store.",
     points: ["Links, Wi-Fi, text and more", "Your colours and logo", "Download as PNG or SVG"],
     status: "preview",
-    href: "/app/qr",
+    href: "/qr",
+    marketing: "/apps/qr",
     nav: [
-      { href: "/app/qr", label: "Overview" },
-      { href: "/app/qr/new", label: "Create" },
-      { href: "/app/qr/library", label: "My codes" },
+      { href: "/qr", label: "Overview" },
+      { href: "/qr/new", label: "Create" },
+      { href: "/qr/library", label: "My codes" },
+      { href: "/qr/billing", label: "Billing" },
     ],
   },
+];
+
+export const ACCOUNT_NAV: AppNavItem[] = [
+  { href: "/account", label: "Overview" },
+  { href: "/account/apps", label: "Apps" },
 ];
 
 export const isAppSlug = (v: unknown): v is AppSlug => APPS.some((a) => a.slug === v);
 export const appInfo = (slug: AppSlug): AppInfo => APPS.find((a) => a.slug === slug)!;
 
-/** Which app's menu to show for this URL. Shared pages (stores, billing, apps) fall back to Export. */
-export function appForPath(pathname: string): AppSlug {
-  return pathname === "/app/qr" || pathname.startsWith("/app/qr/") ? "qr" : "export";
+/** Where a person lands the first time they open an app. */
+export const startPath = (slug: AppSlug): string => (slug === "export" ? "/export/stores" : "/qr");
+
+/** An app's home and the account home match exactly; everything else matches by prefix. */
+export function isNavActive(pathname: string, href: string): boolean {
+  const exact = href === "/account" || APPS.some((a) => a.href === href);
+  return exact ? pathname === href : pathname.startsWith(href);
 }

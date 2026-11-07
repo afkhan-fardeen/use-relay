@@ -30,6 +30,7 @@ const appsOf = async (accountId) => (await admin.from("account_apps").select("ap
 const withCompany = await mk("co", { full_name: "Alex Morgan", company: "Northwind Active" });
 assert.equal(withCompany.accountName, "Northwind Active");
 const nameOnly = await mk("nm", { full_name: "Sam Lee" });
+const wantsQr = await mk("qr", { full_name: "Quinn Ray", preferred_app: "qr" });
 assert.equal(nameOnly.accountName, "Sam Lee");
 const bare = await mk("bare", {});
 assert.equal(bare.accountName, `apps-${tag}-bare`);
@@ -63,6 +64,13 @@ server.stderr.on("data", (d) => (log += d));
 for (let i = 0; i < 60 && !/Ready in/.test(log); i++) await new Promise((r) => setTimeout(r, 500));
 assert.match(log, /Ready in/);
 const browser = await chromium.launch({ executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", headless: true });
+const login = async (page, u) => {
+  await page.goto(`${base}/login`, { waitUntil: "networkidle" });
+  await page.click('[role=tab]:has-text("Log in")');
+  await page.fill('input[name=email]', u.email);
+  await page.fill('input[name=password]', u.password);
+  await page.click('button[type=submit]');
+};
 
 try {
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
@@ -71,86 +79,123 @@ try {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
 
-  // Sign-up form shows the new fields.
-  await page.goto(`${base}/login`, { waitUntil: "networkidle" });
+  // Sign-up form shows the new fields and remembers which app the visitor came for.
+  await page.goto(`${base}/login?app=qr`, { waitUntil: "networkidle" });
   assert.ok(await page.locator('input[name=fullName]').isVisible());
   assert.ok(await page.locator('input[name=company]').isVisible());
+  assert.equal(await page.locator('input[type=hidden][name=app][value=qr]').count(), 1);
   await page.click('[role=tab]:has-text("Log in")');
   assert.equal(await page.locator('input[name=fullName]').count(), 0);
-  ok("sign-up asks for name and company; the log-in tab doesn't");
+  ok("sign-up asks for name and company and remembers the app the visitor came for");
 
-  // Onboarding.
-  await page.fill('input[name=email]', withCompany.email);
-  await page.fill('input[name=password]', withCompany.password);
-  await page.click('button[type=submit]');
+  // Public pages: company home plus a product page per app.
+  await page.goto(`${base}/`, { waitUntil: "networkidle" });
+  for (const t of ["Klyroo Export", "Klyroo QR", "Own plan".length ? "Start with Export" : ""]) assert.ok(await page.locator(`text=${t}`).count() >= 1, t);
+  await page.goto(`${base}/apps/export`, { waitUntil: "networkidle" });
+  for (const t of ["£19", "£49", "£99", "Recommended"]) assert.ok(await page.locator(`text=${t}`).count() >= 1, t);
+  await page.goto(`${base}/apps/qr`, { waitUntil: "networkidle" });
+  assert.ok(await page.locator("text=Klyroo QR · Preview").count() === 1);
+  ok("company home lists both apps; Export page shows the £19 / £49 / £99 plans; QR has its own page");
+
+  // Onboarding: pick ONE app to start with.
+  await login(page, withCompany);
   await page.waitForURL("**/onboarding");
   await page.waitForSelector("h1:has-text('Welcome, Alex.')");
-  ok("a new account is sent to onboarding and greeted by first name");
+  assert.deepEqual(await page.locator('input[type=radio]:checked').evaluateAll((e) => e.map((x) => x.getAttribute("aria-label"))), ["Klyroo Export"]);
+  ok("a new account is sent to onboarding, greeted by first name, with Export preselected");
 
-  await page.locator('label:has-text("Export")').first().click(); // untick the default
+  await page.locator('label:has-text("Klyroo QR")').first().click();
   await page.click('button:has-text("Continue")');
-  await page.waitForSelector('[role=alert]:has-text("at least one app")');
-  assert.deepEqual(await appsOf(withCompany.accountId), []);
-  ok("continuing with no app chosen is refused");
+  await page.waitForURL("**/qr");
+  assert.deepEqual(await appsOf(withCompany.accountId), ["qr"]);
+  ok("choosing QR starts QR on its own: only that app is switched on");
 
-  await page.locator('label:has-text("Export")').first().click();
-  await page.locator('label:has-text("QR Codes")').first().click();
-  await page.click('button:has-text("Continue")');
-  await page.waitForURL("**/app/stores");
+  // Separation: Export isn't on, so its pages are closed and QR billing is its own.
+  await page.goto(`${base}/export`);
+  await page.waitForURL("**/account/apps");
+  await page.goto(`${base}/qr/billing`, { waitUntil: "networkidle" });
+  await page.waitForSelector("text=Klyroo QR");
+  assert.equal(await page.locator('aside:visible nav a:has-text("Schedules")').count(), 0);
+  ok("an app that isn't switched on is closed (sent to Apps); QR shows only QR's menu and billing");
+
+  // Add Export from the Apps page (multi-select), keep QR.
+  await page.goto(`${base}/account/apps`, { waitUntil: "networkidle" });
+  await page.locator('label:has-text("Klyroo Export")').first().click();
+  await page.click('button:has-text("Save apps")');
+  await page.waitForSelector('[role=status]:has-text("Saved.")');
   assert.deepEqual(await appsOf(withCompany.accountId), ["export", "qr"]);
-  ok("choosing both apps saves them and opens Export");
+  ok("adding a second app from Apps keeps the first");
 
-  // App switcher.
-  await page.goto(`${base}/app`, { waitUntil: "networkidle" });
-  assert.ok(await page.locator('aside nav a:has-text("New export")').count() === 1);
+  // Switcher moves between separate apps, each with its own menu and billing.
+  await page.goto(`${base}/qr`, { waitUntil: "networkidle" });
   await page.click('aside button[aria-haspopup=menu]');
   const items = await page.locator('[role=menuitem]').allTextContents();
-  assert.ok(items.some((t) => t.includes("Export")) && items.some((t) => t.includes("QR Codes")) && items.some((t) => /Add or remove/.test(t)), items.join("|"));
-  await page.click('[role=menuitem]:has-text("QR Codes")');
-  await page.waitForURL("**/app/qr");
-  assert.ok(await page.locator('aside nav a:has-text("My codes")').count() === 1);
-  assert.equal(await page.locator('aside nav a:has-text("Schedules")').count(), 0);
-  ok("app switcher moves between apps and the menu follows the app");
+  assert.ok(items.some((t) => t.includes("Klyroo Export")) && items.some((t) => t.includes("Klyroo QR")) && items.some((t) => t.includes("Account")), items.join("|"));
+  await page.click('[role=menuitem]:has-text("Klyroo Export")');
+  await page.waitForURL("**/export");
+  await page.waitForSelector('aside:visible nav a:has-text("New export")');
+  assert.ok(await page.locator('aside:visible nav a:has-text("New export")').count() === 1);
+  assert.deepEqual(await page.locator('aside:visible nav a').allTextContents(), ["Home", "New export", "Schedules", "History", "Destinations", "Stores", "Billing"], "Export shows only Export's menu");
+  await page.goto(`${base}/export/billing`, { waitUntil: "networkidle" });
+  await page.waitForSelector("text=Klyroo Export");
+  ok("the app switcher moves between apps; each app has its own menu and billing page");
 
-  // QR preview app.
-  await page.waitForSelector("text=This app is in preview");
-  await page.goto(`${base}/app/qr/new`, { waitUntil: "networkidle" });
+  // Account overview shows both apps with their own billing links.
+  await page.goto(`${base}/account`, { waitUntil: "networkidle" });
+  assert.ok(await page.locator('main a[href="/export/billing"]').count() === 1 && await page.locator('main a[href="/qr/billing"]').count() === 1);
+  await page.waitForSelector("text=Northwind Active");
+  ok("account page shows the account name and a separate billing link per app");
+
+  // QR preview pages.
+  await page.goto(`${base}/qr/new`, { waitUntil: "networkidle" });
   assert.ok(await page.locator('button:has-text("Save code")').isDisabled());
   await page.fill('input[maxlength="300"]', "https://example.com/changed");
   await page.waitForSelector('svg[role=img]');
-  await page.goto(`${base}/app/qr/library`, { waitUntil: "networkidle" });
+  await page.goto(`${base}/qr/library`, { waitUntil: "networkidle" });
   await page.waitForSelector("text=Spring collection");
-  ok("QR preview pages render (overview, designer with disabled save, library with sample data)");
+  ok("QR preview pages render (designer with disabled save, library with sample data)");
 
-  // Manage apps: remove Export.
-  await page.goto(`${base}/app/apps`, { waitUntil: "networkidle" });
-  await page.locator('label:has-text("Export")').first().click();
+  // Manage apps: can't switch everything off; turning one off hides it.
+  await page.goto(`${base}/account/apps`, { waitUntil: "networkidle" });
+  await page.locator('label:has-text("Klyroo Export")').first().click();
+  await page.locator('label:has-text("Klyroo QR")').first().click();
   await page.click('button:has-text("Save apps")');
-  await page.waitForURL("**/app/qr");
+  await page.waitForSelector('[role=alert]:has-text("at least one app")');
+  assert.deepEqual(await appsOf(withCompany.accountId), ["export", "qr"]);
+  await page.locator('label:has-text("Klyroo QR")').first().click(); // both were off: switch QR back on, leave Export off
+  await page.click('button:has-text("Save apps")');
+  await page.waitForSelector('[role=status]:has-text("Saved.")');
   assert.deepEqual(await appsOf(withCompany.accountId), ["qr"]);
   await page.goto(`${base}/app`);
-  await page.waitForURL("**/app/qr");
-  ok("turning Export off hides it and /app sends you to the app that is on");
+  await page.waitForURL("**/qr");
+  ok("you can't switch every app off; turning one off hides it and /app goes to the one that is on");
 
-  // Another account with apps already set skips onboarding.
+  // Visitor who came for QR is preselected on QR.
+  const p3 = await (await browser.newContext()).newPage();
+  p3.setDefaultTimeout(60000);
+  await login(p3, wantsQr);
+  await p3.waitForURL("**/onboarding");
+  await p3.waitForSelector("h1:has-text('Welcome, Quinn.')");
+  assert.deepEqual(await p3.locator('input[type=radio]:checked').evaluateAll((e) => e.map((x) => x.getAttribute("aria-label"))), ["Klyroo QR"]);
+  ok("a visitor who signed up from the QR page lands with QR preselected");
+
+  // Accounts that already chose skip onboarding.
   await admin.from("account_apps").insert({ account_id: nameOnly.accountId, app: "export" });
   const p2 = await (await browser.newContext()).newPage();
   p2.setDefaultTimeout(60000);
-  await p2.goto(`${base}/login`, { waitUntil: "networkidle" });
-  await p2.click('[role=tab]:has-text("Log in")');
-  await p2.fill('input[name=email]', nameOnly.email);
-  await p2.fill('input[name=password]', nameOnly.password);
-  await p2.click('button[type=submit]');
-  await p2.waitForURL("**/app");
+  await login(p2, nameOnly);
+  await p2.waitForURL("**/export");
   await p2.goto(`${base}/onboarding`);
-  await p2.waitForURL("**/app");
-  ok("accounts that already chose apps skip onboarding");
+  await p2.waitForURL("**/export");
+  ok("accounts that already chose an app skip onboarding");
 
-  // Signed-out visitors can't reach onboarding.
+  // Signed-out visitors can't reach any signed-in area.
   const anonPage = await (await browser.newContext()).newPage();
-  await anonPage.goto(`${base}/onboarding`);
-  await anonPage.waitForURL("**/login");
-  ok("onboarding requires a login");
+  for (const path of ["/onboarding", "/export", "/qr", "/account", "/app"]) {
+    await anonPage.goto(`${base}${path}`);
+    await anonPage.waitForURL("**/login");
+  }
+  ok("every signed-in area requires a login");
 
   assert.deepEqual(errors, [], "no uncaught browser errors");
   ok("no uncaught errors in the browser");
@@ -162,7 +207,7 @@ try {
   await browser.close();
   server.kill("SIGTERM");
   for (const u of users) await admin.auth.admin.deleteUser(u);
-  const { data: accs } = await admin.from("accounts").select("id").or(`name.like.apps-${tag}-%,name.eq.Northwind Active,name.eq.Sam Lee,name.like.xxxx%`);
+  const { data: accs } = await admin.from("accounts").select("id").or(`name.like.apps-${tag}-%,name.eq.Northwind Active,name.eq.Sam Lee,name.eq.Quinn Ray`);
   for (const x of accs ?? []) await admin.from("accounts").delete().eq("id", x.id);
   console.log("cleaned up test data");
 }

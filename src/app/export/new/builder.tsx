@@ -200,7 +200,7 @@ export function Builder({ stores }: { stores: StoreOpt[] }) {
         <Card featured className="!p-8 max-w-xl">
           <h2 className="text-[22px] leading-[1.2] font-light">No connected store</h2>
           <p className="mt-2 text-sm text-muted">Exports run against your Shopify store, so you need to connect one first. It takes about two minutes.</p>
-          <div className="mt-6"><Button href="/app/stores">Connect a store</Button></div>
+          <div className="mt-6"><Button href="/export/stores">Connect a store</Button></div>
         </Card>
       </>
     );
@@ -211,7 +211,7 @@ export function Builder({ stores }: { stores: StoreOpt[] }) {
       <PageHeader
         title="New export"
         sub={tpl ? `Started from the “${tpl.name}” template. Change anything below.` : "Choose what to export, narrow it down, pick columns, then run."}
-        actions={<Link href="/app" className="text-sm text-muted hover:text-ink">← Templates</Link>}
+        actions={<Link href="/export" className="text-sm text-muted hover:text-ink">← Templates</Link>}
       />
 
       <div className="grid xl:grid-cols-[minmax(0,1fr)_460px] gap-6 items-start">
@@ -447,7 +447,7 @@ export function Builder({ stores }: { stores: StoreOpt[] }) {
                 <div className="mt-3 h-1.5 rounded-full bg-line overflow-hidden">
                   <div className="h-full w-1/3 rounded-full bg-secondary animate-[slide_1.4s_ease-in-out_infinite]" />
                 </div>
-                <p className="mt-3 text-xs text-muted">You can leave this page. Your file will appear in <Link href="/app/history" className="text-primary">History</Link>.</p>
+                <p className="mt-3 text-xs text-muted">You can leave this page. Your file will appear in <Link href="/export/history" className="text-primary">History</Link>.</p>
               </div>
             )}
             {phase === "done" && job && (
@@ -461,7 +461,7 @@ export function Builder({ stores }: { stores: StoreOpt[] }) {
                 )}
                 <div className="mt-3 flex gap-3">
                   <Button variant="secondary" size="sm" className="flex-1" onClick={() => setPhase("idle")}>Edit</Button>
-                  <Button variant="secondary" size="sm" className="flex-1" href="/app/history">History</Button>
+                  <Button variant="secondary" size="sm" className="flex-1" href="/export/history">History</Button>
                 </div>
                 <p className="mt-3 text-xs text-muted">Files are kept for 7 days.</p>
               </div>

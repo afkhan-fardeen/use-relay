@@ -13,7 +13,7 @@ export default function QrOverview() {
       <PageHeader
         title="QR Codes"
         sub="Branded QR codes for packaging, flyers and your store."
-        actions={<><Chip tone="info">Preview</Chip><Button size="sm" href="/app/qr/new">Create a code</Button></>}
+        actions={<><Chip tone="info">Preview</Chip><Button size="sm" href="/qr/new">Create a code</Button></>}
       />
 
       <Card featured className="!p-8 mb-6 max-w-3xl">

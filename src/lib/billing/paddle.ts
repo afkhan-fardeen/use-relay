@@ -2,7 +2,8 @@
 // Docs followed: Paddle-Signature header is "ts=<unix>;h1=<hex>"; h1 = HMAC-SHA256(secret, `${ts}:${rawBody}`).
 
 import { createHmac, timingSafeEqual } from "node:crypto";
-import { PAID_PLANS, type PaidPlan } from "./plans.ts";
+import { APPS, type AppSlug } from "../apps.ts";
+import { paidPlans } from "./plans.ts";
 
 export type PaddleEnv = "sandbox" | "production";
 
@@ -10,28 +11,33 @@ export function paddleEnv(): PaddleEnv {
   return process.env.NEXT_PUBLIC_PADDLE_ENV === "production" ? "production" : "sandbox";
 }
 
-/** price ID → plan, from env (PADDLE_PRICE_STARTER / _GROWTH / _SCALE). */
-export function priceMap(): Record<string, PaidPlan> {
-  const out: Record<string, PaidPlan> = {};
-  for (const p of PAID_PLANS) {
-    const id = process.env[`PADDLE_PRICE_${p.toUpperCase()}`];
-    if (id) out[id] = p;
+/** Env name for a price: PADDLE_PRICE_EXPORT_STARTER, PADDLE_PRICE_EXPORT_GROWTH, ... */
+export const priceEnvName = (app: AppSlug, plan: string) => `PADDLE_PRICE_${app.toUpperCase()}_${plan.toUpperCase()}`;
+
+/** price ID → which app and plan it buys, from env. */
+export function priceMap(): Record<string, { app: AppSlug; plan: string }> {
+  const out: Record<string, { app: AppSlug; plan: string }> = {};
+  for (const a of APPS) {
+    for (const plan of paidPlans(a.slug)) {
+      const id = process.env[priceEnvName(a.slug, plan)];
+      if (id) out[id] = { app: a.slug, plan };
+    }
   }
   return out;
 }
 
-export function priceIds(): Partial<Record<PaidPlan, string>> {
-  const out: Partial<Record<PaidPlan, string>> = {};
-  for (const p of PAID_PLANS) {
-    const id = process.env[`PADDLE_PRICE_${p.toUpperCase()}`];
-    if (id) out[p] = id;
+export function priceIds(app: AppSlug): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const plan of paidPlans(app)) {
+    const id = process.env[priceEnvName(app, plan)];
+    if (id) out[plan] = id;
   }
   return out;
 }
 
-/** Billing is "on" only when the client token, webhook secret and at least one price are configured. */
-export function billingConfigured(): boolean {
-  return Boolean(process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN && process.env.PADDLE_WEBHOOK_SECRET && Object.keys(priceMap()).length > 0);
+/** An app's billing is "on" only when Paddle is configured and at least one price exists for that app. */
+export function billingConfigured(app: AppSlug): boolean {
+  return Boolean(process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN && process.env.PADDLE_WEBHOOK_SECRET && Object.keys(priceIds(app)).length > 0);
 }
 
 // ───────── webhook signature ─────────

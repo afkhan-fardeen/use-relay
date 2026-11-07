@@ -10,7 +10,7 @@ const rows = [
 export default function QrLibrary() {
   return (
     <>
-      <PageHeader title="My codes" sub="Everything you've created, in one place." actions={<><Chip tone="info">Sample data</Chip><Button size="sm" href="/app/qr/new">Create a code</Button></>} />
+      <PageHeader title="My codes" sub="Everything you've created, in one place." actions={<><Chip tone="info">Sample data</Chip><Button size="sm" href="/qr/new">Create a code</Button></>} />
       <Card padded={false} className="overflow-hidden max-w-4xl">
         <ul>
           {rows.map((r) => (

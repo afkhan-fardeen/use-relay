@@ -9,9 +9,10 @@ import { startFakeShopify } from "./fake-shopify.mjs";
 process.env.NODE_ENV = "test";
 process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN = "test_token";
 process.env.PADDLE_WEBHOOK_SECRET = "pdl_ntfset_test_secret";
-process.env.PADDLE_PRICE_STARTER = "pri_starter01";
-process.env.PADDLE_PRICE_GROWTH = "pri_growth01";
-process.env.PADDLE_PRICE_SCALE = "pri_scale01";
+process.env.PADDLE_PRICE_EXPORT_STARTER = "pri_starter01";
+process.env.PADDLE_PRICE_EXPORT_GROWTH = "pri_growth01";
+process.env.PADDLE_PRICE_EXPORT_SCALE = "pri_scale01";
+process.env.PADDLE_PRICE_QR_PLUS = "pri_qrplus01"; // a QR price is accepted too, but QR has no plans for sale yet
 process.env.PADDLE_API_KEY = "pdl_test_key";
 
 const paddle = await import("../src/lib/billing/paddle.ts");
@@ -52,26 +53,26 @@ ok("checkout account token can't be reused for another account");
 {
   const future = new Date(Date.now() + 86_400_000).toISOString();
   const past = new Date(Date.now() - 86_400_000).toISOString();
-  assert.equal(planFor(null), "free");
-  assert.equal(planFor({ plan: "growth", status: "active", current_period_end: future }), "growth");
-  assert.equal(planFor({ plan: "growth", status: "trialing", current_period_end: future }), "growth");
-  assert.equal(planFor({ plan: "starter", status: "past_due", current_period_end: past }), "starter", "past_due keeps access while Paddle retries");
-  assert.equal(planFor({ plan: "growth", status: "canceled", current_period_end: future }), "growth", "canceled keeps access until the period ends");
-  assert.equal(planFor({ plan: "growth", status: "canceled", current_period_end: past }), "free");
-  assert.equal(planFor({ plan: "growth", status: "paused", current_period_end: future }), "free");
-  assert.equal(planFor({ plan: "weird", status: "active", current_period_end: future }), "free");
+  assert.equal(planFor("export", null), "free");
+  assert.equal(planFor("export", { plan: "growth", status: "active", current_period_end: future }), "growth");
+  assert.equal(planFor("export", { plan: "growth", status: "trialing", current_period_end: future }), "growth");
+  assert.equal(planFor("export", { plan: "starter", status: "past_due", current_period_end: past }), "starter", "past_due keeps access while Paddle retries");
+  assert.equal(planFor("export", { plan: "growth", status: "canceled", current_period_end: future }), "growth", "canceled keeps access until the period ends");
+  assert.equal(planFor("export", { plan: "growth", status: "canceled", current_period_end: past }), "free");
+  assert.equal(planFor("export", { plan: "growth", status: "paused", current_period_end: future }), "free");
+  assert.equal(planFor("export", { plan: "weird", status: "active", current_period_end: future }), "free");
 }
 ok("plan rules: active/trialing/past_due keep the plan; canceled until period end; paused or unknown falls to free");
 
 {
   const saved = { ...process.env };
   delete process.env.PADDLE_WEBHOOK_SECRET;
-  assert.equal(paddle.billingConfigured(), false);
+  assert.equal(paddle.billingConfigured("export"), false);
   const ent = await getEntitlements(randomUUID());
   assert.equal(ent.plan, "beta");
   assert.equal(ent.billingOn, false);
   Object.assign(process.env, saved);
-  assert.equal(paddle.billingConfigured(), true);
+  assert.equal(paddle.billingConfigured("export"), true);
   const res = await processPaddleWebhook("{}", sign("{}"));
   assert.equal(res.status, 400, "once configured, requests are processed (an empty event is a 400, not a 503)");
 }
@@ -200,6 +201,20 @@ try {
   assert.equal((await getSub(B.accountId)).plan, "scale");
   ok("webhook: one active subscription per account; plan switches on a known subscription update the plan");
 
+  // Each app bills separately: the same account can hold an Export plan and a QR plan at once.
+  r = await send(subEvent("subscription.created", { subId: "sub_b_qr", price: "pri_qrplus01", custom: custom(B.accountId) }));
+  assert.deepEqual([r.status, r.body.applied], [200, true], JSON.stringify(r.body));
+  const { data: bSubs } = await admin.from("subscriptions").select("app, plan, status").eq("account_id", B.accountId).order("app");
+  assert.deepEqual(bSubs.map((x) => `${x.app}:${x.plan}`), ["export:scale", "qr:plus"]);
+  assert.equal((await getEntitlements(B.accountId, "export")).plan, "scale");
+  assert.equal((await getEntitlements(B.accountId, "qr")).plan, "plus");
+  r = await send(subEvent("subscription.created", { subId: "sub_b_qr2", price: "pri_qrplus01", custom: custom(B.accountId) }));
+  assert.deepEqual([r.body.applied, r.body.reason], [false, "account already has an active subscription"]);
+  await send(subEvent("subscription.canceled", { subId: "sub_b_qr", price: "pri_qrplus01", status: "canceled", at: new Date(Date.now() + 90_000).toISOString(), extra: { current_billing_period: { ends_at: new Date(Date.now() - 1000).toISOString() } } }));
+  assert.equal((await getEntitlements(B.accountId, "qr")).plan, "free");
+  assert.equal((await getEntitlements(B.accountId, "export")).plan, "scale", "cancelling QR never touches Export");
+  ok("per-app billing: one account holds an Export plan and a QR plan at the same time; cancelling one leaves the other alone");
+
   // Event log.
   const { data: evs } = await admin.from("paddle_events").select("status").like("event_id", "evt_%").limit(200);
   assert.ok(evs.some((e) => e.status === "processed") && evs.some((e) => e.status === "ignored"));
@@ -209,7 +224,7 @@ try {
   const ua = anon();
   await ua.auth.signInWithPassword({ email: B.email, password: B.password });
   const own = await ua.from("subscriptions").select("plan");
-  assert.deepEqual(own.data.map((x) => x.plan), ["scale"]);
+  assert.deepEqual(own.data.map((x) => x.plan).sort(), ["plus", "scale"]);
   const other = anon();
   await other.auth.signInWithPassword({ email: A.email, password: A.password });
   const theirs = await other.from("subscriptions").select("plan");

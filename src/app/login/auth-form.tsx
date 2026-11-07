@@ -1,10 +1,12 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useActionState, useState } from "react";
 import { Button, Field, inputCls } from "@/components/ui";
 import { resendConfirmation, signIn, signUp } from "./actions";
 
 export function AuthForm() {
+  const wanted = useSearchParams().get("app");
   const [mode, setMode] = useState<"signup" | "login">("signup");
   const [state, action, pending] = useActionState(mode === "signup" ? signUp : signIn, undefined);
   const [resent, resend, resending] = useActionState(resendConfirmation, undefined);
@@ -28,6 +30,7 @@ export function AuthForm() {
       </div>
 
       <form action={action} className="space-y-5">
+        {wanted && <input type="hidden" name="app" value={wanted} />}
         {mode === "signup" && (
           <>
             <Field label="Your name">

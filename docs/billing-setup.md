@@ -1,12 +1,13 @@
 # Billing setup (Paddle sandbox)
 
 Billing is off until the variables below are set. With them unset, everyone is on the free beta
-(30 exports an hour, 250k rows, 5 stores) and the Billing page says "Free during the beta".
+(30 exports an hour, 250k rows, 5 stores) and each app's Billing page says "Free during the beta".
+Billing is switched on per app: Export turns on when its prices are set; QR stays free until it has its own.
 
 ## 1. In the Paddle **sandbox** dashboard (sandbox-vendors.paddle.com)
 
-1. **Catalog → Products:** create one product, "Klyroo Export", then three recurring monthly prices:
-   Starter, Growth, Scale (currency: GBP). Copy each price ID (`pri_...`).
+1. **Catalog → Products:** create one product per Klyroo app. For **Klyroo Export** create three recurring monthly prices in GBP:
+   Starter £19, Growth £49, Scale £99. (Klyroo QR gets its own product and prices later; each app bills separately.). Copy each price ID (`pri_...`).
 2. **Developer tools → Authentication:**
    - create a **client-side token** (`test_...`)
    - create an **API key** with these permissions: `customer.read`, `customer_portal_session.write`,
@@ -17,7 +18,7 @@ Billing is off until the variables below are set. With them unset, everyone is o
      `subscription.canceled`, `subscription.past_due`, `subscription.paused`,
      `subscription.resumed`, `subscription.trialing`
    - Copy the destination's **secret key**.
-4. **Checkout → Checkout settings:** set the default payment link to `https://useklyroo.com/app/billing`.
+4. **Checkout → Checkout settings:** set the default payment link to `https://useklyroo.com/export/billing`.
 
 ## 2. Environment variables (Render → Environment)
 
@@ -27,15 +28,15 @@ Billing is off until the variables below are set. With them unset, everyone is o
 | `NEXT_PUBLIC_PADDLE_CLIENT_TOKEN` | the `test_...` client token |
 | `PADDLE_API_KEY` | the sandbox API key |
 | `PADDLE_WEBHOOK_SECRET` | the notification destination secret |
-| `PADDLE_PRICE_STARTER` | `pri_...` |
-| `PADDLE_PRICE_GROWTH` | `pri_...` |
-| `PADDLE_PRICE_SCALE` | `pri_...` |
+| `PADDLE_PRICE_EXPORT_STARTER` | `pri_...` (Export, Starter) |
+| `PADDLE_PRICE_EXPORT_GROWTH` | `pri_...` (Export, Growth) |
+| `PADDLE_PRICE_EXPORT_SCALE` | `pri_...` (Export, Scale) |
 
 `NEXT_PUBLIC_*` values are baked in at build time: redeploy after changing them.
 
 ## 3. Test
 
-Open Billing, choose a plan, pay with Paddle's sandbox test card (4242 4242 4242 4242, any future
+Open Export → Billing, choose a plan, pay with Paddle's sandbox test card (4242 4242 4242 4242, any future
 date, any CVC). The plan should activate within seconds. Cancel and plan changes use the
 "Manage" button and the Switch buttons.
 

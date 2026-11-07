@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Logo } from "@/components/sidebar";
 import { Card } from "@/components/ui";
 import { AuthForm } from "./auth-form";
@@ -10,7 +11,9 @@ export default function Login() {
         <Card featured>
           <h1 className="text-[26px] leading-[1.15] font-light">Welcome to Klyroo</h1>
           <p className="mt-1 mb-7 text-sm text-muted">Create an account, then connect your Shopify store.</p>
-          <AuthForm />
+          <Suspense fallback={null}>
+            <AuthForm />
+          </Suspense>
         </Card>
       </div>
     </main>

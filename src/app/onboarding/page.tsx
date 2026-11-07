@@ -1,13 +1,13 @@
 import { Suspense } from "react";
-import { connection } from "next/server";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { AppPicker } from "@/components/app-picker";
 import { Logo } from "@/components/sidebar";
 import { isAppSlug, type AppSlug } from "@/lib/apps";
 import { requireSession } from "@/lib/dal";
 import { supabaseServer } from "@/lib/supabase/server";
 
-export const metadata = { title: "Choose your apps — Klyroo" };
+export const metadata = { title: "Choose your app — Klyroo" };
 
 async function Picker() {
   await connection();
@@ -17,12 +17,14 @@ async function Picker() {
   const enabled = (data ?? []).map((r) => r.app).filter(isAppSlug) as AppSlug[];
   if (enabled.length > 0) redirect("/app"); // already set up
   const first = session.name.split(" ")[0];
+  const { data: u } = await supabase.auth.getUser();
+  const preferred = u.user?.user_metadata?.preferred_app;
   return (
     <>
       <h1 className="text-[32px] leading-[1.1] font-light">{first ? `Welcome, ${first}.` : "Welcome."}</h1>
-      <p className="mt-2 text-[15px] text-muted max-w-xl">Which Klyroo apps do you want to use? Pick one or both. You can add more later.</p>
+      <p className="mt-2 text-[15px] text-muted max-w-xl">Which Klyroo app do you want to start with? Each one works on its own, with its own plan. You can add the other later.</p>
       <div className="mt-10">
-        <AppPicker initial={["export"]} submitLabel="Continue" />
+        <AppPicker initial={[isAppSlug(preferred) ? preferred : "export"]} mode="single" intent="onboarding" submitLabel="Continue" />
       </div>
     </>
   );

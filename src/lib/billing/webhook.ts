@@ -75,7 +75,7 @@ async function applySubscription(event: Json): Promise<{ applied: boolean; reaso
   const map = priceMap();
   const priceId = (sub.items as Json[] | undefined)?.map((i) => String(i?.price?.id ?? "")).find((id) => map[id]);
   if (!priceId) return { applied: false, reason: "unknown price" };
-  const plan = map[priceId];
+  const { app, plan } = map[priceId];
 
   // Which account? Trust only a signed account id (set by our checkout), or a subscription we already know.
   const { data: known } = await db.from("subscriptions").select("account_id, last_event_at").eq("paddle_subscription_id", subscriptionId).maybeSingle();
@@ -90,11 +90,11 @@ async function applySubscription(event: Json): Promise<{ applied: boolean; reaso
   }
 
   // Ignore events older than what we already applied (out-of-order delivery).
-  const { data: current } = await db.from("subscriptions").select("paddle_subscription_id, status, last_event_at").eq("account_id", accountId).maybeSingle();
+  const { data: current } = await db.from("subscriptions").select("paddle_subscription_id, status, last_event_at").eq("account_id", accountId).eq("app", app).maybeSingle();
   if (current?.last_event_at && occurredAt < current.last_event_at && current.paddle_subscription_id === subscriptionId) {
     return { applied: false, reason: "stale event" };
   }
-  // One live subscription per account: don't let a second one overwrite an active one.
+  // One live subscription per account per app: don't let a second one overwrite an active one.
   if (current && current.paddle_subscription_id !== subscriptionId && ["active", "trialing", "past_due"].includes(current.status)) {
     return { applied: false, reason: "account already has an active subscription" };
   }
@@ -102,6 +102,7 @@ async function applySubscription(event: Json): Promise<{ applied: boolean; reaso
   const periodEnd = sub.current_billing_period?.ends_at ?? sub.next_billed_at ?? null;
   const row = {
     account_id: accountId,
+    app,
     paddle_customer_id: typeof sub.customer_id === "string" ? sub.customer_id : null,
     paddle_subscription_id: subscriptionId,
     price_id: priceId,
@@ -112,9 +113,9 @@ async function applySubscription(event: Json): Promise<{ applied: boolean; reaso
     last_event_at: occurredAt,
     updated_at: new Date().toISOString(),
   };
-  const up = await db.from("subscriptions").upsert(row, { onConflict: "account_id" });
+  const up = await db.from("subscriptions").upsert(row, { onConflict: "account_id,app" });
   if (up.error) throw new Error(`upsert failed: ${up.error.message}`);
 
-  await db.from("audit_log").insert({ account_id: accountId, action: "billing.subscription", target: subscriptionId, meta: { plan, status } });
+  await db.from("audit_log").insert({ account_id: accountId, action: "billing.subscription", target: subscriptionId, meta: { app, plan, status } });
   return { applied: true };
 }

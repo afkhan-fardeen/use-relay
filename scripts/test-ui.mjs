@@ -63,7 +63,7 @@ const login = async (page, u) => {
   await page.fill('input[name=email]', u.email);
   await page.fill('input[name=password]', u.password);
   await page.click('button[type=submit]');
-  await page.waitForURL("**/app", { timeout: 60000 });
+  await page.waitForURL("**/export", { timeout: 60000 });
 };
 
 try {
@@ -81,7 +81,7 @@ try {
   ok("login lands on the app");
 
   // Builder: real preview from (fake) Shopify.
-  await page.goto(`${base}/app/exports/new?template=catalog`, { waitUntil: "networkidle" });
+  await page.goto(`${base}/export/new?template=catalog`, { waitUntil: "networkidle" });
   await page.waitForSelector('td:has-text("leggings")');
   const previewText = await page.locator("aside table").first().innerText();
   assert.match(previewText, /LEG-1/);
@@ -120,7 +120,7 @@ try {
   ok("repeating an identical request within seconds does not start a duplicate export");
 
   // History shows it with a working download link.
-  await page.goto(`${base}/app/history`, { waitUntil: "networkidle" });
+  await page.goto(`${base}/export/history`, { waitUntil: "networkidle" });
   await page.waitForSelector('text=Succeeded');
   assert.ok(await page.locator('a:has-text("Download")').count() >= 1);
   ok("history lists the export with a download link");
@@ -134,7 +134,7 @@ try {
 
   // Failure case: Shopify denies access → clear message in the UI.
   fake.state.scenario = { mode: "accessDenied", lines: [], pollsBeforeDone: 1, preview: productPreview };
-  await page.goto(`${base}/app/exports/new?template=price-cost`, { waitUntil: "networkidle" });
+  await page.goto(`${base}/export/new?template=price-cost`, { waitUntil: "networkidle" });
   await page.waitForSelector('td:has-text("LEG-1")');
   await page.click('button:has-text("Run export")');
   await page.waitForSelector('[role=alert]:has-text("permission")');
@@ -143,7 +143,7 @@ try {
 
   // Preview error surfaces plainly.
   fake.state.scenario = { mode: "ok", lines: [], pollsBeforeDone: 1, previewError: "Field 'nope' doesn't exist on type 'Product'" };
-  await page.goto(`${base}/app/exports/new?template=catalog`, { waitUntil: "networkidle" });
+  await page.goto(`${base}/export/new?template=catalog`, { waitUntil: "networkidle" });
   await page.waitForSelector('[role=alert]:has-text("Shopify couldn")');
   ok("a Shopify query error appears in the preview area instead of breaking the page");
 
@@ -152,9 +152,9 @@ try {
   const p2 = await ctx2.newPage();
   p2.setDefaultTimeout(60000);
   await login(p2, noStore);
-  await p2.goto(`${base}/app/exports/new`, { waitUntil: "networkidle" });
+  await p2.goto(`${base}/export/new`, { waitUntil: "networkidle" });
   await p2.waitForSelector('text=No connected store');
-  await p2.goto(`${base}/app/history`, { waitUntil: "networkidle" });
+  await p2.goto(`${base}/export/history`, { waitUntil: "networkidle" });
   await p2.waitForSelector('text=No exports yet');
   ok("an account without a store is guided to connect one; history shows an empty state");
 
@@ -163,7 +163,7 @@ try {
   const p3 = await ctx3.newPage();
   p3.setDefaultTimeout(60000);
   await login(p3, noScope);
-  await p3.goto(`${base}/app/exports/new?template=orders-3pl`, { waitUntil: "networkidle" });
+  await p3.goto(`${base}/export/new?template=orders-3pl`, { waitUntil: "networkidle" });
   await p3.waitForSelector('[role=alert]:has-text("read_orders")');
   fake.state.bulkStarts = 0;
   await p3.click('button:has-text("Run export")');
