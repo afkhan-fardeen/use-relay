@@ -1,6 +1,8 @@
 // Platform checks: sign-up metadata, app selection (onboarding), app switcher, QR preview app, access rules.
 // Usage: npm run test:apps
 import assert from "node:assert/strict";
+// These suites test the product with billing off (everyone on the open limits), whatever is in .env.local.
+for (const k of ["DODO_PAYMENTS_API_KEY", "DODO_PAYMENTS_WEBHOOK_KEY"]) process.env[k] = "";
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { chromium } from "playwright-core";

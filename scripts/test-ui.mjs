@@ -1,6 +1,8 @@
 // Drives the real app in a real browser against a fake Shopify and the real Supabase project.
 // Usage: npm run test:ui
 import assert from "node:assert/strict";
+// These suites test the product with billing off (everyone on the open limits), whatever is in .env.local.
+for (const k of ["DODO_PAYMENTS_API_KEY", "DODO_PAYMENTS_WEBHOOK_KEY"]) process.env[k] = "";
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { chromium } from "playwright-core";

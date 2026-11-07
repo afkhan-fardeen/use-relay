@@ -17,6 +17,8 @@
     "test:apps": "node --env-file=.env.local scripts/test-apps.mjs",
     "check:launch": "node scripts/check-launch.mjs",
     "test:qr": "node scripts/test-qr.mjs",
+    "db:audit": "node --env-file=.env.local scripts/audit-db.mjs",
+    "check:env": "node --env-file=.env.local scripts/check-env.mjs",
     "dodo:catalog": "node --env-file=.env.local scripts/dodo-catalog.mjs"
   },
   "dependencies": {

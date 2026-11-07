@@ -7,7 +7,8 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 //  1. keeps the free Render service awake and the free Supabase project from pausing,
 //  2. requeues exports whose worker disappeared (lease expired),
 //  3. runs any queued exports (retries, jobs missed while the server restarted),
-//  4. deletes export files past their retention date.
+//  4. deletes export files past their retention date,
+//  5. purges old scan, webhook and job-event rows.
 // Protected by a shared secret: Authorization: Bearer <TICK_SECRET>.
 
 function authorized(req: Request): boolean {
@@ -33,6 +34,8 @@ export async function POST(req: Request) {
   after(async () => {
     await drainQueue();
     await cleanupExpiredFiles();
+    const purged = await db.rpc("purge_old_data"); // old scans, webhook deliveries and job events
+    if (purged.error) console.error("tick: purge failed", purged.error.message);
   });
 
   return Response.json({ ok: true, requeued: reaped.data, at: new Date().toISOString() });

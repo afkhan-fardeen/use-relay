@@ -1,4 +1,5 @@
 import { createHmac, createHash } from "node:crypto";
+import { allow } from "@/lib/ratelimit";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 // The public redirect behind every dynamic QR code. One database round trip: find the destination
@@ -14,7 +15,7 @@ function device(ua: string): string {
 }
 
 function visitorHash(ip: string, ua: string): string {
-  const key = createHmac("sha256", process.env.MASTER_KEY ?? "dev").update("qr-visitor").digest();
+  const key = createHmac("sha256", process.env.MASTER_KEY ?? "").update("qr-visitor").digest();
   const day = new Date().toISOString().slice(0, 10); // the hash changes every day, so visitors can't be followed
   return createHash("sha256").update(key).update(`${day}|${ip}|${ua}`).digest("hex").slice(0, 16);
 }
@@ -41,13 +42,18 @@ export async function GET(req: Request, { params }: { params: Promise<{ slug: st
     if (ref) referrer = new URL(ref).hostname.replace(/^www\./, "");
   } catch { /* ignore a malformed referrer */ }
 
+  const visitor = visitorHash(ip, ua);
+  // The redirect always works, but one visitor can't flood the scan log: past 20 hits a minute on a
+  // code we stop recording (a person scanning twice is fine, a script is not).
+  const record = !BOT.test(ua) && allow(`scan:${slug}:${visitor}`, 20, 60_000);
+
   const { data, error } = await supabaseAdmin().rpc("qr_resolve_and_log", {
     p_slug: slug,
-    p_log: !BOT.test(ua),
+    p_log: record,
     p_country: /^[A-Z]{2}$/.test(country) && country !== "XX" ? country : null,
     p_device: device(ua),
     p_referrer: referrer,
-    p_visitor: visitorHash(ip, ua),
+    p_visitor: visitor,
   });
   if (error) {
     console.error("qr redirect failed", error.message);
