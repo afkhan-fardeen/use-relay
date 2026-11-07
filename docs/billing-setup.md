@@ -5,19 +5,19 @@ Billing is off until the variables below are set. With them unset, everyone is o
 
 ## 1. In the Paddle **sandbox** dashboard (sandbox-vendors.paddle.com)
 
-1. **Catalog → Products:** create one product, "Userelay Export", then three recurring monthly prices:
+1. **Catalog → Products:** create one product, "Klyroo Export", then three recurring monthly prices:
    Starter, Pro, Agency. Copy each price ID (`pri_...`).
 2. **Developer tools → Authentication:**
    - create a **client-side token** (`test_...`)
    - create an **API key** with these permissions: `customer.read`, `customer_portal_session.write`,
      `subscription.read`, `subscription.write`.
 3. **Developer tools → Notifications:** add a destination.
-   - URL: `https://userelay.onrender.com/api/paddle/webhook`
+   - URL: `https://useklyroo.com/api/paddle/webhook`
    - Events: `subscription.created`, `subscription.activated`, `subscription.updated`,
      `subscription.canceled`, `subscription.past_due`, `subscription.paused`,
      `subscription.resumed`, `subscription.trialing`
    - Copy the destination's **secret key**.
-4. **Checkout → Checkout settings:** set the default payment link to `https://userelay.onrender.com/app/billing`.
+4. **Checkout → Checkout settings:** set the default payment link to `https://useklyroo.com/app/billing`.
 
 ## 2. Environment variables (Render → Environment)
 

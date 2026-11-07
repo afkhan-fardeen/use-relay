@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { supabaseServer } from "@/lib/supabase/server";
 import { Builder } from "./builder";
 
-export const metadata = { title: "New export — Userelay Export" };
+export const metadata = { title: "New export — Klyroo Export" };
 
 export default async function NewExportPage() {
   const supabase = await supabaseServer();

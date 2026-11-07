@@ -58,7 +58,7 @@ export async function connectStore(_prev: StoreState, formData: FormData): Promi
   // Is this store already connected? Only to this same account.
   const { data: existing } = await db.from("stores").select("id, account_id").eq("shop_domain", domain).maybeSingle();
   if (existing && existing.account_id !== session.accountId) {
-    return fail("This store is already connected to another Userelay account.");
+    return fail("This store is already connected to another Klyroo account.");
   }
 
   if (!existing) {

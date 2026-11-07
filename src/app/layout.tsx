@@ -6,7 +6,7 @@ import "./globals.css";
 const sans = Inter({ variable: "--font-sans-stack", subsets: ["latin"], weight: "variable" });
 
 export const metadata: Metadata = {
-  title: "Userelay Export — Shopify data exports, scheduled",
+  title: "Klyroo Export — Shopify data exports, scheduled",
   description:
     "Export Shopify products, orders, customers and inventory to CSV. Templates, schedules and delivery to email, Drive, Dropbox and SFTP.",
 };

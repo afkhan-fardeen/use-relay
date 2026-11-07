@@ -1,4 +1,4 @@
--- Userelay Export: foundation schema
+-- Klyroo Export: foundation schema
 -- Tenancy, stores, secrets, export jobs (queue), events, files, audit.
 -- Principles: RLS on every table; clients can only READ their own account's data;
 -- all writes go through server routes using the service role; secrets are in a table

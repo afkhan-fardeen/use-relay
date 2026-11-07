@@ -20,9 +20,9 @@ export function Logo({ href = "/", tool = "Export" }: { href?: string; tool?: st
   return (
     <Link href={href} className="inline-flex items-center gap-2.5 font-normal text-[17px]">
       <span aria-hidden className="grid place-items-center size-7 rounded-lg bg-primary text-white text-sm font-normal">
-        U
+        K
       </span>
-      Userelay {tool && <span className="text-muted font-normal">{tool}</span>}
+      Klyroo {tool && <span className="text-muted font-normal">{tool}</span>}
     </Link>
   );
 }

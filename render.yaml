@@ -1,4 +1,5 @@
-# Render Blueprint: Userelay Export (free web service)
+# Render Blueprint: Klyroo Export (free web service)
+# Note: the service keeps its original name "userelay"; renaming it here would create a second service.
 # Secrets are NOT stored here. Render prompts for each `sync: false` value on first deploy.
 services:
   - type: web

@@ -40,7 +40,7 @@ const TERMINAL_SHOPIFY = new Set(["invalid_credentials", "app_not_installed", "w
 
 export async function runJob(job: JobRow, worker: string): Promise<void> {
   const db = supabaseAdmin();
-  const tmp = path.join(tmpdir(), `userelay-${job.id}-${job.attempt}.csv`);
+  const tmp = path.join(tmpdir(), `klyroo-${job.id}-${job.attempt}.csv`);
   let lastBeat = Date.now();
 
   const event = async (state: string, detail?: string) => {

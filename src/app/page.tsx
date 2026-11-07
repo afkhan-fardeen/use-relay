@@ -44,7 +44,7 @@ export default function Landing() {
       </header>
 
       <section className="mx-auto max-w-[1200px] px-6 pt-24 pb-20 text-center">
-        <Chip tone="info">Userelay Export · for Shopify</Chip>
+        <Chip tone="info">Klyroo Export · for Shopify</Chip>
         <h1 className="mt-8 mx-auto max-w-[900px] text-[40px] sm:text-[56px] leading-[1.08] tracking-[-0.02em] font-light">
           Every Shopify export, ready in minutes.
         </h1>
@@ -176,7 +176,7 @@ export default function Landing() {
         <div className="mx-auto max-w-[1200px] px-6 py-10 flex flex-wrap items-center justify-between gap-4 text-sm text-muted">
           <Logo tool={null} />
           <div className="flex gap-6"><a href="#" className="hover:text-ink">Privacy</a><a href="#" className="hover:text-ink">Terms</a></div>
-          <p>© 2026 Userelay</p>
+          <p>© 2026 Klyroo</p>
         </div>
       </footer>
     </div>

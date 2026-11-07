@@ -76,7 +76,7 @@ export default async function StoresPage() {
             </li>
           </ol>
           <ConnectForm />
-          <p className="mt-4 text-xs text-muted">Userelay Export never writes to your store.</p>
+          <p className="mt-4 text-xs text-muted">Klyroo Export never writes to your store.</p>
         </Card>
       </div>
     </>
