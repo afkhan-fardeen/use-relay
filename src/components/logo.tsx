@@ -1,23 +1,25 @@
+/* eslint-disable @next/next/no-img-element -- small static SVGs; no optimisation needed */
 import Link from "next/link";
 
-/** The Klyroo mark: a violet tile with a white K. Also used for the favicon (src/app/icon.svg). */
-export function LogoMark({ size = 28 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true" className="shrink-0">
-      <rect width="32" height="32" rx="8" fill="#533AFD" />
-      <path d="M11 8.5v15M11 16.5 21.5 8.5M14.6 14.2l6.9 9.3" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
+type Tool = "Export" | "QR" | string | null;
+
+const lockup = (tool: Tool) => (tool === "Export" ? { src: "/brand/klyroo-export.svg", w: 323, label: "Klyroo Export" } : tool === "QR" ? { src: "/brand/klyroo-qr.svg", w: 253, label: "Klyroo QR" } : { src: "/brand/klyroo.svg", w: 211, label: "Klyroo" });
+const icon = (tool: Tool) => (tool === "Export" ? "/brand/klyroo-export-icon.svg" : tool === "QR" ? "/brand/klyroo-qr-icon.svg" : "/brand/klyroo-icon.svg");
+
+/** The Klyroo brand mark (two circles), or an app's mark when `tool` is given. */
+export function LogoMark({ size = 28, tool = null }: { size?: number; tool?: Tool }) {
+  return <img src={icon(tool)} alt="" width={size} height={size} className="shrink-0" />;
 }
 
-export function Logo({ href = "/", tool = null, iconOnly = false }: { href?: string; tool?: string | null; iconOnly?: boolean }) {
+/** The brand lockup from /public/brand. The artwork has built-in padding, so it is nudged to line up with page edges. */
+export function Logo({ href = "/", tool = null, iconOnly = false, height = 52 }: { href?: string; tool?: Tool; iconOnly?: boolean; height?: number }) {
+  const l = lockup(tool);
   return (
-    <Link href={href} aria-label="Klyroo home" className="inline-flex items-center gap-2.5 text-[17px] text-ink">
-      <LogoMark />
-      {!iconOnly && (
-        <span>
-          Klyroo {tool && <span className="text-muted">{tool}</span>}
-        </span>
+    <Link href={href} aria-label={`${l.label} home`} className="inline-flex items-center text-ink">
+      {iconOnly ? (
+        <LogoMark size={32} tool={tool} />
+      ) : (
+        <img src={l.src} alt={l.label} height={height} width={Math.round((l.w / 96) * height)} style={{ height, width: "auto", marginLeft: -Math.round(height / 6), marginRight: -Math.round(height / 6) }} />
       )}
     </Link>
   );

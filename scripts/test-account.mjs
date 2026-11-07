@@ -39,8 +39,7 @@ await new Promise((r) => fakeDodo.listen(0, "127.0.0.1", r));
 const port = 3351;
 const ADMIN = `acct-${tag}-admin@example.com`;
 const env = {
-  ADMIN_EMAILS: ADMIN,
-  ...process.env, NODE_ENV: "development",
+  ...process.env, ADMIN_EMAILS: ADMIN, NODE_ENV: "development",
   DODO_PAYMENTS_ENVIRONMENT: "test_mode", DODO_PAYMENTS_API_KEY: "dodo_test_key", DODO_PAYMENTS_WEBHOOK_KEY: "whsec_dGVzdA==",
   DODO_API_BASE: `http://127.0.0.1:${fakeDodo.address().port}`, DODO_PRODUCT_EXPORT_STARTER: "pdt_starter01",
 };

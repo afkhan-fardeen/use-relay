@@ -5,6 +5,7 @@ import { Button, Chip } from "@/components/ui";
 import { resources, templates } from "@/lib/export";
 
 export const metadata = {
+  icons: { icon: "/brand/klyroo-export-favicon.svg" },
   title: "Klyroo Export — Shopify data to spreadsheets",
   description: "Export Shopify products, orders, customers, inventory and collections to CSV. Hundreds of columns, a live preview, ready-made templates and read-only access.",
 };

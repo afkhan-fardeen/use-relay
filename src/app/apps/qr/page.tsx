@@ -4,6 +4,7 @@ import { CtaBand, Faq, Feature, PlanGrid, QrArt, SectionHead, Steps, TrustRow } 
 import { Button, Card, Chip } from "@/components/ui";
 
 export const metadata = {
+  icons: { icon: "/brand/klyroo-qr-favicon.svg" },
   title: "Klyroo QR — QR code generator with editable links",
   description: "Make QR codes for links, Wi-Fi, contact cards, email, SMS and phone. Free static codes in your browser, plus dynamic links you can change and track.",
 };

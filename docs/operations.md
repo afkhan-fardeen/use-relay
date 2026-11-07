@@ -2,7 +2,7 @@
 
 ## Settings that need your action (not code)
 
-1. **Supabase email (important).** Supabase's built-in email sender is limited to a few messages an hour and is meant for testing. Sign-up confirmation and password reset will fail for real users under load. Before launch: Supabase > Authentication > SMTP Settings, and connect a provider (Resend, Postmark, Amazon SES) sending from `noreply@useklyroo.com`. Add the SPF/DKIM DNS records the provider gives you in Spaceship.
+1. **Supabase email (important).** Follow [resend-setup.md](resend-setup.md). Supabase's built-in sender is limited to a few emails an hour and is for testing only.
 2. **Redirect URLs.** Supabase > Authentication > URL Configuration: Site URL `https://useklyroo.com`, and add `https://useklyroo.com/auth/callback` to Redirect URLs.
 3. **Optional, better reset emails.** The default reset link only works in the browser that asked for it. To work on any device, edit Supabase > Authentication > Email Templates > Reset Password and set the link to
    `{{ .SiteURL }}/auth/callback?token_hash={{ .TokenHash }}&type=recovery`. Do the same for Confirm signup with `&type=signup`.
