@@ -52,7 +52,7 @@ check("Terms", "names Dodo Payments as Merchant of Record", /Dodo Payments is th
 check("Terms", "covers acceptable use, IP, termination, liability, governing law", ["Acceptable use", "Intellectual property", "Suspension and termination", "Liability", "Governing law"].every((x) => terms.includes(x)));
 check("Terms", "has contact details", terms.includes(COMPANY.supportEmail));
 check("Terms", "has no stale preview / coming-soon wording", !/preview|coming soon|not yet available/i.test(terms));
-check("Terms", "acceptable use covers abuse, spam and platform bypass", /phishing/i.test(terms) && /spam/i.test(terms) && /bypass/i.test(terms));
+check("Terms", "acceptable use covers abuse, spam and platform bypass", /unlawful/i.test(terms) && /spam/i.test(terms) && /bypass/i.test(terms));
 check("Terms", "says Export processes the merchant's own store data (controller/processor)", /processor/i.test(terms));
 check("Terms", "explains the free trial and monthly renewal", /3-day free trial/.test(terms) && /renew every month/.test(terms));
 
