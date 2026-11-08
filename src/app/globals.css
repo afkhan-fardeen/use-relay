@@ -9,7 +9,7 @@
   --color-canvas: #ffffff;
   --color-surface: #ffffff;
   --color-ink: #0a2540; /* text / on-surface */
-  --color-muted: #627a96;
+  --color-muted: #4f6682; /* 5.8:1 on white (AA) */
   --color-line: #e6e8f0;
   --color-line-strong: #b9b9f9; /* tertiary: soft outlines */
   --color-danger: #d92d20;
@@ -70,18 +70,57 @@ textarea:focus-visible {
   box-shadow: 0 0 0 3px rgb(83 58 253 / 0.14);
 }
 
+/* Links inside running text are underlined, so they never rely on colour alone. */
+p a, li > a:not([class*="block"]):not([class*="flex"]) { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+p a:hover { text-decoration-thickness: 2px; }
+
 .tabular {
   font-variant-numeric: tabular-nums;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
 }
 
 @keyframes slide {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(300%); }
+}
+
+/* ───────── Motion kit ─────────
+   Short, quiet, purposeful. Everything is switched off for people who ask for reduced motion. */
+@theme {
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes pop-in { from { opacity: 0; transform: scale(0.96) translateY(-4px); } to { opacity: 1; transform: none; } }
+@keyframes slide-in-right { from { opacity: 0; transform: translateX(16px); } to { opacity: 1; transform: none; } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+.anim-fade-in { animation: fade-in 0.35s var(--ease-out-soft) both; }
+.anim-fade-up { animation: fade-up 0.5s var(--ease-out-soft) both; }
+.anim-pop-in { animation: pop-in 0.16s var(--ease-out-soft) both; transform-origin: top; }
+.anim-slide-in { animation: slide-in-right 0.25s var(--ease-out-soft) both; }
+.delay-1 { animation-delay: 0.08s; } .delay-2 { animation-delay: 0.16s; } .delay-3 { animation-delay: 0.24s; } .delay-4 { animation-delay: 0.32s; }
+
+/* Scroll reveal: starts hidden only when JavaScript is running, so content is never lost without it. */
+.js .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.6s var(--ease-out-soft), transform 0.6s var(--ease-out-soft); transition-delay: var(--reveal-delay, 0s); }
+.js .reveal.is-visible { opacity: 1; transform: none; }
+
+/* Loading placeholders */
+.skeleton { background: linear-gradient(90deg, rgb(185 185 249 / 0.10) 25%, rgb(185 185 249 / 0.22) 37%, rgb(185 185 249 / 0.10) 63%); background-size: 200% 100%; animation: shimmer 1.4s ease-in-out infinite; border-radius: var(--radius-ctl); }
+
+/* A touch of physical feedback */
+button:not(:disabled):active, a[class*="rounded-ctl"]:active { transform: translateY(0.5px) scale(0.99); }
+.lift { transition: transform 0.2s var(--ease-out-soft), box-shadow 0.2s var(--ease-out-soft), border-color 0.2s; }
+.lift:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgb(10 37 64 / 0.08); }
+
+dialog::backdrop { background: rgb(10 37 64 / 0.45); backdrop-filter: blur(2px); animation: fade-in 0.2s ease both; }
+dialog[open] { animation: pop-in 0.2s var(--ease-out-soft) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .js .reveal { opacity: 1; transform: none; }
 }

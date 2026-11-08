@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { ReactNode } from "react";
 import { Icon } from "@/components/icons";
 import { Button, Card, Chip } from "@/components/ui";
@@ -16,7 +17,7 @@ export function SectionHead({ eyebrow, title, sub, center }: { eyebrow?: string;
 
 export function Feature({ icon, title, children }: { icon: Parameters<typeof Icon>[0]["name"]; title: string; children: ReactNode }) {
   return (
-    <div className="rounded-card border border-line p-6 bg-surface">
+    <div className="lift rounded-card border border-line p-6 bg-surface">
       <span className="grid place-items-center size-10 rounded-ctl bg-primary/10 text-primary"><Icon name={icon} size={20} /></span>
       <h3 className="mt-5 text-[19px] leading-[1.3] font-light">{title}</h3>
       <p className="mt-2 text-[15px] leading-6 text-muted">{children}</p>
@@ -44,7 +45,7 @@ export function PlanGrid({ app }: { app: AppSlug }) {
     <div>
       <div className={`grid gap-4 ${plans.length === 4 ? "sm:grid-cols-2 lg:grid-cols-4" : "md:grid-cols-3"}`}>
         {plans.map((p) => (
-          <Card key={p.key} featured={p.recommended} className={`!p-6 flex flex-col ${p.recommended ? "!border-primary/60 shadow-[0_8px_30px_rgba(83,58,253,0.10)]" : ""}`}>
+          <Card key={p.key} lift featured={p.recommended} className={`!p-6 flex flex-col ${p.recommended ? "!border-primary/60 shadow-[0_8px_30px_rgba(83,58,253,0.10)]" : ""}`}>
             <div className="flex items-center justify-between">
               <h3 className="text-[22px] leading-[26px] font-light">{p.name}</h3>
               {p.recommended && <Chip tone="info">Most popular</Chip>}
@@ -105,5 +106,18 @@ export function TrustRow({ items }: { items: string[] }) {
         <li key={t} className="flex items-center gap-2"><Icon name="check" size={16} className="text-success" />{t}</li>
       ))}
     </ul>
+  );
+}
+
+/** A real screenshot of the app inside a simple browser frame. */
+export function ProductShot({ src, alt, priority }: { src: string; alt: string; priority?: boolean }) {
+  return (
+    <figure className="mx-auto max-w-[1100px] overflow-hidden rounded-feat border border-line-strong/60 bg-surface shadow-[0_30px_90px_rgba(10,37,64,0.14)]">
+      <div className="flex items-center gap-2 border-b border-line bg-wash/60 px-4 py-3" aria-hidden>
+        <span className="size-3 rounded-full bg-[#FF5F57]" /><span className="size-3 rounded-full bg-[#FEBC2E]" /><span className="size-3 rounded-full bg-[#28C840]" />
+        <span className="ml-4 hidden sm:block rounded-full bg-surface px-4 py-1 text-xs text-muted">useklyroo.com/export</span>
+      </div>
+      <Image src={src} alt={alt} width={2880} height={1800} sizes="(min-width: 1200px) 1100px, 100vw" priority={priority} className="h-auto w-full" />
+    </figure>
   );
 }

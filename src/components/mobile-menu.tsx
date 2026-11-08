@@ -25,10 +25,10 @@ export function MobileMenu({ nav }: { nav: { href: string; label: string }[] }) 
         <Icon name={open ? "close" : "menu"} size={22} />
       </button>
       {open && (
-        <div id="mobile-menu" className="fixed inset-x-0 top-16 bottom-0 z-40 bg-canvas overflow-y-auto border-t border-line">
+        <div id="mobile-menu" className="anim-fade-in fixed inset-x-0 top-16 bottom-0 z-40 bg-canvas overflow-y-auto border-t border-line">
           <nav aria-label="Mobile" className="px-4 py-6 flex flex-col">
-            {nav.map((n) => (
-              <Link key={n.href} href={n.href} onClick={() => setOpen(false)} className="flex items-center justify-between h-14 border-b border-line text-[17px]">
+            {nav.map((n, i) => (
+              <Link key={n.href} href={n.href} onClick={() => setOpen(false)} style={{ animationDelay: `${0.04 * i}s` }} className="anim-fade-up flex items-center justify-between h-14 border-b border-line text-[17px]">
                 {n.label}
                 <Icon name="chevronRight" size={18} className="text-muted" />
               </Link>

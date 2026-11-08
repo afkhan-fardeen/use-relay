@@ -20,6 +20,7 @@
     "check:env": "node --env-file=.env.local scripts/check-env.mjs",
     "test:account": "node --env-file=.env.local scripts/test-account.mjs",
     "test:dodo": "node --env-file=.env.local --conditions=react-server scripts/test-dodo-live.mjs",
+    "test:ux": "node --env-file=.env.local scripts/test-ux.mjs",
     "dodo:catalog": "node --env-file=.env.local scripts/dodo-catalog.mjs"
   },
   "dependencies": {
@@ -37,6 +38,7 @@
     "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "axe-core": "^4.14.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.5",
     "graphql": "^17.1.0",

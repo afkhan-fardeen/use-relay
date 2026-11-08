@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { connection } from "next/server";
+import { EmptyState } from "@/components/kit/empty-state";
 import { AutoRefresh } from "@/components/auto-refresh";
 import { StatusChip } from "@/components/status";
 import { Button, Card, PageHeader } from "@/components/ui";
@@ -42,11 +43,9 @@ export default async function HistoryPage() {
         actions={<Button size="sm" href="/export/new">New export</Button>}
       />
       {list.length === 0 ? (
-        <Card className="!p-8 max-w-xl">
-          <h2 className="text-[19px] font-light">No exports yet</h2>
-          <p className="mt-2 text-sm text-muted">Pick a template on the home page to run your first export.</p>
-          <div className="mt-5"><Button variant="secondary" size="sm" href="/export">Browse templates</Button></div>
-        </Card>
+        <EmptyState icon="history" title="No exports yet" action={<Button size="sm" href="/export">Browse templates</Button>}>
+          Pick a template on the home page and run your first export. Finished files appear here for 7 days.
+        </EmptyState>
       ) : (
         <Card padded={false} className="overflow-hidden">
           <div className="overflow-x-auto">

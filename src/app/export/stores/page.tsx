@@ -1,3 +1,5 @@
+import { EmptyState } from "@/components/kit/empty-state";
+import { CopyButton } from "@/components/kit/copy-button";
 import { StatusChip } from "@/components/status";
 import { connection } from "next/server";
 import { Card, Chip, Eyebrow, PageHeader } from "@/components/ui";
@@ -31,10 +33,7 @@ export default async function StoresPage() {
       <div className="grid lg:grid-cols-[1fr_460px] gap-6 items-start">
         <div className="space-y-4">
           {(stores ?? []).length === 0 && (
-            <Card className="!p-6">
-              <p className="font-normal">No stores yet</p>
-              <p className="text-sm text-muted mt-1">Follow the steps on the right to connect your first store.</p>
-            </Card>
+            <EmptyState icon="store" title="No stores connected yet">Follow the steps next to this to connect your first store. It takes about two minutes and Klyroo only ever reads your data.</EmptyState>
           )}
           {(stores ?? []).map((s) => (
             <Card key={s.id} className="!p-6">
@@ -69,6 +68,7 @@ export default async function StoresPage() {
               <span aria-hidden className="grid place-items-center size-6 shrink-0 rounded-full border border-secondary/40 text-secondary text-xs">2</span>
               <span>In Versions, add these <span className="font-normal text-ink">read-only</span> scopes and release the version:
                 <span className="mt-2 flex flex-wrap gap-1.5">{needed.map((x) => <Chip key={x} tone="info">{x}</Chip>)}</span>
+                <span className="mt-3 block"><CopyButton text={needed.join(",")} label="Copy scopes" /></span>
                 <span className="mt-2 block text-xs text-muted">Optional: <span className="font-mono">read_all_orders</span> to export orders older than 60 days.</span>
               </span>
             </li>

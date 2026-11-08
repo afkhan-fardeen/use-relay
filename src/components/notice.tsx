@@ -12,7 +12,7 @@ const TONES = {
 export function Notice({ tone, children, className = "" }: { tone: keyof typeof TONES; children: ReactNode; className?: string }) {
   const t = TONES[tone];
   return (
-    <p role={t.role} className={`flex items-start gap-2.5 rounded-ctl border px-3.5 py-2.5 text-sm leading-5 ${t.cls} ${className}`}>
+    <p role={t.role} className={`anim-pop-in flex items-start gap-2.5 rounded-ctl border px-3.5 py-2.5 text-sm leading-5 ${t.cls} ${className}`}>
       <Icon name={t.icon} size={16} className="mt-0.5 shrink-0" />
       <span className="min-w-0">{children}</span>
     </p>

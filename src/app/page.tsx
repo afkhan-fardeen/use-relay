@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing";
-import { CtaBand, Faq, Feature, PlanGrid, SectionHead, Steps, TrustRow } from "@/components/marketing-blocks";
+import { CtaBand, Faq, Feature, PlanGrid, ProductShot, SectionHead, Steps, TrustRow } from "@/components/marketing-blocks";
+import { Reveal } from "@/components/kit/reveal";
 import { Button, Chip } from "@/components/ui";
 import { resources, templates } from "@/lib/export";
 
@@ -18,21 +19,26 @@ export default function Home() {
       <MarketingHeader anchors={[{ href: "#features", label: "Features" }, { href: "#how", label: "How it works" }, { href: "#pricing", label: "Pricing" }, { href: "/docs/export/getting-started", label: "Docs" }]} />
 
       <section className="mx-auto max-w-[1200px] px-4 sm:px-6 pt-14 sm:pt-20 pb-16 text-center">
-        <Chip tone="info">Klyroo Export · for Shopify</Chip>
-        <h1 className="mt-6 mx-auto max-w-[860px] text-[40px] sm:text-[56px] leading-[1.05] tracking-[-0.025em] font-light">
+        <div className="anim-fade-up"><Chip tone="info">Klyroo Export · for Shopify</Chip></div>
+        <h1 className="anim-fade-up delay-1 mt-6 mx-auto max-w-[860px] text-[40px] sm:text-[56px] leading-[1.05] tracking-[-0.025em] font-light">
           Every Shopify export, <span className="text-primary">ready in minutes.</span>
         </h1>
-        <p className="mt-6 mx-auto max-w-[640px] text-[18px] leading-[28px] text-muted">
+        <p className="anim-fade-up delay-2 mt-6 mx-auto max-w-[640px] text-[18px] leading-[28px] text-muted">
           Products, orders, customers, inventory and collections to CSV. Pick a template or choose your own columns, check a live preview, and download. No code, no API.
         </p>
-        <div className="mt-9 flex flex-col sm:flex-row gap-3 justify-center">
+        <div className="anim-fade-up delay-3 mt-9 flex flex-col sm:flex-row gap-3 justify-center">
           <Button href="/login" className="w-full sm:w-auto">Start free</Button>
           <Button href="#pricing" variant="secondary" className="w-full sm:w-auto">See pricing</Button>
         </div>
         <div className="mt-7 flex justify-center"><TrustRow items={["Read-only access", "No card needed", "30-day money-back"]} /></div>
       </section>
 
-      <section id="features" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
+      <Reveal as="section" className="mx-auto max-w-[1200px] px-4 sm:px-6 pb-20">
+        <ProductShot src="/product/builder.png" alt="The Klyroo Export builder: choose what to export, add filters and columns, and see a live preview of real rows from your store before you run it." />
+        <p className="mt-5 text-center text-sm text-muted">The builder, with a live preview of rows from your store. Sample data shown.</p>
+      </Reveal>
+
+      <Reveal as="section" id="features" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
         <SectionHead eyebrow="What you get" title={`${COLUMNS}+ columns, and the right ones in two clicks.`} sub="Everything Shopify holds about your catalog and orders, laid out the way your team, your 3PL or your accountant needs it." />
         <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Feature icon="list" title={`${templates.length} ready-made templates`}>Orders for your 3PL, a full catalog, inventory by location, customer lists and more. Pick one and run it.</Feature>
@@ -42,9 +48,9 @@ export default function Home() {
           <Feature icon="apps" title="Metafields included">Add any product, variant, order, customer or collection metafield as a column on every plan.</Feature>
           <Feature icon="download" title="Read-only and private">We only read your store. Files are private, download links are short-lived, and files are deleted after 7 days.</Feature>
         </div>
-      </section>
+      </Reveal>
 
-      <section className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
+      <Reveal as="section" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
         <SectionHead eyebrow="Templates" title="Start from the job, not the field list." />
         <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {templates.map((t) => (
@@ -55,9 +61,9 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </section>
+      </Reveal>
 
-      <section id="how" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
+      <Reveal as="section" id="how" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
         <SectionHead eyebrow="How it works" title="From connect to first file in three minutes." />
         <div className="mt-12">
           <Steps items={[
@@ -67,14 +73,14 @@ export default function Home() {
           ]} />
           <p className="mt-6 text-sm text-muted">Need help connecting? Read the <Link href="/docs/export/connect-shopify" className="text-primary">connection guide</Link>.</p>
         </div>
-      </section>
+      </Reveal>
 
-      <section id="pricing" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
+      <Reveal as="section" id="pricing" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
         <SectionHead eyebrow="Pricing" title="Pay for stores and export size. Nothing else." sub="Every plan has every column and every template. Plans differ only by how many stores you connect and how many rows an export can have." />
         <div className="mt-12"><PlanGrid app="export" /></div>
-      </section>
+      </Reveal>
 
-      <section className="mx-auto max-w-[900px] px-4 sm:px-6 py-20 border-t border-line">
+      <Reveal as="section" className="mx-auto max-w-[900px] px-4 sm:px-6 py-20 border-t border-line">
         <SectionHead eyebrow="Questions" title="Good to know." center />
         <div className="mt-12">
           <Faq items={[
@@ -86,9 +92,9 @@ export default function Home() {
             ["Do the plans have different features?", "No. Only the number of stores and the rows per export differ."],
           ]} />
         </div>
-      </section>
+      </Reveal>
 
-      <CtaBand title="Stop copy-pasting from Shopify." sub="Connect a store and run your first export for free." href="/login?app=export" label="Start free" />
+      <CtaBand title="Stop copy-pasting from Shopify." sub="Connect a store and run your first export for free." href="/login" label="Start free" />
       <MarketingFooter />
     </div>
   );

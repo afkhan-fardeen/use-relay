@@ -1,5 +1,6 @@
 import { connection } from "next/server";
 import { Suspense } from "react";
+import { PageSkeleton } from "@/components/kit/skeleton";
 import { Card, Chip, Eyebrow, Stat } from "@/components/ui";
 import { requireAdmin } from "@/lib/admin";
 import { supabaseAdmin } from "@/lib/supabase/admin";
@@ -9,7 +10,7 @@ export const metadata = { title: "Admin — Klyroo", robots: { index: false } };
 export default function AdminPage() {
   return (
     <main className="mx-auto max-w-[1200px] px-4 sm:px-6 py-10">
-      <Suspense fallback={<p className="text-muted">Loading…</p>}>
+      <Suspense fallback={<PageSkeleton cards={4} />}>
         <Dashboard />
       </Suspense>
     </main>

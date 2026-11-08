@@ -13,10 +13,10 @@ type BtnProps = {
 
 export function Button({ variant = "primary", size = "md", href, className, children, ...rest }: BtnProps) {
   const base =
-    "inline-flex items-center justify-center gap-2 font-normal transition-colors whitespace-nowrap select-none disabled:opacity-50 disabled:pointer-events-none tracking-normal";
+    "inline-flex items-center justify-center gap-2 font-normal transition-[color,background-color,border-color,box-shadow,transform] duration-150 whitespace-nowrap select-none disabled:opacity-50 disabled:pointer-events-none tracking-normal";
   const sizes = size === "md" ? "h-12 px-6 rounded-ctl text-base" : "h-9 px-4 rounded-ctl text-sm";
   const variants = {
-    primary: "bg-primary text-white hover:bg-primary-hover",
+    primary: "bg-primary text-white hover:bg-primary-hover hover:shadow-[0_6px_18px_rgba(83,58,253,0.28)]",
     secondary: "bg-white text-primary border border-line-strong hover:bg-wash",
     tertiary: "text-primary hover:text-primary-hover px-0 h-auto rounded-none",
   }[variant];
@@ -40,11 +40,14 @@ export function Card({
   className,
   featured,
   padded = true,
+  lift,
 }: {
   children: ReactNode;
   className?: string;
   featured?: boolean;
   padded?: boolean;
+  /** Rises slightly on hover: for cards that are clickable or compared side by side. */
+  lift?: boolean;
 }) {
   return (
     <div
@@ -52,6 +55,7 @@ export function Card({
         "border bg-surface",
         featured ? "rounded-feat border-line-strong/70" : "rounded-card border-line",
         padded && "p-8",
+        lift && "lift",
         className,
       )}
     >

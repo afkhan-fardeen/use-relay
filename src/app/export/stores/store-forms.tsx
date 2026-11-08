@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import { Modal } from "@/components/kit/modal";
 import { Notice } from "@/components/notice";
 import { Button, Field, inputCls } from "@/components/ui";
 import { connectStore, disconnectStore, testStore, type StoreState } from "./actions";
@@ -34,6 +35,7 @@ export function ConnectForm() {
 export function StoreActions({ storeId, connected }: { storeId: string; connected: boolean }) {
   const [testState, testAction, testing] = useActionState(testStore, undefined);
   const [discState, discAction, disconnecting] = useActionState(disconnectStore, undefined);
+  const [confirm, setConfirm] = useState(false);
   return (
     <div className="mt-5 space-y-3">
       <div className="flex flex-wrap items-center gap-3">
@@ -43,12 +45,15 @@ export function StoreActions({ storeId, connected }: { storeId: string; connecte
             {testing ? "Testing…" : "Test connection"}
           </Button>
         </form>
-        <form action={discAction}>
-          <input type="hidden" name="storeId" value={storeId} />
-          <Button type="submit" variant="tertiary" className="text-sm text-muted hover:text-danger" disabled={disconnecting}>
-            {disconnecting ? "Disconnecting…" : "Disconnect"}
-          </Button>
-        </form>
+        <Button type="button" variant="tertiary" className="text-sm text-muted hover:text-danger" onClick={() => setConfirm(true)}>Disconnect</Button>
+        <Modal open={confirm} onClose={() => setConfirm(false)} title="Disconnect this store?" tone="danger">
+          <p>Klyroo will delete the saved Shopify secret for this store and you won&apos;t be able to export from it until you connect it again. Your export history stays.</p>
+          <form action={discAction} className="mt-5 flex items-center justify-end gap-3" onSubmit={() => setConfirm(false)}>
+            <input type="hidden" name="storeId" value={storeId} />
+            <Button type="button" variant="secondary" size="sm" onClick={() => setConfirm(false)}>Keep connected</Button>
+            <Button type="submit" size="sm" className="!bg-danger hover:!bg-danger/90" disabled={disconnecting}>{disconnecting ? "Disconnecting…" : "Disconnect store"}</Button>
+          </form>
+        </Modal>
       </div>
       <StateNotice state={testState} />
       <StateNotice state={discState} />

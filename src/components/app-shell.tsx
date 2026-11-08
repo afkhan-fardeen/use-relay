@@ -1,4 +1,5 @@
 import { connection } from "next/server";
+import { ToastProvider } from "@/components/kit/toast";
 import { MobileBar, Sidebar } from "@/components/sidebar";
 import type { AppSlug } from "@/lib/apps";
 import { requireSession } from "@/lib/dal";
@@ -26,12 +27,14 @@ export async function AppShell({ area, children }: { area: ShellArea; children: 
   const nav = { area, email: session.email, name: session.name, storeName: store ? store.shop_domain.replace(".myshopify.com", "") : null };
 
   return (
+    <ToastProvider>
     <div className="flex flex-1 min-h-screen">
       <Sidebar {...nav} />
       <div className="flex-1 min-w-0">
         <MobileBar {...nav} />
-        <main className="px-4 sm:px-6 lg:px-10 py-8 lg:py-10 max-w-[1280px]">{children}</main>
+        <main className="anim-fade-in px-4 sm:px-6 lg:px-10 py-8 lg:py-10 max-w-[1280px]">{children}</main>
       </div>
     </div>
+    </ToastProvider>
   );
 }
