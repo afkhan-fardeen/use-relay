@@ -13,14 +13,6 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  async redirects() {
-    // Old product-page address, and the retired QR app: send visitors somewhere useful.
-    return [
-      { source: "/apps/export", destination: "/", permanent: true },
-      { source: "/apps/qr", destination: "/", permanent: true },
-      { source: "/qr-code-generator", destination: "/", permanent: true },
-    ];
-  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

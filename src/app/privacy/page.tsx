@@ -30,6 +30,7 @@ export default function Privacy() {
                 ["Account details: name, company, email, password (stored only as a secure hash)", "Create and secure your account, provide the service, contact you about it", "Contract"],
                 ["Shopify connection: store address, app credentials (encrypted), granted permissions", "Connect to your store and run exports you request", "Contract"],
                 ["Store data you choose to export: products, orders, customers, inventory, collections", "Build the files you ask for. We act as your processor", "Your instructions (processor)"],
+                ["Klyroo QR codes you save, and for dynamic links the scan data: time, country, device type, referring site and a daily-changing anonymous visitor code (no IP address is stored and no cookies are used)", "Redirect scans and show you your analytics", "Contract; legitimate interests"],
                 ["Export files and job history (what was exported, when, status)", "Let you download and review exports", "Contract"],
                 ["Billing details: plan, status, payment provider customer and subscription IDs (we never see your card number)", "Manage your subscription and limits", "Contract; legal obligation"],
                 ["Support emails and what you tell us", "Answer your questions", "Legitimate interests"],
@@ -46,7 +47,7 @@ export default function Privacy() {
         </div>
         <p>We do not sell personal data and we do not use exported store data for advertising or to build profiles.</p>
         <p>
-          <strong className="font-normal">Roles.</strong> For your account and billing we are the controller. For the store data you choose to export (which can include your customers&apos; personal data) you are the controller and we are your processor: we handle it only to build the files you ask for, on your instructions.
+          <strong className="font-normal">Roles.</strong> For your account, billing and QR codes we are the controller. For the store data you choose to export (which can include your customers&apos; personal data) you are the controller and we are your processor: we handle it only to build the files you ask for, on your instructions. For people who scan your QR codes, we count scans for you without cookies and without storing IP addresses (see the table above).
         </p>
       </Section>
 

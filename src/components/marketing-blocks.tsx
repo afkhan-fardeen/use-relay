@@ -4,6 +4,7 @@ import { Icon } from "@/components/icons";
 import { Button, Card, Chip } from "@/components/ui";
 import type { AppSlug } from "@/lib/apps";
 import { PLAN_COMMON, PLANS } from "@/lib/billing/plans";
+import { DEFAULT_STYLE, qrSvg, type QrStyle } from "@/lib/qr/render";
 
 export function SectionHead({ eyebrow, title, sub, center }: { eyebrow?: string; title: string; sub?: string; center?: boolean }) {
   return (
@@ -97,6 +98,11 @@ export function CtaBand({ title, sub, href, label }: { title: string; sub?: stri
       </div>
     </section>
   );
+}
+
+/** A real, scannable QR code drawn on the server (used as page art). */
+export function QrArt({ content, size = 160, style }: { content: string; size?: number; style?: Partial<QrStyle> }) {
+  return <div role="img" aria-label="Sample QR code" style={{ width: size, height: size }} dangerouslySetInnerHTML={{ __html: qrSvg(content, { ...DEFAULT_STYLE, ...style }) }} />;
 }
 
 export function TrustRow({ items }: { items: string[] }) {

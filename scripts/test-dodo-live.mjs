@@ -161,17 +161,17 @@ try {
   subsToCancel.delete(sub.provider_subscription_id);
 
   // ───────── 6. Declined card ─────────
-  const B = await mkUser("b");
+  const B = await mkUser("b", "qr");
   const pageB = await (await browser.newContext({ viewport: { width: 1280, height: 900 } })).newPage();
   pageB.setDefaultTimeout(60000);
-  await login(pageB, B);
-  await pageB.goto(`${BASE}/export/billing`, { waitUntil: "networkidle" });
-  await pageB.click('button:has-text("Choose Starter")');
+  await login(pageB, B, "qr");
+  await pageB.goto(`${BASE}/qr/billing`, { waitUntil: "networkidle" });
+  await pageB.click('button:has-text("Choose Pro")');
   await payOnDodo(pageB, "failure");
   await pageB.waitForTimeout(15000);
-  assert.equal(await getSub(B.accountId), null, "a declined payment creates no subscription");
+  assert.equal(await getSub(B.accountId, "qr"), null, "a declined payment creates no subscription");
   assert.match(pageB.url(), /checkout\.dodopayments\.com|billing/);
-  ok("a declined test card creates no subscription (Export Starter)");
+  ok("a declined test card creates no subscription (QR Pro)");
 
   assert.deepEqual(errors, [], "no uncaught browser errors");
   ok("no uncaught errors in the browser");

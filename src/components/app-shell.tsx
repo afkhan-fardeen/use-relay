@@ -1,9 +1,9 @@
+import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { ToastProvider } from "@/components/kit/toast";
 import { MobileBar, Sidebar } from "@/components/sidebar";
-import type { AppSlug } from "@/lib/apps";
+import { isAppSlug, type AppSlug } from "@/lib/apps";
 import { requireSession } from "@/lib/dal";
-import { supabaseAdmin } from "@/lib/supabase/admin";
 import { supabaseServer } from "@/lib/supabase/server";
 
 export type ShellArea = AppSlug | "account";
@@ -19,12 +19,13 @@ export async function AppShell({ area, children }: { area: ShellArea; children: 
       ? supabase.from("stores").select("shop_domain, status").neq("status", "disconnected").order("created_at").limit(1)
       : Promise.resolve({ data: null }),
   ]);
-  // One app today: switch it on for the account the first time they arrive.
-  if (area !== "account" && !(appRows ?? []).some((r) => r.app === area)) {
-    await supabaseAdmin().from("account_apps").upsert({ account_id: session.accountId, app: area }, { onConflict: "account_id,app" });
+  const apps = (appRows ?? []).map((r) => r.app).filter(isAppSlug) as AppSlug[];
+  if (area !== "account") {
+    if (apps.length === 0) redirect("/onboarding"); // new accounts choose an app first
+    if (!apps.includes(area)) redirect("/account/apps"); // this app isn't switched on for the account
   }
   const store = stores?.[0];
-  const nav = { area, email: session.email, name: session.name, storeName: store ? store.shop_domain.replace(".myshopify.com", "") : null };
+  const nav = { area, email: session.email, name: session.name, apps, storeName: store ? store.shop_domain.replace(".myshopify.com", "") : null };
 
   return (
     <ToastProvider>

@@ -32,6 +32,7 @@ const appsOf = async (accountId) => (await admin.from("account_apps").select("ap
 const withCompany = await mk("co", { full_name: "Alex Morgan", company: "Northwind Active" });
 assert.equal(withCompany.accountName, "Northwind Active");
 const nameOnly = await mk("nm", { full_name: "Sam Lee" });
+const wantsQr = await mk("qr", { full_name: "Quinn Ray", preferred_app: "qr" });
 assert.equal(nameOnly.accountName, "Sam Lee");
 const bare = await mk("bare", {});
 assert.equal(bare.accountName, `apps-${tag}-bare`);
@@ -47,7 +48,7 @@ assert.deepEqual((await a.from("account_apps").select("app")).data.map((r) => r.
 const b = anon();
 await b.auth.signInWithPassword({ email: nameOnly.email, password: nameOnly.password });
 assert.deepEqual((await b.from("account_apps").select("app")).data, [], "other accounts can't see it");
-assert.ok((await a.from("account_apps").insert({ account_id: withCompany.accountId, app: "export" })).error, "users can't write apps directly");
+assert.ok((await a.from("account_apps").insert({ account_id: withCompany.accountId, app: "qr" })).error, "users can't write apps directly");
 assert.ok((await a.from("account_apps").delete().eq("account_id", withCompany.accountId)).error, "users can't delete apps directly");
 assert.ok((await admin.from("account_apps").insert({ account_id: withCompany.accountId, app: "hack" })).error, "only known apps are allowed");
 const anonRead = await anon().from("account_apps").select("*");
@@ -80,54 +81,139 @@ try {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
 
-  // Sign-up form shows the fields it should.
-  await page.goto(`${base}/login`, { waitUntil: "networkidle" });
+  // Sign-up form shows the new fields and remembers which app the visitor came for.
+  await page.goto(`${base}/login?app=qr`, { waitUntil: "networkidle" });
   assert.ok(await page.locator('input[name=fullName]').isVisible());
   assert.ok(await page.locator('input[name=company]').isVisible());
+  assert.equal(await page.locator('input[type=hidden][name=app][value=qr]').count(), 1);
   await page.click('[role=tab]:has-text("Log in")');
   assert.equal(await page.locator('input[name=fullName]').count(), 0);
-  ok("sign-up asks for name and company; the log-in tab hides them");
+  ok("sign-up asks for name and company and remembers the app the visitor came for");
 
-  // Public site: one product, no mention of retired apps, old addresses still work.
+  // Public pages: company home plus a product page per app.
   await page.goto(`${base}/`, { waitUntil: "networkidle" });
-  for (const t of ["Klyroo Export", "£19", "£49", "£99", "Most popular"]) assert.ok(await page.locator(`text=${t}`).count() >= 1, t);
-  assert.equal(await page.locator("text=/Klyroo QR|QR code/i").count(), 0, "no QR wording on the home page");
-  for (const path of ["/apps/export", "/apps/qr", "/qr-code-generator"]) {
-    await page.goto(`${base}${path}`, { waitUntil: "networkidle" });
-    assert.equal(new URL(page.url()).pathname, "/", `${path} redirects home`);
-  }
-  assert.equal((await fetch(`${base}/r/anything`, { redirect: "manual" })).status, 404, "short links are gone");
-  ok("the home page is the Export product page; retired addresses redirect there; no QR wording remains");
+  for (const t of ["Klyroo Export", "Klyroo QR", "Own plan".length ? "Start with Export" : ""]) assert.ok(await page.locator(`text=${t}`).count() >= 1, t);
+  await page.goto(`${base}/apps/export`, { waitUntil: "networkidle" });
+  for (const t of ["£19", "£49", "£99", "Most popular"]) assert.ok(await page.locator(`text=${t}`).count() >= 1, t);
+  await page.goto(`${base}/apps/qr`, { waitUntil: "networkidle" });
+  assert.ok(await page.locator("text=Make a free QR code").count() >= 1);
+  ok("company home lists both apps; Export page shows the £19 / £49 / £99 plans; QR has its own page");
 
-  // First login: straight into Export, no app picker, Export switched on automatically.
-  assert.deepEqual(await appsOf(withCompany.accountId), [], "new accounts start with no apps row");
+  // Onboarding: pick ONE app to start with.
   await login(page, withCompany);
+  await page.waitForURL("**/onboarding");
+  await page.waitForSelector("h1:has-text('Welcome, Alex.')");
+  assert.deepEqual(await page.locator('input[type=radio]:checked').evaluateAll((e) => e.map((x) => x.getAttribute("aria-label"))), ["Klyroo Export"]);
+  ok("a new account is sent to onboarding, greeted by first name, with Export preselected");
+
+  await page.locator('label:has-text("Klyroo QR")').first().click();
+  await page.click('button:has-text("Continue")');
+  await page.waitForURL("**/qr");
+  assert.deepEqual(await appsOf(withCompany.accountId), ["qr"]);
+  ok("choosing QR starts QR on its own: only that app is switched on");
+
+  // Separation: Export isn't on, so its pages are closed and QR billing is its own.
+  await page.goto(`${base}/export`);
+  await page.waitForURL("**/account/apps");
+  await page.goto(`${base}/qr/billing`, { waitUntil: "networkidle" });
+  await page.waitForSelector("text=Klyroo QR");
+  assert.equal(await page.locator('aside:visible nav a:has-text("Schedules")').count(), 0);
+  ok("an app that isn't switched on is closed (sent to Apps); QR shows only QR's menu and billing");
+
+  // Add Export from the Apps page (multi-select), keep QR.
+  await page.goto(`${base}/account/apps`, { waitUntil: "networkidle" });
+  await page.locator('label:has-text("Klyroo Export")').first().click();
+  await page.click('button:has-text("Save apps")');
+  await page.waitForSelector('[role=status]:has-text("Saved.")');
+  assert.deepEqual(await appsOf(withCompany.accountId), ["export", "qr"]);
+  ok("adding a second app from Apps keeps the first");
+
+  // Switcher moves between separate apps, each with its own menu and billing.
+  await page.goto(`${base}/qr`, { waitUntil: "networkidle" });
+  await page.click('aside button[aria-haspopup=menu]');
+  const items = await page.locator('[role=menuitem]').allTextContents();
+  assert.ok(items.some((t) => t.includes("Klyroo Export")) && items.some((t) => t.includes("Klyroo QR")) && items.some((t) => t.includes("Account")), items.join("|"));
+  await page.click('[role=menuitem]:has-text("Klyroo Export")');
   await page.waitForURL("**/export");
   await page.waitForSelector('aside:visible nav a:has-text("New export")');
-  assert.deepEqual(await appsOf(withCompany.accountId), ["export"], "Export is switched on automatically");
-  assert.deepEqual(await page.locator('aside:visible nav a').allTextContents(), ["Home", "New export", "History", "Stores", "Billing", "Account", "Help"], "Export's menu");
-  assert.equal(await page.locator('aside button[aria-haspopup=menu]').count(), 0, "no app switcher");
-  ok("a new account goes straight into Klyroo Export: no picker, Export switched on, one clean menu");
-
-  // Retired routes are gone; old links and /app still land somewhere sensible.
-  for (const path of ["/qr", "/onboarding", "/account/apps"]) assert.equal((await page.goto(`${base}${path}`)).status(), 404, `${path} is gone`);
-  await page.goto(`${base}/app`);
-  await page.waitForURL("**/export");
-  ok("retired pages return 404 and /app goes to Export");
-
-  // Account overview and the way back.
-  await page.goto(`${base}/account`, { waitUntil: "networkidle" });
-  assert.ok(await page.locator('main a[href="/export/billing"]').count() === 1);
-  await page.waitForSelector("text=Northwind Active");
-  await page.click('aside:visible a:has-text("Back to Klyroo Export")');
-  await page.waitForURL("**/export");
+  assert.ok(await page.locator('aside:visible nav a:has-text("New export")').count() === 1);
+  assert.deepEqual(await page.locator('aside:visible nav a').allTextContents(), ["Home", "New export", "History", "Stores", "Billing", "Help"], "Export shows only Export's menu");
   await page.goto(`${base}/export/billing`, { waitUntil: "networkidle" });
   await page.waitForSelector("text=Klyroo Export");
-  ok("the account page shows the account name and billing link; the sidebar leads back to Export");
+  ok("the app switcher moves between apps; each app has its own menu and billing page");
+
+  // Account overview shows both apps with their own billing links.
+  await page.goto(`${base}/account`, { waitUntil: "networkidle" });
+  assert.ok(await page.locator('main a[href="/export/billing"]').count() === 1 && await page.locator('main a[href="/qr/billing"]').count() === 1);
+  await page.waitForSelector("text=Northwind Active");
+  ok("account page shows the account name and a separate billing link per app");
+
+  // QR app end to end: static save, dynamic save, redirect, scan counting, switch-off.
+  await page.goto(`${base}/qr/new`, { waitUntil: "networkidle" });
+  await page.fill('input[placeholder*="https"]', "https://example.com/static");
+  await page.waitForSelector("[aria-label=\"QR code preview\"] svg");
+  await page.click('button:has-text("Save to my codes")');
+  await page.waitForURL(/\/qr\/[0-9a-f-]{36}/);
+  ok("a static QR code can be saved");
+  await page.goto(`${base}/qr/new`, { waitUntil: "networkidle" });
+  await page.fill('input[placeholder*="https"]', "https://example.com/landing");
+  await page.click('[role=radio]:has-text("Dynamic")');
+  const slug = `t${tag}`;
+  await page.fill('input[placeholder="spring-sale"]', slug);
+  await page.click('button:has-text("Save dynamic code")');
+  await page.waitForURL(/\/qr\/[0-9a-f-]{36}/);
+  const dynId = page.url().split("/").pop();
+  const hit = await fetch(`${base}/r/${slug}`, { redirect: "manual", headers: { "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)" } });
+  assert.equal(hit.status, 302);
+  assert.equal(hit.headers.get("location"), "https://example.com/landing");
+  let scans = 0;
+  for (let i = 0; i < 10 && !scans; i++) { scans = (await admin.from("qr_scans").select("id", { count: "exact", head: true }).eq("code_id", dynId)).count || 0; if (!scans) await new Promise((r) => setTimeout(r, 500)); }
+  assert.equal(scans, 1, "one scan recorded");
+  ok("a dynamic code redirects to its destination and the scan is recorded");
+  await admin.from("qr_codes").update({ active: false }).eq("id", dynId);
+  const off = await fetch(`${base}/r/${slug}`, { redirect: "manual" });
+  assert.notEqual(off.status, 302);
+  const missing = await fetch(`${base}/r/does-not-exist-${tag}`, { redirect: "manual" });
+  assert.equal(missing.status, 404);
+  ok("a switched-off code and an unknown code do not redirect");
+
+  // Manage apps: can't switch everything off; turning one off hides it.
+  await page.goto(`${base}/account/apps`, { waitUntil: "networkidle" });
+  await page.locator('label:has-text("Klyroo Export")').first().click();
+  await page.locator('label:has-text("Klyroo QR")').first().click();
+  await page.click('button:has-text("Save apps")');
+  await page.waitForSelector('[role=alert]:has-text("at least one app")');
+  assert.deepEqual(await appsOf(withCompany.accountId), ["export", "qr"]);
+  await page.locator('label:has-text("Klyroo QR")').first().click(); // both were off: switch QR back on, leave Export off
+  await page.click('button:has-text("Save apps")');
+  await page.waitForSelector('[role=status]:has-text("Saved.")');
+  assert.deepEqual(await appsOf(withCompany.accountId), ["qr"]);
+  await page.goto(`${base}/app`);
+  await page.waitForURL("**/qr");
+  ok("you can't switch every app off; turning one off hides it and /app goes to the one that is on");
+
+  // Visitor who came for QR is preselected on QR.
+  const p3 = await (await browser.newContext()).newPage();
+  p3.setDefaultTimeout(60000);
+  await login(p3, wantsQr);
+  await p3.waitForURL("**/onboarding");
+  await p3.waitForSelector("h1:has-text('Welcome, Quinn.')");
+  assert.deepEqual(await p3.locator('input[type=radio]:checked').evaluateAll((e) => e.map((x) => x.getAttribute("aria-label"))), ["Klyroo QR"]);
+  ok("a visitor who signed up from the QR page lands with QR preselected");
+
+  // Accounts that already chose skip onboarding.
+  await admin.from("account_apps").insert({ account_id: nameOnly.accountId, app: "export" });
+  const p2 = await (await browser.newContext()).newPage();
+  p2.setDefaultTimeout(60000);
+  await login(p2, nameOnly);
+  await p2.waitForURL("**/export");
+  await p2.goto(`${base}/onboarding`);
+  await p2.waitForURL("**/export");
+  ok("accounts that already chose an app skip onboarding");
 
   // Signed-out visitors can't reach any signed-in area.
   const anonPage = await (await browser.newContext()).newPage();
-  for (const path of ["/export", "/account", "/app"]) {
+  for (const path of ["/onboarding", "/export", "/qr", "/account", "/app"]) {
     await anonPage.goto(`${base}${path}`);
     await anonPage.waitForURL("**/login");
   }
@@ -143,7 +229,7 @@ try {
   await browser.close();
   server.kill("SIGTERM");
   for (const u of users) await admin.auth.admin.deleteUser(u);
-  const { data: accs } = await admin.from("accounts").select("id").or(`name.like.apps-${tag}-%,name.eq.Northwind Active,name.eq.Sam Lee`);
+  const { data: accs } = await admin.from("accounts").select("id").or(`name.like.apps-${tag}-%,name.eq.Northwind Active,name.eq.Sam Lee,name.eq.Quinn Ray`);
   for (const x of accs ?? []) await admin.from("accounts").delete().eq("id", x.id);
   console.log("cleaned up test data");
 }

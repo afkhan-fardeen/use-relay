@@ -32,7 +32,7 @@ export function DeleteAccount({ isOwner }: { isOwner: boolean }) {
     <Card className="!p-6 !border-danger/40">
       <Eyebrow>Delete account</Eyebrow>
       <p className="mt-3 text-sm text-muted max-w-xl leading-[22px]">
-        This permanently deletes your account, your connected stores, export history and files. Any paid plan is cancelled first. This can&apos;t be undone.
+        This permanently deletes your account, your connected stores, saved QR codes (printed dynamic codes will stop working), export history and files. Any paid plan is cancelled first. This can&apos;t be undone.
       </p>
       {!isOwner ? (
         <p className="mt-4 text-sm text-muted">Only the account owner can delete the account.</p>

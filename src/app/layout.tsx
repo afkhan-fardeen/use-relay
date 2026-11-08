@@ -6,9 +6,9 @@ import "./globals.css";
 const sans = Inter({ variable: "--font-sans-stack", subsets: ["latin"], weight: "variable" });
 
 export const metadata: Metadata = {
-  title: "Klyroo Export — Shopify data to spreadsheets",
+  title: "Klyroo — small, sharp tools for ecommerce teams",
   description:
-    "Klyroo Export turns Shopify products, orders, customers, inventory and collections into clean spreadsheets, with read-only access. Free to start.",
+    "Klyroo makes focused apps for ecommerce teams: Klyroo Export for Shopify data and Klyroo QR for QR codes. Each app has its own plan.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

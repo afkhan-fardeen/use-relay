@@ -5,7 +5,7 @@ import { getSession } from "@/lib/dal";
 import { appInfo, isAppSlug, type AppSlug } from "@/lib/apps";
 import { changeSubscriptionPlan, createCheckout, createPortalLink, productIds } from "@/lib/billing/dodo";
 import { paidPlans } from "@/lib/billing/plans";
-import { siteUrl } from "@/lib/site";
+import { siteUrl } from "@/lib/qr/site";
 import { supabaseServer } from "@/lib/supabase/server";
 
 export type BillingState = { error?: string; message?: string } | undefined;

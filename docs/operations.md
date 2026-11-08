@@ -18,8 +18,8 @@
 | `npm run check:env` | Required settings are present and consistent (`-- --production` adds live-mode checks) |
 | `npm run db:audit` | Row level security, grants, function access, indexes |
 | `npm run check:launch` | Public pages meet Dodo's verification guidance |
-| `npm run test:*` | The test suites (export, billing, ui, billing-ui, apps, account, dodo) |
+| `npm run test:*` | The test suites (export, billing, ui, billing-ui, apps, account, qr) |
 
 ## Retention
 
-Webhook records 180 days, export step logs 90 days, export files 7 days. Deleted accounts are removed completely (billing records stay with Dodo).
+QR scans are kept 400 days, webhook records 180 days, export step logs 90 days, export files 7 days. Deleted accounts are removed completely (billing records stay with Dodo).

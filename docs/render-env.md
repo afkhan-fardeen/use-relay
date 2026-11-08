@@ -27,6 +27,8 @@ Copy secret values from your local `web/.env.local` (never paste them in chat or
 | `DODO_PRODUCT_EXPORT_STARTER` | `pdt_0NrPysHU8uVpSOa3QYvBu` | no |
 | `DODO_PRODUCT_EXPORT_GROWTH` | `pdt_0NrPysMqaQnbNS1r8CcyJ` | no |
 | `DODO_PRODUCT_EXPORT_SCALE` | `pdt_0NrPysRTfFH5RCfQp0Qgs` | no |
+| `DODO_PRODUCT_QR_PRO` | `pdt_0NrPysV3156gQDM6BtqGi` | no |
+| `DODO_PRODUCT_QR_BUSINESS` | `pdt_0NrPysZFeKUzcVdJWLp5A` | no |
 
 ## Optional
 
@@ -37,14 +39,11 @@ Copy secret values from your local `web/.env.local` (never paste them in chat or
 
 ## Do NOT set on Render
 
-Any `DODO_PRODUCT_QR_*` keys (the QR app was retired; delete them if they exist).
-
-
 `DATABASE_URL` and `SUPABASE_CA_PATH` (only for running migrations from your computer), `DODO_API_BASE` and `SHOPIFY_TEST_ORIGIN` (tests only), and the old `PADDLE_*` / `NEXT_PUBLIC_PADDLE_*` keys (delete them if they exist).
 
 ## Going live later
 
-Change only these: `DODO_PAYMENTS_ENVIRONMENT=live_mode`, the live `DODO_PAYMENTS_API_KEY`, the live `DODO_PAYMENTS_WEBHOOK_KEY` (from the live webhook endpoint), and the three live `DODO_PRODUCT_EXPORT_*` IDs from `npm run dodo:catalog` run in live mode.
+Change only these: `DODO_PAYMENTS_ENVIRONMENT=live_mode`, the live `DODO_PAYMENTS_API_KEY`, the live `DODO_PAYMENTS_WEBHOOK_KEY` (from the live webhook endpoint), and the five live `DODO_PRODUCT_*` IDs from `npm run dodo:catalog` run in live mode.
 
 ## Check it
 

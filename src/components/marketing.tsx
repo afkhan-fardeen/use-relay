@@ -5,7 +5,8 @@ import { COMPANY, operatorName } from "@/lib/company";
 import { MobileMenu } from "./mobile-menu";
 
 export const MAIN_NAV = [
-  { href: "/#features", label: "Features" },
+  { href: "/apps/export", label: "Export" },
+  { href: "/apps/qr", label: "QR" },
   { href: "/pricing", label: "Pricing" },
   { href: "/docs", label: "Docs" },
 ];
@@ -39,18 +40,21 @@ export function MarketingFooter() {
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6 py-14 grid gap-10 grid-cols-2 md:grid-cols-[1.6fr_1fr_1fr_1fr_1fr] text-sm">
         <div className="col-span-2 md:col-span-1">
           <Logo />
-          <p className="mt-4 text-muted max-w-xs leading-6">Klyroo Export turns your Shopify data into clean spreadsheets, with read-only access and plans that start free.</p>
+          <p className="mt-4 text-muted max-w-xs leading-6">Small, sharp tools for ecommerce teams. Each app works on its own, with its own plan.</p>
           <a href={`mailto:${COMPANY.supportEmail}`} className="mt-4 inline-block text-primary hover:text-primary-hover">{COMPANY.supportEmail}</a>
         </div>
-        <nav aria-label="Product" className="space-y-2.5">
-          <p className="text-muted">Product</p>
-          <Link href="/" className="block hover:text-primary">Klyroo Export</Link>
+        <nav aria-label="Apps" className="space-y-2.5">
+          <p className="text-muted">Apps</p>
+          <Link href="/apps/export" className="block hover:text-primary">Klyroo Export</Link>
+          <Link href="/apps/qr" className="block hover:text-primary">Klyroo QR</Link>
+          <Link href="/qr-code-generator" className="block hover:text-primary">Free QR generator</Link>
           <Link href="/pricing" className="block hover:text-primary">Pricing</Link>
         </nav>
         <nav aria-label="Help" className="space-y-2.5">
           <p className="text-muted">Help</p>
           <Link href="/docs" className="block hover:text-primary">Documentation</Link>
           <Link href="/docs/export/getting-started" className="block hover:text-primary">Export guide</Link>
+          <Link href="/docs/qr/getting-started" className="block hover:text-primary">QR guide</Link>
           <Link href="/contact" className="block hover:text-primary">Contact</Link>
         </nav>
         <nav aria-label="Company" className="space-y-2.5">

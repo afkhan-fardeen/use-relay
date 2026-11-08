@@ -1,10 +1,10 @@
 /* eslint-disable @next/next/no-img-element -- small static SVGs; no optimisation needed */
 import Link from "next/link";
 
-type Tool = "Export" | string | null;
+type Tool = "Export" | "QR" | string | null;
 
-const lockup = (tool: Tool) => (tool === "Export" ? { src: "/brand/klyroo-export.svg", w: 323, label: "Klyroo Export" } : { src: "/brand/klyroo.svg", w: 211, label: "Klyroo" });
-const icon = (tool: Tool) => (tool === "Export" ? "/brand/klyroo-export-icon.svg" : "/brand/klyroo-icon.svg");
+const lockup = (tool: Tool) => (tool === "Export" ? { src: "/brand/klyroo-export.svg", w: 323, label: "Klyroo Export" } : tool === "QR" ? { src: "/brand/klyroo-qr.svg", w: 253, label: "Klyroo QR" } : { src: "/brand/klyroo.svg", w: 211, label: "Klyroo" });
+const icon = (tool: Tool) => (tool === "Export" ? "/brand/klyroo-export-icon.svg" : tool === "QR" ? "/brand/klyroo-qr-icon.svg" : "/brand/klyroo-icon.svg");
 
 /** The Klyroo brand mark (two circles), or an app's mark when `tool` is given. */
 export function LogoMark({ size = 28, tool = null }: { size?: number; tool?: Tool }) {

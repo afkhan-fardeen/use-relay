@@ -21,11 +21,11 @@ async function api(method, path, body) {
 
 const existing = (await api("GET", "/products?page_size=100")).items ?? [];
 const rows = [];
-for (const app of ["export"]) {
+for (const app of ["export", "qr"]) {
   for (const plan of paidPlans(app)) {
     const planKey = `${app}_${plan}`;
     const info = planInfo(app, plan);
-    const appName = "Klyroo Export";
+    const appName = app === "export" ? "Klyroo Export" : "Klyroo QR";
     let p = existing.find((x) => x.metadata?.plan_key === planKey);
     const created = !p;
     if (!p) {
