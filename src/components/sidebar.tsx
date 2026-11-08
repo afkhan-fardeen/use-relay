@@ -6,13 +6,12 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { signOut } from "@/app/login/actions";
 import { Icon, type IconName } from "@/components/icons";
 import { Logo } from "@/components/logo";
-import { ACCOUNT_NAV, APPS, appInfo, isNavActive, type AppNavItem, type AppSlug } from "@/lib/apps";
+import { ACCOUNT_NAV, appInfo, isNavActive, type AppNavItem, type AppSlug } from "@/lib/apps";
 
 type Area = AppSlug | "account";
 const areaName = (a: Area) => (a === "account" ? "Account" : appInfo(a).fullName);
 const areaNav = (a: Area): AppNavItem[] => (a === "account" ? ACCOUNT_NAV : appInfo(a).nav);
 const areaHome = (a: Area) => (a === "account" ? "/account" : appInfo(a).href);
-const areaIcon = (a: Area): IconName => (a === "account" ? "user" : a === "qr" ? "qr" : "list");
 
 // ───────── remembers whether the desktop sidebar is collapsed ─────────
 const KEY = "klyroo.sidebar";
@@ -53,47 +52,13 @@ function NavItem({ item, active, collapsed, onNavigate }: { item: AppNavItem; ac
   );
 }
 
-function AppSwitcher({ area, enabled, collapsed, onNavigate }: { area: Area; enabled: AppSlug[]; collapsed: boolean; onNavigate?: () => void }) {
-  const [open, setOpen] = useState(false);
-  const close = () => { setOpen(false); onNavigate?.(); };
+/** Names the current area. (One app today, so there is nothing to switch.) */
+function AreaHeader({ area, collapsed }: { area: Area; collapsed: boolean }) {
+  if (collapsed) return null;
   return (
-    <div className="relative mb-5">
-      <button
-        type="button"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-label={`Switch app. Current: ${areaName(area)}`}
-        onClick={() => setOpen((o) => !o)}
-        onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
-        title={collapsed ? areaName(area) : undefined}
-        className={`w-full flex items-center rounded-ctl border border-line-strong text-left text-sm hover:bg-wash transition-colors ${collapsed ? "justify-center h-11" : "gap-3 px-3 py-2.5"}`}
-      >
-        <span className="grid place-items-center size-7 shrink-0 rounded-md bg-primary/10 text-primary"><Icon name={areaIcon(area)} size={16} /></span>
-        {!collapsed && (
-          <>
-            <span className="min-w-0 flex-1">
-              <span className="block text-xs text-muted leading-4">{area === "account" ? "Klyroo" : "Klyroo app"}</span>
-              <span className="block leading-5 truncate">{areaName(area)}</span>
-            </span>
-            <Icon name={open ? "chevronUp" : "chevronDown"} size={16} className="text-muted shrink-0" />
-          </>
-        )}
-      </button>
-      {open && (
-        <>
-          <button type="button" aria-label="Close menu" tabIndex={-1} className="fixed inset-0 z-20 cursor-default" onClick={() => setOpen(false)} />
-          <div role="menu" className={`absolute z-30 rounded-card border border-line bg-surface p-1.5 shadow-[0_8px_24px_rgba(10,37,64,0.10)] ${collapsed ? "left-full ml-2 top-0 w-56" : "left-0 right-0 mt-1"}`}>
-            {APPS.filter((a) => enabled.includes(a.slug)).map((a) => (
-              <Link key={a.slug} role="menuitem" href={a.href} onClick={close} className={`flex items-center gap-3 h-10 px-3 rounded-ctl text-sm hover:bg-wash ${a.slug === area ? "text-primary bg-wash" : ""}`}>
-                <Icon name={a.slug === "qr" ? "qr" : "list"} size={16} />{a.fullName}
-              </Link>
-            ))}
-            <div className="my-1 border-t border-line" />
-            <Link role="menuitem" href="/account" onClick={close} className={`flex items-center gap-3 h-10 px-3 rounded-ctl text-sm hover:bg-wash ${area === "account" ? "text-primary bg-wash" : "text-muted"}`}><Icon name="user" size={16} />Account</Link>
-            <Link role="menuitem" href="/account/apps" onClick={close} className="flex items-center gap-3 h-10 px-3 rounded-ctl text-sm text-muted hover:bg-wash"><Icon name="apps" size={16} />Add or remove apps</Link>
-          </div>
-        </>
-      )}
+    <div className="mb-5 px-3">
+      <span className="block text-xs text-muted leading-4">{area === "account" ? "Klyroo" : "App"}</span>
+      <span className="block text-sm leading-5 truncate">{areaName(area)}</span>
     </div>
   );
 }
@@ -127,13 +92,13 @@ function UserBlock({ email, name, collapsed, onNavigate }: { email: string; name
   );
 }
 
-type BodyProps = { area: Area; email: string; name: string; storeName: string | null; apps: AppSlug[]; collapsed: boolean; onNavigate?: () => void };
+type BodyProps = { area: Area; email: string; name: string; storeName: string | null; collapsed: boolean; onNavigate?: () => void };
 
-function NavBody({ area, email, name, storeName, apps, collapsed, onNavigate }: BodyProps) {
+function NavBody({ area, email, name, storeName, collapsed, onNavigate }: BodyProps) {
   const path = usePathname();
   return (
     <>
-      <AppSwitcher area={area} enabled={apps} collapsed={collapsed} onNavigate={onNavigate} />
+      <AreaHeader area={area} collapsed={collapsed} />
       <nav aria-label="Primary" className="space-y-1">
         {areaNav(area).map((n) => (
           <NavItem key={n.href} item={n} active={!n.external && isNavActive(path, n.href)} collapsed={collapsed} onNavigate={onNavigate} />

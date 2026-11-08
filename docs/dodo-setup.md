@@ -1,7 +1,7 @@
 # Billing with Dodo Payments
 
 Dodo Payments is our Merchant of Record (it collects payment and tax, issues invoices and sends refunds).
-Each Klyroo app has its own subscription. Plans: Export Starter £19, Growth £49, Scale £99; QR Pro £20, Business £45.
+Klyroo Export is the only app today. Plans: Starter £19, Growth £49, Scale £99.
 All paid plans are monthly, in GBP, with a 3-day free trial. Free plans are not in Dodo.
 
 ## How it works in the code
@@ -24,7 +24,6 @@ All paid plans are monthly, in GBP, with a 3-day free trial. Free plans are not 
 | `DODO_PAYMENTS_API_KEY` | API key for that mode |
 | `DODO_PAYMENTS_WEBHOOK_KEY` | the webhook signing secret (`whsec_...`) |
 | `DODO_PRODUCT_EXPORT_STARTER` / `_GROWTH` / `_SCALE` | `pdt_...` from the catalog script |
-| `DODO_PRODUCT_QR_PRO` / `_BUSINESS` | `pdt_...` |
 | `NEXT_PUBLIC_SITE_URL` | `https://useklyroo.com` (return URL after checkout) |
 
 Billing stays "Free for now" until the key, the webhook secret and at least one product exist for that app.

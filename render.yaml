@@ -45,10 +45,6 @@ services:
         value: pdt_0NrPysMqaQnbNS1r8CcyJ
       - key: DODO_PRODUCT_EXPORT_SCALE
         value: pdt_0NrPysRTfFH5RCfQp0Qgs
-      - key: DODO_PRODUCT_QR_PRO
-        value: pdt_0NrPysV3156gQDM6BtqGi
-      - key: DODO_PRODUCT_QR_BUSINESS
-        value: pdt_0NrPysZFeKUzcVdJWLp5A
       # Optional: Slack/Discord incoming webhook for server error alerts
       - key: ERROR_WEBHOOK_URL
         sync: false

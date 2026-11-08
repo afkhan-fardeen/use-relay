@@ -18,11 +18,6 @@ export default function Contact() {
           Payments are handled by Dodo Payments, our Merchant of Record. For invoices, use the customer portal on your app&apos;s Billing page. For refunds, email us. See our <A href="/refunds">refund policy</A>.
         </p>
       </Section>
-      <Section title="Report a QR code or abuse">
-        <p>
-          If a Klyroo QR short link (an address like useklyroo.com/r/name) leads somewhere harmful, deceptive or illegal, email <A href={`mailto:${COMPANY.supportEmail}`}>{COMPANY.supportEmail}</A> with the address and what is wrong. We review reports and disable links that break our <A href="/terms">terms</A>.
-        </p>
-      </Section>
       <Section title="Company">
         <p>{operatorName()}{COMPANY.registeredAddress ? `, ${COMPANY.registeredAddress}` : ""}{COMPANY.country ? `, ${COMPANY.country}` : ""}</p>
       </Section>

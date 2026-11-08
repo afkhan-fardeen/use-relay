@@ -15,7 +15,7 @@ const dodoKeys = ["DODO_PAYMENTS_API_KEY", "DODO_PAYMENTS_WEBHOOK_KEY"];
 if (mode && !["test_mode", "live_mode"].includes(mode)) problems.push('DODO_PAYMENTS_ENVIRONMENT must be "test_mode" or "live_mode"');
 if (mode || dodoKeys.some((k) => process.env[k])) {
   problems.push(...need([...dodoKeys, "DODO_PAYMENTS_ENVIRONMENT"], "billing"));
-  const missing = ["EXPORT_STARTER", "EXPORT_GROWTH", "EXPORT_SCALE", "QR_PRO", "QR_BUSINESS"].filter((k) => !process.env[`DODO_PRODUCT_${k}`]);
+  const missing = ["EXPORT_STARTER", "EXPORT_GROWTH", "EXPORT_SCALE"].filter((k) => !process.env[`DODO_PRODUCT_${k}`]);
   if (missing.length) problems.push(`DODO_PRODUCT_${missing.join(", DODO_PRODUCT_")} (a plan with no product can't be bought)`);
   if (mode === "test_mode" && process.env.DODO_PAYMENTS_API_KEY && !process.env.DODO_PAYMENTS_API_KEY.startsWith("dodo_test_")) problems.push("test_mode with a non-test API key");
 }

@@ -1,10 +1,10 @@
 import type { ReactNode } from "react";
 import { A, Code, H2, H3, P, Steps, Table, Tip, UL, Warn } from "@/components/docs/ui";
 import { COMPANY } from "@/lib/company";
-import { EXPORT_PLANS, PLAN_COMMON, QR_PLANS } from "@/lib/billing/plans";
+import { EXPORT_PLANS, PLAN_COMMON } from "@/lib/billing/plans";
 import { resources } from "@/lib/export";
 
-export type DocPage = { slug: string; group: "Start here" | "Klyroo Export" | "Klyroo QR"; title: string; summary: string; body: () => ReactNode };
+export type DocPage = { slug: string; group: "Start here" | "Klyroo Export"; title: string; summary: string; body: () => ReactNode };
 
 const mail = <A href={`mailto:${COMPANY.supportEmail}`}>{COMPANY.supportEmail}</A>;
 const n = (x: number) => x.toLocaleString("en-GB");
@@ -15,21 +15,19 @@ export const DOCS: DocPage[] = [
     slug: "account",
     group: "Start here",
     title: "Your Klyroo account",
-    summary: "Create an account, choose an app, and manage billing.",
+    summary: "Create an account, and manage your password, billing and data.",
     body: () => (
       <>
-        <P>One Klyroo account gives you access to every Klyroo app. Each app is separate, with its own pages, its own plan and its own billing.</P>
+        <P>Your Klyroo account gives you access to Klyroo Export, with its own plan and billing.</P>
         <H2>Create your account</H2>
         <Steps items={[
           { title: "Open the sign-up page", body: <P>Go to <A href="/login">useklyroo.com/login</A> and stay on the <strong className="font-normal">Create account</strong> tab.</P> },
           { title: "Enter your details", body: <P>Your name, an optional company name (shown as your account name), your email and a password of at least 10 characters.</P> },
           { title: "Confirm your email", body: <P>We email you a confirmation link. If it doesn&apos;t arrive, check spam and use <strong className="font-normal">resend the confirmation email</strong> on the sign-up screen.</P> },
-          { title: "Choose your app", body: <P>After you log in for the first time, pick the app you want to start with: Klyroo Export or Klyroo QR.</P> },
+          { title: "Connect your store", body: <P>After you log in you land in Klyroo Export. Start by <A href="/docs/export/connect-shopify">connecting your Shopify store</A>.</P> },
         ]} />
-        <H2>Using more than one app</H2>
-        <P>Open <strong className="font-normal">Account → Apps</strong> to switch apps on or off. Turning an app off only hides it. Nothing is deleted. Use the app switcher at the top of the sidebar to move between your apps.</P>
         <H2>Billing</H2>
-        <P>Every app has its own <strong className="font-normal">Billing</strong> page in its sidebar. Plans are monthly and you can cancel from that page at any time. Payments are handled by Dodo Payments, our Merchant of Record. See the <A href="/refunds">refund policy</A> for the 30-day money-back guarantee.</P>
+        <P>The <strong className="font-normal">Billing</strong> page is in the sidebar. Plans are monthly and you can cancel from that page at any time. Payments are handled by Dodo Payments, our Merchant of Record. See the <A href="/refunds">refund policy</A> for the 30-day money-back guarantee.</P>
         <H2>Forgot your password?</H2>
         <Steps items={[
           { title: "Ask for a link", body: <P>On the <A href="/login">log in</A> screen choose <strong className="font-normal">Forgot your password?</strong> and enter your email.</P> },
@@ -38,7 +36,7 @@ export const DOCS: DocPage[] = [
         ]} />
         <P>To change your password while signed in, open <strong className="font-normal">Account</strong> and use <strong className="font-normal">Password</strong>.</P>
         <H2>Deleting your account</H2>
-        <P>Open <strong className="font-normal">Account</strong>, scroll to <strong className="font-normal">Delete account</strong>, type your email and password. This cancels any paid plan first, then permanently removes your stores, saved QR codes, export history and files. Printed dynamic QR codes stop working. It can&apos;t be undone, and only the account owner can do it.</P>
+        <P>Open <strong className="font-normal">Account</strong>, scroll to <strong className="font-normal">Delete account</strong>, type your email and password. This cancels any paid plan first, then permanently removes your stores, export history and files. It can&apos;t be undone, and only the account owner can do it.</P>
         <H2>Need something else?</H2>
         <P>To change your email address, or if anything here doesn&apos;t work, email {mail}.</P>
       </>
@@ -253,134 +251,7 @@ export const DOCS: DocPage[] = [
     ),
   },
 
-  // ───────────────────────── QR ─────────────────────────
-  {
-    slug: "qr/getting-started",
-    group: "Klyroo QR",
-    title: "Get started with Klyroo QR",
-    summary: "Make and download your first QR code.",
-    body: () => (
-      <>
-        <P>You can make QR codes without an account using the <A href="/qr-code-generator">free generator</A>. With an account you can save codes, create dynamic links and see scans.</P>
-        <H2>Make your first code</H2>
-        <Steps items={[
-          { title: "Choose what the code should do", body: <P>Pick a type: Link, Text, Wi-Fi, Contact card, Email, SMS or Phone. See <A href="/docs/qr/code-types">Code types</A> for what each one needs.</P> },
-          { title: "Fill in the details", body: <P>The preview updates as you type. Scan it with your phone camera to check it.</P> },
-          { title: "Make it yours", body: <P>Choose the code colour, the background, the shape (square, rounded or dots), and optionally upload your logo.</P> },
-          { title: "Download or save", body: <P>Download a <strong className="font-normal">PNG</strong> (512, 1024 or 2048 pixels) or an <strong className="font-normal">SVG</strong>. In the app you can also press <strong className="font-normal">Save to my codes</strong> to keep it in your library.</P> },
-        ]} />
-        <Tip>Static codes are created in your browser. What you type is not sent to Klyroo until you press Save.</Tip>
-        <H2>Next</H2>
-        <UL>
-          <li>Want to change where a printed code goes? Use a <A href="/docs/qr/dynamic-links">dynamic link</A>.</li>
-          <li>Printing it? Read the <A href="/docs/qr/printing-tips">printing tips</A>.</li>
-        </UL>
-      </>
-    ),
-  },
-  {
-    slug: "qr/code-types",
-    group: "Klyroo QR",
-    title: "Code types",
-    summary: "What each kind of QR code does and what to enter.",
-    body: () => (
-      <>
-        <Table head={["Type", "What happens when scanned", "What to enter"]} rows={[
-          ["Link", "Opens a web page.", "A web address. We add https:// if you leave it out. Only http and https links are allowed."],
-          ["Text", "Shows plain text.", "Up to 900 characters."],
-          ["Wi-Fi", "Offers to join a network.", "Network name, password and security type (WPA, WEP or none). Say if the network is hidden."],
-          ["Contact card", "Offers to save a contact.", "A name or company, and optionally job title, phone, email and website."],
-          ["Email", "Starts an email.", "The recipient, and optionally a subject and message."],
-          ["SMS", "Starts a text message.", "A phone number, and optionally a message."],
-          ["Phone", "Starts a call.", "A phone number."],
-        ]} />
-        <H2>Notes</H2>
-        <UL>
-          <li>We check what you enter and tell you if something is missing or invalid, for example an email address without an @.</li>
-          <li>The more you put in a code, the denser and harder to scan it becomes. Keep text short. For long web addresses use a <A href="/docs/qr/dynamic-links">dynamic link</A>, which keeps the code simple.</li>
-          <li>If there is too much information for one QR code, we ask you to shorten it.</li>
-          <li>Only links can be dynamic. Wi-Fi, contact cards and the other types are always static.</li>
-        </UL>
-      </>
-    ),
-  },
-  {
-    slug: "qr/dynamic-links",
-    group: "Klyroo QR",
-    title: "Dynamic links and scan analytics",
-    summary: "Change a code's destination after printing, and see how it performs.",
-    body: () => (
-      <>
-        <P>A <strong className="font-normal">dynamic</strong> code does not hold your web address. It holds a short Klyroo link such as <Code>useklyroo.com/r/spring-sale</Code>, which sends people to the destination you choose. You can change the destination at any time without reprinting.</P>
-        <H2>Create one</H2>
-        <Steps items={[
-          { title: "Open Create", body: <P>In Klyroo QR choose <strong className="font-normal">Create</strong>, and pick the <strong className="font-normal">Link</strong> type.</P> },
-          { title: "Choose Dynamic", body: <P>Under <em>Static or dynamic</em> choose <strong className="font-normal">Dynamic</strong>. This needs a Pro or Business plan.</P> },
-          { title: "Enter the destination and, optionally, a short link name", body: <P>Custom names use 3 to 40 lowercase letters, numbers or dashes. Leave it blank for an automatic name.</P> },
-          { title: "Save", body: <P>Press <strong className="font-normal">Save dynamic code</strong>. You land on the code&apos;s page, where you can download it.</P> },
-        ]} />
-        <H2>Manage a code</H2>
-        <UL>
-          <li><strong className="font-normal">Change the destination</strong> on the code&apos;s page and save. Scans go to the new address straight away.</li>
-          <li><strong className="font-normal">Switch off</strong> a code to stop it working temporarily. Scans show a &ldquo;This QR code isn&apos;t active&rdquo; page. Switch it on again whenever you like.</li>
-          <li><strong className="font-normal">Delete</strong> removes the code for good. Anything printed with it stops working.</li>
-          <li>Destinations can&apos;t be private or numeric addresses, include a username or password, or point to another Klyroo short link.</li>
-        </UL>
-        <H2>Scan analytics</H2>
-        <P>Each dynamic code shows the last 30 days:</P>
-        <UL>
-          <li><strong className="font-normal">Scans</strong> and <strong className="font-normal">all-time scans</strong>.</li>
-          <li><strong className="font-normal">Unique visitors</strong>, counted per day.</li>
-          <li>Scans per day, and breakdowns by device, country and the website people came from (when known).</li>
-        </UL>
-        <Tip>We use no cookies and store no IP addresses. A &ldquo;visitor&rdquo; is a code that changes every day, so people can&apos;t be followed. Scans by automated link checkers and previews aren&apos;t counted.</Tip>
-        <H2>Scan limits</H2>
-        <P>Plans include a number of scans a month. If you pass it, <strong className="font-normal">your codes keep working</strong>. We show a notice and invite you to upgrade. We never switch off a printed code. See <A href="/docs/qr/plans-and-limits">plans and limits</A>.</P>
-      </>
-    ),
-  },
-  {
-    slug: "qr/printing-tips",
-    group: "Klyroo QR",
-    title: "Printing tips",
-    summary: "Make sure your code scans every time.",
-    body: () => (
-      <>
-        <UL>
-          <li><strong className="font-normal">Size:</strong> print it at least 2 cm (about 0.8 in) wide. For posters and signs, scale up with distance: roughly 10 times the scanning distance divided by 10 is a good guide, for example 10 cm for a code scanned from 1 metre.</li>
-          <li><strong className="font-normal">Contrast:</strong> use a dark code on a light background. Klyroo warns you when the colours are too close.</li>
-          <li><strong className="font-normal">Don&apos;t invert:</strong> light codes on dark backgrounds fail on some phones. Test before printing.</li>
-          <li><strong className="font-normal">Keep the blank border:</strong> the empty margin around the code is needed for scanning. Don&apos;t crop it or put text up against it.</li>
-          <li><strong className="font-normal">Use SVG for print:</strong> it stays sharp at any size. Use PNG for screens and documents.</li>
-          <li><strong className="font-normal">Keep logos small:</strong> Klyroo sizes your logo so the code still scans, and raises error correction automatically.</li>
-          <li><strong className="font-normal">Keep content short:</strong> shorter content makes a simpler code that scans faster. Use a dynamic link for long addresses.</li>
-          <li><strong className="font-normal">Test it:</strong> scan the printed result with at least two different phones in the real lighting before you print a large batch.</li>
-          <li><strong className="font-normal">Avoid curves and glare:</strong> flat, matte surfaces scan best.</li>
-        </UL>
-      </>
-    ),
-  },
-  {
-    slug: "qr/plans-and-limits",
-    group: "Klyroo QR",
-    title: "QR plans and limits",
-    summary: "What each plan includes and what happens at the limits.",
-    body: () => (
-      <>
-        <Table head={["Plan", "Price", "Dynamic links", "Scans a month", "Custom short names"]} rows={QR_PLANS.map((p) => [p.name, p.priceLabel === "£0" ? "Free" : `${p.priceLabel} / month`, p.limits.maxDynamic <= 0 ? "None" : p.limits.maxDynamic >= 1_000_000 ? "Unlimited" : String(p.limits.maxDynamic), p.limits.scansPerMonth ? n(p.limits.scansPerMonth) : "n/a", p.limits.customSlug ? "Yes" : "No"])} />
-        <P>{PLAN_COMMON.qr} Static codes are free, unlimited and need no account.</P>
-        <H2>What happens at the limits</H2>
-        <UL>
-          <li><strong className="font-normal">Scan limit:</strong> your codes keep working. You&apos;ll see a notice in the app and on the code&apos;s page.</li>
-          <li><strong className="font-normal">Dynamic link limit:</strong> you can&apos;t create more until you delete one or upgrade.</li>
-          <li><strong className="font-normal">If you downgrade or cancel:</strong> existing dynamic links keep redirecting. You just can&apos;t create new ones beyond your new plan.</li>
-        </UL>
-        <H2>Billing</H2>
-        <P>QR has its own <strong className="font-normal">Billing</strong> page, separate from any other Klyroo app. Cancel any time. See the <A href="/refunds">refund policy</A>.</P>
-      </>
-    ),
-  },
 ];
 
 export const docBySlug = (slug: string) => DOCS.find((d) => d.slug === slug);
-export const DOC_GROUPS = (["Start here", "Klyroo Export", "Klyroo QR"] as const).map((g) => ({ title: g, items: DOCS.filter((d) => d.group === g).map((d) => ({ slug: d.slug, title: d.title })) }));
+export const DOC_GROUPS = (["Start here", "Klyroo Export"] as const).map((g) => ({ title: g, items: DOCS.filter((d) => d.group === g).map((d) => ({ slug: d.slug, title: d.title })) }));

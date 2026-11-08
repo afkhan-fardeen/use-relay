@@ -2,7 +2,6 @@
 
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { isAppSlug } from "@/lib/apps";
 import { allow } from "@/lib/ratelimit";
 import { supabaseServer } from "@/lib/supabase/server";
 
@@ -50,14 +49,14 @@ export async function signUp(_prev: AuthState, formData: FormData): Promise<Auth
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: origin ? `${origin}/auth/callback` : undefined, data: { full_name: fullName, company, preferred_app: isAppSlug(formData.get("app")) ? formData.get("app") : null } },
+    options: { emailRedirectTo: origin ? `${origin}/auth/callback` : undefined, data: { full_name: fullName, company } },
   });
   if (error) {
     if (/already|registered/i.test(error.message)) return { error: "An account with this email already exists. Log in instead.", email, fullName, company };
     if (/rate|too many/i.test(error.message)) return { error: "Too many attempts. Wait a few minutes and try again.", email, fullName, company };
     return { error: "We couldn't create your account. Try again.", email, fullName, company };
   }
-  if (data.session) redirect("/onboarding");
+  if (data.session) redirect("/app");
   return { message: "Check your email for a confirmation link, then come back and log in.", email };
 }
 

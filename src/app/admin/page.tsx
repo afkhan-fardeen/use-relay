@@ -26,31 +26,28 @@ async function Dashboard() {
   const day = ago(1);
   const week = ago(7);
   const count = async (table: string) => (await db.from(table).select("id", { count: "exact", head: true })).count ?? 0;
-  const [accounts, codes, subs, failed, errors, jobs24, scans7, recent, users] = await Promise.all([
+  const [accounts, subs, failed, errors, jobs24, recent, users] = await Promise.all([
     count("accounts"),
-    count("qr_codes"),
     db.from("subscriptions").select("app, plan, status, current_period_end, cancel_at_period_end, account_id, accounts(name)").order("updated_at", { ascending: false }).limit(50),
     db.from("export_jobs").select("id, resource, error_code, error_detail, created_at, accounts(name)").eq("status", "failed").gte("created_at", week).order("created_at", { ascending: false }).limit(15),
     db.from("billing_events").select("event_id, event_type, detail, received_at").eq("status", "error").order("received_at", { ascending: false }).limit(10),
     db.from("export_jobs").select("id", { count: "exact", head: true }).gte("created_at", day),
-    db.from("qr_scans").select("id", { count: "exact", head: true }).gte("at", week),
     db.from("accounts").select("id, name, created_at").order("created_at", { ascending: false }).limit(15),
     db.auth.admin.listUsers({ page: 1, perPage: 1 }),
   ]);
   const active = (subs.data ?? []).filter((s) => ["active", "trialing", "past_due"].includes(s.status));
-  const mrr = { export: { starter: 19, growth: 49, scale: 99 }, qr: { pro: 20, business: 45 } } as Record<string, Record<string, number>>;
+  const mrr = { export: { starter: 19, growth: 49, scale: 99 } } as Record<string, Record<string, number>>;
   const monthly = active.reduce((sum, s) => sum + (mrr[s.app]?.[s.plan] ?? 0), 0);
 
   return (
     <>
       <h1 className="text-[32px] font-light">Klyroo admin</h1>
       <p className="mt-1 text-sm text-muted">Read-only overview. Refunds are issued in the Dodo dashboard; accounts and rows in Supabase.</p>
-      <div className="mt-8 grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="mt-8 grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Stat label="Accounts" value={String(accounts)} note={`${users.data && "total" in users.data ? users.data.total : "–"} users`} />
         <Stat label="Paid subscriptions" value={String(active.length)} note={`about £${monthly} / month`} />
         <Stat label="Exports, last 24h" value={String(jobs24.count ?? 0)} />
-        <Stat label="QR codes" value={String(codes)} />
-        <Stat label="QR scans, last 7 days" value={String(scans7.count ?? 0)} />
+        <Stat label="Failed exports, 7 days" value={String(failed.data?.length ?? 0)} />
       </div>
 
       <div className="mt-8 grid lg:grid-cols-2 gap-6">

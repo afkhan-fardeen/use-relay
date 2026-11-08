@@ -20,7 +20,7 @@ async function get(path, init) {
 const strip = (html) => html.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&apos;|&#x27;|&#39;/g, "'").replace(/\s+/g, " ");
 
 // 1. Pages are public (HTTP 200 without logging in)
-const pages = ["/", "/apps/export", "/apps/qr", "/pricing", "/docs", "/docs/export/getting-started", "/docs/qr/getting-started", "/qr-code-generator", "/terms", "/privacy", "/refunds", "/contact", "/robots.txt", "/sitemap.xml"];
+const pages = ["/", "/pricing", "/docs", "/docs/export/getting-started", "/terms", "/privacy", "/refunds", "/contact", "/robots.txt", "/sitemap.xml"];
 const body = {};
 for (const p of pages) {
   const r = await get(p);
@@ -36,15 +36,14 @@ if (BASE.startsWith("https://")) {
   check("Domain", "www redirects to the main domain", !!www && [301, 302, 307, 308].includes(www.status), www ? `HTTP ${www.status}` : "no response");
   void w;
 }
-for (const p of ["/", "/apps/export", "/apps/qr", "/pricing"]) check("Honesty", `${p} has no Soon/Planned/Preview labels`, !/\b(coming soon|planned|in preview|soon)\b/i.test(body[p] || ""));
+for (const p of ["/", "/pricing"]) check("Honesty", `${p} has no Soon/Planned/Preview labels`, !/\b(coming soon|planned|in preview|soon)\b/i.test(body[p] || ""));
 const health = await get("/api/health");
 check("Domain", "health endpoint answers", health.status === 200);
 
 // 3. Product and pricing are described
-check("Product", "home page says what the product does", /Klyroo Export/.test(body["/"]) && /Klyroo QR/.test(body["/"]));
-check("Product", "Export page describes the product and features", /Shopify/.test(body["/apps/export"]) && /templates/i.test(body["/apps/export"]));
+check("Product", "home page says what the product does and shows its features", /Klyroo Export/.test(body["/"]) && /Shopify/.test(body["/"]) && /templates/i.test(body["/"]));
+check("Product", "home page does not mention retired apps", !/Klyroo QR|QR code/i.test(body["/"] + body["/pricing"] + (body["/terms"] || "")));
 check("Pricing", "pricing page shows plans and prices (£19, £49, £99)", ["£19", "£49", "£99"].every((x) => (body["/pricing"] || "").includes(x)));
-check("Pricing", "pricing page lists the QR plans (£20, £45)", ["£20", "£45"].every((x) => (body["/pricing"] || "").includes(x)));
 check("Pricing", "pricing page states currency and cancel-any-time", /GBP/.test(body["/pricing"]) && /Cancel any time/i.test(body["/pricing"]));
 
 // 4. Terms
@@ -53,7 +52,7 @@ check("Terms", "names Dodo Payments as Merchant of Record", /Dodo Payments is th
 check("Terms", "covers acceptable use, IP, termination, liability, governing law", ["Acceptable use", "Intellectual property", "Suspension and termination", "Liability", "Governing law"].every((x) => terms.includes(x)));
 check("Terms", "has contact details", terms.includes(COMPANY.supportEmail));
 check("Terms", "has no stale preview / coming-soon wording", !/preview|coming soon|not yet available/i.test(terms));
-check("Terms", "acceptable use covers QR abuse, spam and platform bypass", /phishing/i.test(terms) && /spam/i.test(terms) && /bypass/i.test(terms));
+check("Terms", "acceptable use covers abuse, spam and platform bypass", /phishing/i.test(terms) && /spam/i.test(terms) && /bypass/i.test(terms));
 check("Terms", "says Export processes the merchant's own store data (controller/processor)", /processor/i.test(terms));
 check("Terms", "explains the free trial and monthly renewal", /3-day free trial/.test(terms) && /renew every month/.test(terms));
 
@@ -61,7 +60,7 @@ check("Terms", "explains the free trial and monthly renewal", /3-day free trial/
 const refunds = body["/refunds"] || "";
 const days = [...refunds.matchAll(/(\d+)[- ]day/gi)].map((m) => Number(m[1]));
 check("Refunds", "refund window is between 14 and 90 days", days.some((d) => d >= 14 && d <= 90), `found: ${days.join(", ") || "none"}`);
-check("Contact", "states a response time and how to report abuse", /business days/.test(body["/contact"] || "") && /Report a QR code/.test(body["/contact"] || ""));
+check("Contact", "states a response time", /business days/.test(body["/contact"] || ""));
 check("Refunds", "explains the free trial and cancelling", /free trial/i.test(refunds) && /cancel/i.test(refunds));
 check("Refunds", 'does not say "all sales are final" / "no refunds"', !/all sales are final|no refunds/i.test(refunds));
 check("Refunds", "tells buyers how to request a refund (by email)", refunds.includes(COMPANY.supportEmail));
@@ -75,7 +74,7 @@ check("Privacy", "covers retention, security, cookies, rights, international tra
 check("Privacy", "mentions the right to complain to a supervisory authority", /complain/i.test(priv));
 
 // 7. Policies reachable from navigation (footer on every public page)
-for (const p of ["/", "/apps/export", "/pricing", "/contact"]) {
+for (const p of ["/", "/pricing", "/contact"]) {
   const html = (await get(p)).text;
   const links = ["/terms", "/privacy", "/refunds", "/contact"].every((l) => html.includes(`href="${l}"`));
   check("Navigation", `${p} links to Terms, Privacy, Refunds and Contact`, links);

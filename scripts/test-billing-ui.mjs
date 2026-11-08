@@ -16,7 +16,7 @@ const email = `billui-${tag}@example.com`;
 const password = randomUUID();
 const { data: u } = await admin.auth.admin.createUser({ email, password, email_confirm: true });
 const { data: mem } = await admin.from("members").select("account_id").eq("user_id", u.user.id).single();
-await admin.from("account_apps").insert([{ account_id: mem.account_id, app: "export" }, { account_id: mem.account_id, app: "qr" }]);
+await admin.from("account_apps").insert([{ account_id: mem.account_id, app: "export" }]);
 // A fake Dodo API: returns a checkout URL on this same fake server.
 const checkoutBodies = [];
 const fakeDodo = http.createServer((req, res) => {
@@ -37,7 +37,7 @@ const browser = await chromium.launch({ executablePath: "/Applications/Google Ch
 
 async function withServer(port, extraEnv, fn) {
   const env = { ...process.env, NODE_ENV: "development", ...extraEnv };
-  for (const k of ["DODO_PAYMENTS_API_KEY", "DODO_PAYMENTS_WEBHOOK_KEY", "DODO_API_BASE", "DODO_PRODUCT_EXPORT_STARTER", "DODO_PRODUCT_EXPORT_GROWTH", "DODO_PRODUCT_EXPORT_SCALE", "DODO_PRODUCT_QR_PRO", "DODO_PRODUCT_QR_BUSINESS"]) if (!(k in extraEnv)) env[k] = ""; // empty, not deleted: Next would otherwise load the real value from .env.local
+  for (const k of ["DODO_PAYMENTS_API_KEY", "DODO_PAYMENTS_WEBHOOK_KEY", "DODO_API_BASE", "DODO_PRODUCT_EXPORT_STARTER", "DODO_PRODUCT_EXPORT_GROWTH", "DODO_PRODUCT_EXPORT_SCALE"]) if (!(k in extraEnv)) env[k] = ""; // empty, not deleted: Next would otherwise load the real value from .env.local
   const server = spawn("node", ["node_modules/next/dist/bin/next", "dev", "-p", String(port)], { env, stdio: ["ignore", "pipe", "pipe"] });
   let log = "";
   server.stdout.on("data", (d) => (log += d));
@@ -96,11 +96,6 @@ try {
     assert.equal(checkoutBodies[0].customer.email, email);
     assert.equal(checkoutBodies[0].metadata.app, "export");
     ok("prices show with the trial note; choosing a plan creates a checkout for the right product and sends you to it");
-    // Each app bills separately: Export has plans for sale, QR does not.
-    await page.goto(`${base}/qr/billing`, { waitUntil: "domcontentloaded" });
-    await page.waitForSelector("text=Free for now");
-    assert.equal(await page.locator('button:has-text("Choose")').count(), 0);
-    ok("QR billing is separate: it stays free for now even while Export has paid plans");
     assert.deepEqual(errors, [], "no uncaught browser errors");
     ok("no uncaught errors in the browser");
   });

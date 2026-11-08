@@ -9,7 +9,6 @@ import { resendConfirmation, signIn, signUp } from "./actions";
 
 export function AuthForm() {
   const params = useSearchParams();
-  const wanted = params.get("app");
   const [mode, setMode] = useState<"signup" | "login">("signup");
   const [state, action, pending] = useActionState(mode === "signup" ? signUp : signIn, undefined);
   const [resent, resend, resending] = useActionState(resendConfirmation, undefined);
@@ -33,7 +32,6 @@ export function AuthForm() {
       </div>
 
       <form action={action} className="space-y-5">
-        {wanted && <input type="hidden" name="app" value={wanted} />}
         {mode === "signup" && (
           <>
             <Field label="Your name">
