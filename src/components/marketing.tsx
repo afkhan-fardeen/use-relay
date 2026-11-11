@@ -5,8 +5,7 @@ import { COMPANY, operatorName } from "@/lib/company";
 import { MobileMenu } from "./mobile-menu";
 
 export const MAIN_NAV = [
-  { href: "/apps/export", label: "Export" },
-  { href: "/apps/qr", label: "QR" },
+  { href: "/#features", label: "Features" },
   { href: "/pricing", label: "Pricing" },
   { href: "/docs", label: "Docs" },
 ];
@@ -37,44 +36,36 @@ export function MarketingHeader({ tool, anchors }: { tool?: string; anchors?: { 
 export function MarketingFooter() {
   return (
     <footer className="border-t border-line bg-surface">
-      <div className="mx-auto max-w-[1200px] px-4 sm:px-6 py-14 grid gap-10 grid-cols-2 md:grid-cols-[1.6fr_1fr_1fr_1fr_1fr] text-sm">
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6 py-14 grid gap-10 grid-cols-2 md:grid-cols-[1.6fr_1fr_1fr_1fr] text-sm">
         <div className="col-span-2 md:col-span-1">
           <Logo />
-          <p className="mt-4 text-muted max-w-xs leading-6">Small, sharp tools for ecommerce teams. Each app works on its own, with its own plan.</p>
+          <p className="mt-4 text-muted max-w-xs leading-6">Klyroo builds Shopify apps. Klyroo Data Exporter turns your store data into clean Excel and CSV files.</p>
           <a href={`mailto:${COMPANY.supportEmail}`} className="mt-4 inline-block text-primary hover:text-primary-hover">{COMPANY.supportEmail}</a>
         </div>
-        <nav aria-label="Apps" className="space-y-2.5">
-          <p className="text-muted">Apps</p>
-          <Link href="/apps/export" className="block hover:text-primary">Klyroo Export</Link>
-          <Link href="/apps/qr" className="block hover:text-primary">Klyroo QR</Link>
-          <Link href="/qr-code-generator" className="block hover:text-primary">Free QR generator</Link>
+        <nav aria-label="Product" className="space-y-2.5">
+          <p className="text-muted">Product</p>
+          <Link href="/" className="block hover:text-primary">Klyroo Data Exporter</Link>
+          <Link href="/#features" className="block hover:text-primary">Features</Link>
           <Link href="/pricing" className="block hover:text-primary">Pricing</Link>
         </nav>
         <nav aria-label="Help" className="space-y-2.5">
           <p className="text-muted">Help</p>
           <Link href="/docs" className="block hover:text-primary">Documentation</Link>
-          <Link href="/docs/export/getting-started" className="block hover:text-primary">Export guide</Link>
-          <Link href="/docs/qr/getting-started" className="block hover:text-primary">QR guide</Link>
+          <Link href="/docs/getting-started" className="block hover:text-primary">Getting started</Link>
           <Link href="/support" className="block hover:text-primary">Support</Link>
           <Link href="/contact" className="block hover:text-primary">Contact</Link>
-        </nav>
-        <nav aria-label="Company" className="space-y-2.5">
-          <p className="text-muted">Account</p>
-          <Link href="/login" className="block hover:text-primary">Log in</Link>
-          <Link href="/login" className="block hover:text-primary">Create account</Link>
         </nav>
         <nav aria-label="Legal" className="space-y-2.5">
           <p className="text-muted">Legal</p>
           <Link href="/terms" className="block hover:text-primary">Terms of service</Link>
           <Link href="/privacy" className="block hover:text-primary">Privacy policy</Link>
-          <Link href="/refunds" className="block hover:text-primary">Refund policy</Link>
           <Link href="/security" className="block hover:text-primary">Security</Link>
         </nav>
       </div>
       <div className="border-t border-line">
         <div className="mx-auto max-w-[1200px] px-4 sm:px-6 py-6 flex flex-wrap items-center justify-between gap-3 text-xs text-muted">
           <p>© 2026 {operatorName()}. All rights reserved.</p>
-          <p className="max-w-xl">Payments are handled by Dodo Payments, our Merchant of Record. Shopify is a trademark of Shopify Inc. Klyroo is an independent product and is not affiliated with or endorsed by Shopify.</p>
+          <p className="max-w-xl">Billing is handled by Shopify. Shopify is a trademark of Shopify Inc. Klyroo is an independent product and is not affiliated with or endorsed by Shopify.</p>
         </div>
       </div>
     </footer>

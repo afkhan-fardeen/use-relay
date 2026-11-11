@@ -2,9 +2,7 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import { Icon } from "@/components/icons";
 import { Button, Card, Chip } from "@/components/ui";
-import type { AppSlug } from "@/lib/apps";
-import { PLAN_COMMON, PLANS } from "@/lib/billing/plans";
-import { DEFAULT_STYLE, qrSvg, type QrStyle } from "@/lib/qr/render";
+import { PLANS, money } from "@/lib/product";
 
 export function SectionHead({ eyebrow, title, sub, center }: { eyebrow?: string; title: string; sub?: string; center?: boolean }) {
   return (
@@ -40,12 +38,11 @@ export function Steps({ items }: { items: [string, string][] }) {
   );
 }
 
-export function PlanGrid({ app }: { app: AppSlug }) {
-  const plans = PLANS[app];
+export function PlanGrid({ cta }: { cta: { href: string; label: string } }) {
   return (
     <div>
-      <div className={`grid gap-4 ${plans.length === 4 ? "sm:grid-cols-2 lg:grid-cols-4" : "md:grid-cols-3"}`}>
-        {plans.map((p) => (
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {PLANS.map((p) => (
           <Card key={p.key} lift featured={p.recommended} className={`!p-6 flex flex-col ${p.recommended ? "!border-primary/60 shadow-[0_8px_30px_rgba(83,58,253,0.10)]" : ""}`}>
             <div className="flex items-center justify-between">
               <h3 className="text-[22px] leading-[26px] font-light">{p.name}</h3>
@@ -53,21 +50,19 @@ export function PlanGrid({ app }: { app: AppSlug }) {
             </div>
             <p className="mt-1 text-sm text-muted">{p.blurb}</p>
             <p className="mt-5 text-[40px] leading-[44px] font-normal tabular">
-              {p.priceLabel}
-              {p.key !== "free" && <span className="text-base font-normal text-muted"> /month</span>}
+              {money(p.price)}
+              {p.price > 0 && <span className="text-base font-normal text-muted"> /month</span>}
             </p>
             <ul className="mt-6 space-y-3 text-[15px] flex-1">
               {p.features.map((f) => (
-                <li key={f.text} className="flex gap-3"><Icon name="check" size={18} className="mt-0.5 shrink-0 text-primary" /><span>{f.text}</span></li>
+                <li key={f} className="flex gap-3"><Icon name="check" size={18} className="mt-0.5 shrink-0 text-primary" /><span>{f}</span></li>
               ))}
             </ul>
-            <Button variant={p.recommended ? "primary" : "secondary"} href={`/login?app=${app}`} className="mt-8 w-full">
-              {p.key === "free" ? "Start free" : `Choose ${p.name}`}
-            </Button>
+            <Button variant={p.recommended ? "primary" : "secondary"} href={cta.href} className="mt-8 w-full">{p.price === 0 ? "Start free" : `Choose ${p.name}`}</Button>
           </Card>
         ))}
       </div>
-      <p className="mt-5 text-sm text-muted max-w-3xl">{PLAN_COMMON[app]} Prices are in GBP per month, taxes are added at checkout, and you can cancel any time.</p>
+      <p className="mt-5 text-sm text-muted max-w-3xl">Prices are in US dollars per month, billed by Shopify every 30 days, and you can change or cancel any time. Free on Shopify development stores.</p>
     </div>
   );
 }
@@ -100,11 +95,6 @@ export function CtaBand({ title, sub, href, label }: { title: string; sub?: stri
   );
 }
 
-/** A real, scannable QR code drawn on the server (used as page art). */
-export function QrArt({ content, size = 160, style }: { content: string; size?: number; style?: Partial<QrStyle> }) {
-  return <div role="img" aria-label="Sample QR code" style={{ width: size, height: size }} dangerouslySetInnerHTML={{ __html: qrSvg(content, { ...DEFAULT_STYLE, ...style }) }} />;
-}
-
 export function TrustRow({ items }: { items: string[] }) {
   return (
     <ul className="flex flex-wrap justify-center lg:justify-start gap-x-6 gap-y-2 text-sm text-muted">
@@ -121,7 +111,7 @@ export function ProductShot({ src, alt, priority }: { src: string; alt: string; 
     <figure className="mx-auto max-w-[1100px] overflow-hidden rounded-feat border border-line-strong/60 bg-surface shadow-[0_30px_90px_rgba(10,37,64,0.14)]">
       <div className="flex items-center gap-2 border-b border-line bg-wash/60 px-4 py-3" aria-hidden>
         <span className="size-3 rounded-full bg-[#FF5F57]" /><span className="size-3 rounded-full bg-[#FEBC2E]" /><span className="size-3 rounded-full bg-[#28C840]" />
-        <span className="ml-4 hidden sm:block rounded-full bg-surface px-4 py-1 text-xs text-muted">useklyroo.com/export</span>
+        <span className="ml-4 hidden sm:block rounded-full bg-surface px-4 py-1 text-xs text-muted">Shopify Admin &gt; Klyroo Data Exporter</span>
       </div>
       <Image src={src} alt={alt} width={2880} height={1800} sizes="(min-width: 1200px) 1100px, 100vw" priority={priority} className="h-auto w-full" />
     </figure>

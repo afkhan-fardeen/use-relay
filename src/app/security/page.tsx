@@ -1,41 +1,45 @@
 import { A, LegalPage, Section, UL } from "@/components/legal";
 import { COMPANY } from "@/lib/company";
 
-export const metadata = { title: "Security — Klyroo", description: "How Klyroo protects your Shopify credentials, exports and account data." };
+export const metadata = { title: "Security — Klyroo Data Exporter", description: "How Klyroo Data Exporter protects your store data and exports." };
 
 export default function Security() {
   return (
-    <LegalPage title="Security" intro="What we do to protect your account and your store data, stated plainly. If something here is unclear, ask us.">
-      <Section title="Your Shopify access">
+    <LegalPage title="Security" intro="What we do to protect your store data, stated plainly. If something here is unclear, ask us.">
+      <Section title="Access to your store">
         <UL items={[
-          "You create the credentials in your own Shopify account, and you choose the permissions. Klyroo Export asks for read-only access.",
-          "Your Shopify client secret is encrypted with AES-256-GCM before it is stored. Each secret has its own data key, wrapped by a master key kept outside the database and bound to the specific store, so a copied value cannot be decrypted for another store.",
-          "Secrets are never sent to the browser, never written to logs, and are deleted when you disconnect a store.",
-          "You can revoke access at any time by uninstalling or deleting the app in Shopify.",
+          "The app asks Shopify only for read access to products, inventory and locations. It cannot change your store, and it never asks for customer, order or payment data.",
+          "Merchants sign in through Shopify: every action in the app is authenticated with a Shopify session token, and every webhook from Shopify is verified with its signature before we act on it.",
+          "When you uninstall the app, your access token is deleted immediately, and everything else is deleted when Shopify sends its shop erasure request.",
         ]} />
       </Section>
+
       <Section title="Your data">
         <UL items={[
-          "Data is encrypted in transit over HTTPS. Our database and file storage (Supabase) encrypt data at rest.",
-          "Every account's data is separated by database access rules (row level security) that are checked on every request. The signed-in browser can read only its own account and cannot write directly.",
-          "Export files are private, downloadable only by signed-in members of your account through links that expire within a minute, and deleted automatically after 7 days.",
-          "Passwords are handled by our sign-in provider and stored only as secure hashes.",
+          "Data travels over HTTPS, with certificates managed automatically.",
+          "Each store's data and files are kept apart. Files are stored under keys derived from the store, and every request is checked against the signed-in store, so one store can never reach another's exports.",
+          "Export files are private. They are downloaded through signed links that expire after 30 minutes, and are deleted automatically after 7 days.",
+          "We do not store customer personal data, so there is none to leak from the app.",
         ]} />
       </Section>
+
       <Section title="How we operate">
         <UL items={[
-          "Checkout and card data are handled entirely by Dodo Payments, our Merchant of Record. We never see or store card numbers.",
-          "Webhooks from our payment provider are verified with a signature and are safe to retry.",
-          "We rate-limit sign-in, password reset and support requests, and our automated tests check the access rules, the security headers and common web accessibility problems.",
-          "We keep server error logs and alert on failures. Logs contain no secrets or exported customer data.",
+          "Exports run in the background and are retried automatically; a job that fails shows a clear reason.",
+          "We rate-limit previews and exports per store, and cap how many exports can run at once.",
+          "Servers are kept up to date with automatic security updates, only the web ports and our management port are open, and access is by key, not password.",
+          "Our automated tests check the privacy webhooks, plan limits, per-store isolation and the export engine, including what happens when things fail.",
         ]} />
       </Section>
+
       <Section title="Where data is stored">
-        <p>Our database and storage are hosted by Supabase in Japan (AWS Tokyo) and our application runs on Render in Singapore. See the <A href="/privacy">privacy policy</A> for the full list of providers.</p>
+        <p>The app runs on a server in the United States. Its database is hosted by Turso. See the <A href="/privacy">privacy policy</A> for the full list of providers.</p>
       </Section>
+
       <Section title="Availability">
-        <p>We work to keep Klyroo available and monitor it, but we do not yet offer a formal uptime guarantee. Exports run in the background and are retried automatically if something fails mid-way.</p>
+        <p>We monitor the app and work to keep it available, but we do not yet offer a formal uptime guarantee. If it is briefly unavailable, Shopify retries the notifications it sends us, and your exports resume.</p>
       </Section>
+
       <Section title="Report a vulnerability">
         <p>
           If you find a security problem, please email <A href={`mailto:${COMPANY.supportEmail}`}>{COMPANY.supportEmail}</A> with the details and mark it &ldquo;Security&rdquo;. We will acknowledge it within 2 business days, will not take legal action against good-faith research that avoids other people&apos;s data, and will credit you if you wish. Our contact details are also published in <A href="/.well-known/security.txt">security.txt</A>.

@@ -14,7 +14,7 @@ export const organizationLd = {
 
 export const websiteLd = { "@context": "https://schema.org", "@type": "WebSite", name: "Klyroo", url: base };
 
-/** A SoftwareApplication entry with a price range in GBP (monthly). */
+/** A SoftwareApplication entry with a price range in USD (monthly). */
 export const softwareLd = (o: { name: string; description: string; path: string; category: string; low: number; high: number; features: string[] }) => ({
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
@@ -22,8 +22,8 @@ export const softwareLd = (o: { name: string; description: string; path: string;
   description: o.description,
   url: `${base}${o.path}`,
   applicationCategory: o.category,
-  operatingSystem: "Web",
+  operatingSystem: "Shopify",
   featureList: o.features,
   publisher: { "@type": "Organization", name: "Klyroo", url: base },
-  offers: { "@type": "AggregateOffer", priceCurrency: "GBP", lowPrice: String(o.low), highPrice: String(o.high), offerCount: 4 },
+  offers: { "@type": "AggregateOffer", priceCurrency: "USD", lowPrice: String(o.low), highPrice: String(o.high), offerCount: 4 },
 });

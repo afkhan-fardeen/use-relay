@@ -5,7 +5,6 @@ import { COMPANY } from "@/lib/company";
 import { SUPPORT_CATEGORIES, SUPPORT_PRODUCTS } from "./options";
 import { allow } from "@/lib/ratelimit";
 import { reportError } from "@/lib/report";
-import { supabaseAdmin } from "@/lib/supabase/admin";
 
 export type SupportState = { error?: string; ok?: boolean; values?: Record<string, string> } | undefined;
 
@@ -33,35 +32,29 @@ export async function sendSupport(_prev: SupportState, formData: FormData): Prom
     return { error: "You've sent several messages already. Please wait a while, or email us directly.", values };
   }
 
-  const ins = await supabaseAdmin().from("support_requests").insert({
-    email: values.email, store_url: values.storeUrl || null, product: values.product, category: values.category, message: values.message,
-  }).select("id").single();
-  if (ins.error) {
-    reportError("support form", ins.error);
-    return { error: `We couldn't save that just now. Please email ${COMPANY.supportEmail} instead.`, values };
-  }
-
-  // Best effort: email the team. The request is already saved, so a failure here loses nothing.
+  // Email the request to support through Resend. Without a key (or if Resend fails) the visitor is pointed at email.
   const key = process.env.RESEND_API_KEY;
-  if (key) {
-    try {
-      const res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
-        body: JSON.stringify({
-          from: `Klyroo support <noreply@${COMPANY.domain}>`,
-          to: [COMPANY.supportEmail],
-          reply_to: values.email,
-          subject: `[${values.category}] ${values.product} (${ins.data.id.slice(0, 8)})`,
-          text: `From: ${values.email}\nStore: ${values.storeUrl || "-"}\nAbout: ${values.product}\nCategory: ${values.category}\n\n${values.message}`,
-        }),
-        signal: AbortSignal.timeout(8000),
-      });
-      if (res.ok) await supabaseAdmin().from("support_requests").update({ emailed: true }).eq("id", ins.data.id);
-      else reportError("support email", new Error(`Resend ${res.status}`));
-    } catch (e) {
-      reportError("support email", e);
+  if (!key) return { error: `Our form is not switched on yet. Please email ${COMPANY.supportEmail} instead.`, values };
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
+      body: JSON.stringify({
+        from: `Klyroo support <noreply@${COMPANY.domain}>`,
+        to: [COMPANY.supportEmail],
+        reply_to: values.email,
+        subject: `[${values.category}] ${values.product}`,
+        text: `From: ${values.email}\nStore: ${values.storeUrl || "-"}\nAbout: ${values.product}\nCategory: ${values.category}\n\n${values.message}`,
+      }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!res.ok) {
+      reportError("support email", new Error(`Resend ${res.status}`));
+      return { error: `We couldn't send that just now. Please email ${COMPANY.supportEmail} instead.`, values };
     }
+  } catch (e) {
+    reportError("support email", e);
+    return { error: `We couldn't send that just now. Please email ${COMPANY.supportEmail} instead.`, values };
   }
   return { ok: true };
 }

@@ -1,8 +1,10 @@
-import Link from "next/link";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing";
 import { CtaBand, Faq, PlanGrid, SectionHead } from "@/components/marketing-blocks";
+import { APP_STORE_URL } from "@/lib/product";
 
-export const metadata = { title: "Pricing — Klyroo", description: "Klyroo Export and Klyroo QR plans. Prices in GBP per month. Each app has its own plan. Cancel any time." };
+export const metadata = { title: "Pricing — Klyroo Data Exporter", description: "Klyroo Data Exporter plans from free. Prices in US dollars per month, billed by Shopify. Free on development stores." };
+
+const cta = APP_STORE_URL ? { href: APP_STORE_URL, label: "Install on Shopify" } : { href: "/support?topic=access", label: "Request early access" };
 
 export default function Pricing() {
   return (
@@ -10,38 +12,31 @@ export default function Pricing() {
       <MarketingHeader />
       <main>
         <section className="mx-auto max-w-[1200px] px-4 sm:px-6 pt-14 sm:pt-20 pb-6 text-center">
-          <h1 className="text-[40px] sm:text-[52px] leading-[1.08] tracking-[-0.025em] font-light">Simple pricing, separate per app</h1>
+          <h1 className="text-[40px] sm:text-[52px] leading-[1.08] tracking-[-0.025em] font-light">Simple pricing for Klyroo Data Exporter</h1>
           <p className="mt-5 mx-auto max-w-2xl text-[18px] leading-[28px] text-muted">
-            Pay only for the apps you use. Prices are in pounds sterling (GBP) per month (checkout may show your local currency), taxes are added at checkout, and you can cancel any time. Every first purchase has a 30-day money-back guarantee.
+            Start free and upgrade when your exports get bigger. Prices are in US dollars per month, billed by Shopify every 30 days. You can change or cancel at any time from the app.
           </p>
         </section>
 
         <section className="mx-auto max-w-[1200px] px-4 sm:px-6 py-14">
-          <SectionHead eyebrow="Klyroo Export" title="For your Shopify data." sub="Plans differ only by the number of stores and the rows in each export." />
-          <div className="mt-10"><PlanGrid app="export" /></div>
-        </section>
-
-        <section className="mx-auto max-w-[1200px] px-4 sm:px-6 py-14 border-t border-line">
-          <SectionHead eyebrow="Klyroo QR" title="For QR codes." sub="Static codes are free. Dynamic links add editable destinations, scan analytics and custom short link names." />
-          <div className="mt-10"><PlanGrid app="qr" /></div>
-          <p className="mt-4 text-sm text-muted max-w-3xl">If you pass your monthly scan limit, your codes keep working and we invite you to upgrade. We never switch off a printed code.</p>
+          <PlanGrid cta={cta} />
         </section>
 
         <section className="mx-auto max-w-[900px] px-4 sm:px-6 py-16 border-t border-line">
           <SectionHead eyebrow="Billing" title="Questions about paying." center />
           <div className="mt-10">
             <Faq items={[
-              ["Who takes the payment?", "Dodo Payments, our Merchant of Record. It handles payment, tax and invoices. Checkout shows the exact price, including tax, before you pay."],
-              ["Is there a free trial?", "Yes. Every paid plan starts with a 3-day free trial. Cancel before it ends and you pay nothing."],
-              ["Can I cancel?", "Yes, any time from the app's Billing page or the customer portal. You keep your plan until the end of the period you paid for."],
-              ["Can I get a refund?", <>Yes. Every first purchase has a 30-day money-back guarantee. See the <Link href="/refunds" className="text-primary">refund policy</Link>.</>],
-              ["Do I pay once for everything?", "No. Each Klyroo app has its own plan and its own billing, so you only pay for what you use."],
-              ["Can I change plan later?", "Yes. You can move up or down at any time. Upgrades are prorated."],
+              ["Who takes the payment?", "Shopify. Charges appear on your normal Shopify invoice, and you approve each plan on Shopify's own approval page."],
+              ["Is there a free plan?", "Yes. It exports up to 100 rows at a time as CSV, so you can try the app on a small catalog. The app is also free on Shopify development stores, with the Growth plan's limits, so agencies can test everything."],
+              ["What counts as a row?", "One row in the file. Products export one row per variant."],
+              ["Can I change or cancel?", "Yes, any time from the Plans page in the app. Changes are handled by Shopify."],
+              ["What happens if my export is bigger than my plan allows?", "It stops with a clear message. You can narrow it with filters (status, vendor, collection) or upgrade for a higher limit."],
+              ["Do the plans have different features?", "A few. Excel files and metafields start on Starter, inventory by location and variant-level metafields on Growth. Every plan has the live preview and templates."],
             ]} />
           </div>
         </section>
 
-        <CtaBand title="Start free. Upgrade when you need to." href="/login" label="Create your account" />
+        <CtaBand title="Start free. Upgrade when you need to." href={cta.href} label={cta.label} />
       </main>
       <MarketingFooter />
     </div>

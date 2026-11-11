@@ -1,104 +1,43 @@
-// Dodo Payments verification readiness check against a running site.
+// Readiness check for the public showcase site.
 //   npm run check:launch                      (checks https://useklyroo.com)
 //   BASE=http://localhost:3000 npm run check:launch
-// Mirrors Dodo's "Preparing your website" guidance: public site, pricing with billing interval, Terms,
-// Privacy, Refund and cancellation policy and a contact route linked from the footer, no login wall.
 import { COMPANY, missingCompanyDetails } from "../src/lib/company.ts";
 
 const BASE = (process.env.BASE || `https://${COMPANY.domain}`).replace(/\/$/, "");
 const results = [];
 const check = (area, name, ok, detail = "") => results.push({ area, name, ok, detail });
-
-async function get(path, init) {
+const strip = (h) => h.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ");
+async function get(path) {
   try {
-    const r = await fetch(BASE + path, { redirect: "manual", signal: AbortSignal.timeout(20000), ...init });
-    return { status: r.status, text: r.status === 200 ? await r.text() : "", headers: r.headers };
-  } catch (e) {
-    return { status: 0, text: "", error: e.message, headers: new Headers() };
-  }
+    const r = await fetch(BASE + path, { redirect: "manual", signal: AbortSignal.timeout(20000) });
+    return { status: r.status, text: r.status === 200 ? await r.text() : "" };
+  } catch (e) { return { status: 0, text: "", error: e.message }; }
 }
-const strip = (html) => html.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&apos;|&#x27;|&#39;/g, "'").replace(/\s+/g, " ");
 
-// 1. Pages are public (HTTP 200 without logging in)
-const pages = ["/", "/apps/export", "/apps/qr", "/pricing", "/docs", "/docs/export/getting-started", "/docs/qr/getting-started", "/qr-code-generator", "/terms", "/privacy", "/refunds", "/contact", "/support", "/security", "/robots.txt", "/sitemap.xml"];
+const pages = ["/", "/pricing", "/docs", "/docs/getting-started", "/terms", "/privacy", "/contact", "/support", "/security", "/robots.txt", "/sitemap.xml"];
 const body = {};
 for (const p of pages) {
   const r = await get(p);
   body[p] = strip(r.text);
-  check("Public pages", `${p} is public (200, no login)`, r.status === 200, r.status ? `HTTP ${r.status}` : r.error);
+  check("Public pages", `${p} answers 200`, r.status === 200, r.status ? `HTTP ${r.status}` : r.error);
 }
-
-// 2. HTTPS and domain
-check("Domain", "site is served over HTTPS", BASE.startsWith("https://") || BASE.includes("localhost"), BASE);
-if (BASE.startsWith("https://")) {
-  const w = await get("", { headers: {} });
-  const www = await fetch(BASE.replace("https://", "https://www."), { redirect: "manual", signal: AbortSignal.timeout(20000) }).catch(() => null);
-  check("Domain", "www redirects to the main domain", !!www && [301, 302, 307, 308].includes(www.status), www ? `HTTP ${www.status}` : "no response");
-  void w;
+for (const gone of ["/login", "/export", "/qr-code-generator"]) {
+  const r = await get(gone);
+  check("Old routes", `${gone} no longer serves the old product`, r.status !== 200 || !/Klyroo QR/.test(r.text));
 }
-for (const p of ["/", "/apps/export", "/apps/qr", "/pricing"]) check("Honesty", `${p} has no Soon/Planned/Preview labels`, !/\b(coming soon|planned|in preview|soon)\b/i.test(body[p] || ""));
-const health = await get("/api/health");
-check("Domain", "health endpoint answers", health.status === 200);
-
-// 3. Product and pricing are described
-check("Product", "home page says what the product does", /Klyroo Export/.test(body["/"]) && /Klyroo QR/.test(body["/"]));
-check("Product", "Export page describes the product and features", /Shopify/.test(body["/apps/export"]) && /templates/i.test(body["/apps/export"]));
-check("Pricing", "pricing page shows plans and prices (£19, £49, £99)", ["£19", "£49", "£99"].every((x) => (body["/pricing"] || "").includes(x)));
-check("Pricing", "pricing page lists the QR plans (£20, £45)", ["£20", "£45"].every((x) => (body["/pricing"] || "").includes(x)));
-check("Pricing", "pricing page states currency and cancel-any-time", /GBP/.test(body["/pricing"]) && /Cancel any time/i.test(body["/pricing"]));
-
-// 4. Terms
-const terms = body["/terms"] || "";
-check("Terms", "names Dodo Payments as Merchant of Record", /Dodo Payments is the Merchant of Record/.test(terms));
-check("Terms", "covers acceptable use, IP, termination, liability, governing law", ["Acceptable use", "Intellectual property", "Suspension and termination", "Liability", "Governing law"].every((x) => terms.includes(x)));
-check("Terms", "has contact details", terms.includes(COMPANY.supportEmail));
-check("Terms", "has no stale preview / coming-soon wording", !/preview|coming soon|not yet available/i.test(terms));
-check("Terms", "acceptable use covers QR abuse, spam and platform bypass", /phishing/i.test(terms) && /spam/i.test(terms) && /bypass/i.test(terms));
-check("Terms", "says Export processes the merchant's own store data (controller/processor)", /processor/i.test(terms));
-check("Terms", "explains the free trial and monthly renewal", /3-day free trial/.test(terms) && /renew every month/.test(terms));
-
-// 5. Refunds
-const refunds = body["/refunds"] || "";
-const days = [...refunds.matchAll(/(\d+)[- ]day/gi)].map((m) => Number(m[1]));
-check("Refunds", "refund window is between 14 and 90 days", days.some((d) => d >= 14 && d <= 90), `found: ${days.join(", ") || "none"}`);
-check("Contact", "states a response time and how to report abuse", /business days/.test(body["/contact"] || "") && /Report a QR code/.test(body["/contact"] || ""));
-check("Refunds", "explains the free trial and cancelling", /free trial/i.test(refunds) && /cancel/i.test(refunds));
-check("Refunds", 'does not say "all sales are final" / "no refunds"', !/all sales are final|no refunds/i.test(refunds));
-check("Refunds", "tells buyers how to request a refund (by email)", refunds.includes(COMPANY.supportEmail));
-
-// 6. Privacy
-const priv = body["/privacy"] || "";
-check("Privacy", "identifies the controller and a privacy contact", /controller/i.test(priv) && priv.includes(COMPANY.supportEmail));
-check("Privacy", "lists data collected with purposes and legal basis", /Legal basis/i.test(priv) && /Why/.test(priv));
-check("Privacy", "names recipients including Dodo Payments as Merchant of Record", /Dodo Payments/.test(priv) && /Supabase/.test(priv));
-check("Privacy", "covers retention, security, cookies, rights, international transfers", ["How long we keep it", "How we protect it", "Cookies", "Your rights", "International transfers"].every((x) => priv.includes(x)));
-check("Privacy", "mentions the right to complain to a supervisory authority", /complain/i.test(priv));
-
-// 7. Policies reachable from navigation (footer on every public page)
-for (const p of ["/", "/apps/export", "/pricing", "/contact"]) {
-  const html = (await get(p)).text;
-  const links = ["/terms", "/privacy", "/refunds", "/contact"].every((l) => html.includes(`href="${l}"`));
-  check("Navigation", `${p} links to Terms, Privacy, Refunds and Contact`, links);
-}
-check("Navigation", "sign-up page links Terms and Privacy", (await get("/login")).text.includes('href="/terms"') && (await get("/login")).text.includes('href="/privacy"'));
-check("Navigation", "robots.txt hides signed-in areas and lists the sitemap", /Disallow: \/export/.test((await get("/robots.txt")).text) && /Sitemap:/.test((await get("/robots.txt")).text));
-
-// 8. Seller details Dodo Payments needs (set in src/lib/company.ts)
+check("Product", "home page describes Klyroo Data Exporter", /Data Exporter/.test(body["/"]) && /Excel/.test(body["/"]));
+check("Honesty", "no QR or Dodo wording left on the main pages", !["/", "/pricing", "/terms", "/privacy", "/contact", "/security"].some((p) => /Klyroo QR|Dodo/i.test(body[p] || "")));
+check("Pricing", "pricing shows $29, $119 and $249", ["$29", "$119", "$249"].every((x) => (body["/pricing"] || "").includes(x)));
+check("Pricing", "pricing says billed by Shopify, in US dollars", /billed by Shopify/i.test(body["/pricing"]) && /US dollars/i.test(body["/pricing"]));
+check("Legal", "terms, privacy and security carry the support email", ["/terms", "/privacy", "/security"].every((p) => (body[p] || "").includes(COMPANY.supportEmail)));
+check("Legal", "privacy lists the Shopify privacy webhooks", /shop\/redact/.test(body["/privacy"]));
 const missing = missingCompanyDetails();
-check("Seller details", "legal name, postal address, country and governing law are filled in", missing.length === 0, missing.length ? `missing: ${missing.join(", ")}` : "");
-if (COMPANY.legalName) {
-  check("Seller details", "legal name appears in the Terms and Privacy policy", terms.includes(COMPANY.legalName) && priv.includes(COMPANY.legalName));
-  if (COMPANY.entity === "individual") check("Seller details", 'individual seller is shown as "trading as Klyroo"', /trading as Klyroo/.test(terms) && /trading as Klyroo/.test(priv));
-}
+check("Company", "legal details are filled in", missing.length === 0, missing.join(", "));
 
-// Report
-let area = "";
 let failed = 0;
 for (const r of results) {
-  if (r.area !== area) { area = r.area; console.log(`\n${area}`); }
-  console.log(`  ${r.ok ? "✔" : "✖"} ${r.name}${r.detail && !r.ok ? `  (${r.detail})` : ""}`);
   if (!r.ok) failed++;
+  console.log(`${r.ok ? "PASS" : "FAIL"}  [${r.area}] ${r.name}${r.detail && !r.ok ? ` (${r.detail})` : ""}`);
 }
-console.log(`\n${results.length - failed}/${results.length} checks pass.`);
-console.log(failed ? "NOT READY for Dodo verification: fix the items marked ✖." : "READY for Dodo verification (submit the Product Information form in the Dodo dashboard: Verification).");
-process.exitCode = failed ? 1 : 0;
+console.log(`\n${results.length - failed}/${results.length} passed`);
+process.exit(failed ? 1 : 0);

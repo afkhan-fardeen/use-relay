@@ -15,9 +15,12 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   async redirects() {
     return [
-      { source: "/products", destination: "/#apps", permanent: true },
-      { source: "/products/export", destination: "/apps/export", permanent: true },
-      { source: "/products/qr", destination: "/apps/qr", permanent: true },
+      { source: "/products", destination: "/", permanent: true },
+      { source: "/products/:path*", destination: "/", permanent: true },
+      { source: "/apps/:path*", destination: "/", permanent: true },
+      { source: "/qr-code-generator", destination: "/", permanent: true },
+      { source: "/refunds", destination: "/terms", permanent: true },
+      { source: "/login", destination: "/", permanent: false },
     ];
   },
   async headers() {

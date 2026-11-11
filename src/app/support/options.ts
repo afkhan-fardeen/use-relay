@@ -1,2 +1,2 @@
-export const SUPPORT_PRODUCTS = ["Klyroo Export", "Klyroo QR", "Billing or my account", "Something else"] as const;
-export const SUPPORT_CATEGORIES = ["Bug or something broken", "Billing", "Question", "Feature request", "Report abuse"] as const;
+export const SUPPORT_PRODUCTS = ["Klyroo Data Exporter", "Plans and billing", "Something else"] as const;
+export const SUPPORT_CATEGORIES = ["Early access request", "Bug or something broken", "Question", "Feature request", "Billing"] as const;

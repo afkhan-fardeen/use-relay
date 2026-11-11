@@ -1,157 +1,101 @@
 import Link from "next/link";
-import { MarketingFooter, MarketingHeader } from "@/components/marketing";
-import { CtaBand, Faq, Feature, PlanGrid, QrArt, SectionHead, Steps, TrustRow } from "@/components/marketing-blocks";
 import { JsonLd } from "@/components/json-ld";
 import { Reveal } from "@/components/kit/reveal";
-import { organizationLd, websiteLd } from "@/lib/seo";
-import { Button, Card, Chip } from "@/components/ui";
-import { APPS } from "@/lib/apps";
-import { COMPANY } from "@/lib/company";
+import { MarketingFooter, MarketingHeader } from "@/components/marketing";
+import { CtaBand, Faq, Feature, PlanGrid, ProductShot, SectionHead, Steps, TrustRow } from "@/components/marketing-blocks";
+import { Button, Chip } from "@/components/ui";
+import { APP_STORE_URL, FEATURES, PRODUCT, TEMPLATES } from "@/lib/product";
+import { organizationLd, softwareLd, websiteLd } from "@/lib/seo";
 
 export const metadata = {
-  title: "Klyroo — Shopify exports and QR codes, without the busywork",
-  description: "Klyroo Export turns Shopify products, orders, customers and inventory into spreadsheets. Klyroo QR makes QR codes you can print and track. Each app has its own plan. Start free.",
+  title: "Klyroo Data Exporter: Shopify data as clean Excel and CSV files",
+  description: "Export Shopify products, inventory and metafields to Excel or CSV from inside your Shopify Admin. Live preview, ready-made templates, read-only access.",
+  alternates: { canonical: "/" },
 };
 
-const ROWS = [
-  ["#10420", "Maya Reyes", "Austin, US", "LEG-BL-M", "1"],
-  ["#10421", "Jo Okafor", "Leeds, GB", "JAC-SA-L", "2"],
-  ["#10422", "Dee Lindqvist", "Lyon, FR", "TEE-OL-S", "1"],
-  ["#10423", "Lena Patel", "Toronto, CA", "BOT-SL-XS", "3"],
-];
+// Until the app is listed, the main button asks for early access instead of pointing at a page that does not exist yet.
+const cta = APP_STORE_URL ? { href: APP_STORE_URL, label: "Install on Shopify" } : { href: "/support?topic=access", label: "Request early access" };
 
 export default function Home() {
   return (
     <div className="flex-1">
       <JsonLd data={organizationLd} />
       <JsonLd data={websiteLd} />
-      <MarketingHeader />
+      <JsonLd data={softwareLd({ name: PRODUCT.name, description: PRODUCT.tagline, path: "/", category: "BusinessApplication", low: 0, high: 249, features: FEATURES.map((f) => f.title) })} />
+      <MarketingHeader anchors={[{ href: "#features", label: "Features" }, { href: "#how", label: "How it works" }, { href: "#pricing", label: "Pricing" }, { href: "/docs", label: "Docs" }]} />
       <main>
-
-      {/* Hero */}
-      <section className="mx-auto max-w-[1200px] px-4 sm:px-6 pt-14 sm:pt-20 pb-16 grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[1.05fr_1fr] gap-12 lg:gap-8 items-center">
-        <div className="text-center lg:text-left">
-          <div className="anim-fade-up"><Chip tone="info">Two focused apps. One account.</Chip></div>
-          <h1 className="mt-6 text-[40px] sm:text-[56px] leading-[1.05] tracking-[-0.025em] font-light">
-            Shopify exports and QR codes, <span className="text-primary">without the busywork.</span>
+        <section className="mx-auto max-w-[1200px] px-4 sm:px-6 pt-14 sm:pt-20 pb-16 text-center">
+          <div className="anim-fade-up"><Chip tone="info">A Shopify app by Klyroo</Chip></div>
+          <h1 className="mt-6 mx-auto max-w-[900px] text-[40px] sm:text-[56px] leading-[1.05] tracking-[-0.025em] font-light">
+            Your Shopify data, <span className="text-primary">as clean spreadsheets.</span>
           </h1>
-          <p className="mt-6 text-[18px] leading-[28px] text-muted max-w-xl mx-auto lg:mx-0">
-            Turn your store data into clean spreadsheets in minutes, and make QR codes you can print, change and track. Use one app or both. Each has its own simple plan.
+          <p className="mt-6 mx-auto max-w-[680px] text-[18px] leading-[28px] text-muted">
+            Klyroo Data Exporter lives inside your Shopify Admin. Export products, variants, inventory by location and metafields to Excel or CSV, check a live preview first, and download in minutes.
           </p>
-          <div className="mt-9 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
-            <Button href="/login" className="w-full sm:w-auto">Start free</Button>
-            <Button href="#apps" variant="secondary" className="w-full sm:w-auto">See the apps</Button>
+          <div className="anim-fade-up delay-3 mt-9 flex flex-col sm:flex-row gap-3 justify-center">
+            <Button href={cta.href} className="w-full sm:w-auto">{cta.label}</Button>
+            <Button href="#how" variant="secondary" className="w-full sm:w-auto">See how it works</Button>
           </div>
-          <div className="mt-7"><TrustRow items={["No card needed", "Read-only Shopify access", "30-day money-back"]} /></div>
-        </div>
+          <div className="mt-7 flex justify-center"><TrustRow items={["Read-only access", "Free plan", "Free on development stores"]} /></div>
+        </section>
 
-        {/* Product visual: real QR codes, illustrative export */}
-        <div className="relative mx-auto w-full max-w-[560px]">
-          <Card featured className="!p-5 shadow-[0_20px_60px_rgba(10,37,64,0.10)]">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm">Orders for 3PL</p>
-                <p className="text-xs text-muted">Live preview from your store</p>
+        <Reveal as="section" className="mx-auto max-w-[1200px] px-4 sm:px-6 pb-20">
+          <ProductShot src="/product/builder.png" alt="The Klyroo Data Exporter inside Shopify Admin: choose what to export, add filters and columns, and see a live preview of real rows from your store before you run it." priority />
+          <p className="mt-5 text-center text-sm text-muted">The export builder, with a live preview of rows from your store. Sample data shown.</p>
+        </Reveal>
+
+        <Reveal as="section" id="features" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
+          <SectionHead eyebrow="What you get" title="Built for the people who run the catalog." sub="Everything is chosen in Shopify Admin, so there is nothing to install on your computer and no code to write." />
+          <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {FEATURES.map((f) => <Feature key={f.title} icon={f.icon} title={f.title}>{f.text}</Feature>)}
+          </div>
+        </Reveal>
+
+        <Reveal as="section" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
+          <SectionHead eyebrow="Templates" title="Start from the job, not the field list." />
+          <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {TEMPLATES.map((t) => (
+              <div key={t.name} className="border border-line rounded-card p-6 bg-surface">
+                <p className="text-sm text-primary">{t.category}</p>
+                <h3 className="mt-3 text-[17px] font-normal">{t.name}</h3>
+                <p className="mt-2 text-sm text-muted">{t.blurb}</p>
               </div>
-              <Chip tone="success">Ready to export</Chip>
-            </div>
-            <div className="mt-4 overflow-x-auto rounded-ctl border border-line">
-              <table className="w-full text-xs whitespace-nowrap">
-                <thead>
-                  <tr className="text-left text-muted border-b border-line">{["Order", "Ship to", "City", "SKU", "Qty"].map((h) => <th key={h} className="px-3 py-2.5 font-normal">{h}</th>)}</tr>
-                </thead>
-                <tbody className="tabular">
-                  {ROWS.map((r) => (
-                    <tr key={r[0]} className="border-b border-line last:border-0">{r.map((c, i) => <td key={i} className="px-3 py-2.5">{c}</td>)}</tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="mt-3 text-xs text-muted">Illustrative example.</p>
-          </Card>
-          <Card className="!p-4 absolute -bottom-8 -left-2 sm:-left-8 w-[190px] bg-surface shadow-[0_16px_40px_rgba(10,37,64,0.12)]">
-            <div className="grid place-items-center rounded-ctl bg-wash p-3"><QrArt content="https://useklyroo.com" size={112} style={{ fg: "#533AFD", shape: "rounded" }} /></div>
-            <p className="mt-3 text-xs text-muted">Scan to visit Klyroo</p>
-          </Card>
-        </div>
-      </section>
-
-      {/* Apps */}
-      <Reveal as="section" id="apps" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
-        <SectionHead eyebrow="The apps" title="Pick the one you need." sub="Each Klyroo app does one job well and works on its own. You never pay for features you don't use." />
-        <div className="mt-12 grid md:grid-cols-2 gap-4">
-          {APPS.map((a) => (
-            <Card key={a.slug} featured className="!p-8 flex flex-col">
-              <h3 className="text-[26px] leading-[1.12] font-light">{a.fullName}</h3>
-              <p className="mt-3 text-muted">{a.tagline}</p>
-              <ul className="mt-6 space-y-2.5 text-[15px] flex-1">
-                {a.points.map((p) => <li key={p} className="flex gap-3"><span aria-hidden className="mt-2 size-1.5 rounded-full bg-primary shrink-0" />{p}</li>)}
-              </ul>
-              <div className="mt-8 flex flex-wrap items-center gap-5">
-                <Button href={`/login?app=${a.slug}`}>Start with {a.name}</Button>
-                <Link href={a.marketing} className="text-sm text-primary hover:text-primary-hover">Learn more →</Link>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </Reveal>
-
-      {/* Why */}
-      <Reveal as="section" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
-        <SectionHead eyebrow="Why Klyroo" title="Built to be simple, and safe to trust." />
-        <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Feature icon="store" title="Read-only by design">Klyroo Export only reads your Shopify data. It never changes your store.</Feature>
-          <Feature icon="download" title="Files you can trust">Exports are private, downloadable only by you, and deleted after 7 days.</Feature>
-          <Feature icon="qr" title="No tracking cookies">QR scan analytics use no cookies and store no IP addresses.</Feature>
-          <Feature icon="user" title="Real support">Questions go to a real inbox at {COMPANY.supportEmail}. We reply within one working day.</Feature>
-        </div>
-      </Reveal>
-
-      {/* How it works */}
-      <Reveal as="section" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
-        <SectionHead eyebrow="How it works" title="From sign-up to done in minutes." />
-        <div className="mt-12">
-          <Steps items={[
-            ["Create one account", "Sign up with your email. It takes under a minute and needs no card."],
-            ["Choose an app", "Start with Export or QR. Add the other any time, with its own plan."],
-            ["Do the job", "Connect your store and download a spreadsheet, or design a QR code and print it."],
-          ]} />
-        </div>
-      </Reveal>
-
-      {/* Pricing */}
-      <Reveal as="section" id="pricing" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
-        <SectionHead eyebrow="Pricing" title="Simple plans. Separate per app." sub="Export plans grow with your number of stores and export size. QR plans grow with your dynamic links and scans." />
-        <div className="mt-12 space-y-14">
-          <div>
-            <h3 className="mb-5 text-[22px] font-light">Klyroo Export</h3>
-            <PlanGrid app="export" />
+            ))}
           </div>
-          <div>
-            <h3 className="mb-5 text-[22px] font-light">Klyroo QR</h3>
-            <PlanGrid app="qr" />
+        </Reveal>
+
+        <Reveal as="section" id="how" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
+          <SectionHead eyebrow="How it works" title="From install to first file in minutes." />
+          <div className="mt-12">
+            <Steps items={[
+              ["Install the app", "Add Klyroo Data Exporter from the Shopify App Store. It asks for read-only access to products, inventory and locations."],
+              ["Pick a template and preview", "Start from a ready-made export or build your own. The preview shows real rows from your store."],
+              ["Download your file", "Press Run export. Large exports run in the background, and the finished file waits in Export history for 7 days."],
+            ]} />
+            <p className="mt-6 text-sm text-muted">Read the <Link href="/docs/getting-started" className="text-primary">getting started guide</Link>.</p>
           </div>
-        </div>
-      </Reveal>
+        </Reveal>
 
-      {/* FAQ */}
-      <Reveal as="section" className="mx-auto max-w-[900px] px-4 sm:px-6 py-20 border-t border-line">
-        <SectionHead eyebrow="Questions" title="Good to know before you start." center />
-        <div className="mt-12">
-          <Faq items={[
-            ["Does Klyroo change my Shopify store?", "No. Klyroo Export only reads your data, using read-only credentials you create in your own Shopify account. You can revoke access at any time."],
-            ["How do I connect my store?", <>You create a small read-only app in your Shopify Dev Dashboard and paste its credentials into Klyroo. It takes about two minutes. <Link href="/docs/export/connect-shopify" className="text-primary">Step-by-step guide</Link>.</>],
-            ["How do the Export plans differ?", "Only by the number of stores and the rows per export. Every plan includes all columns, templates, metafields and downloads."],
-            ["What is a dynamic QR code?", "A QR code that points to a short link you control. You can change where it sends people at any time, even after it's printed, and see how many people scanned it."],
-            ["What happens if I pass my QR scan limit?", "Your codes keep working. We tell you and invite you to upgrade. We never switch off a printed code."],
-            ["Is my data safe?", "Credentials are encrypted, export files are private and deleted after 7 days, and QR analytics use no cookies and no IP addresses. Read our privacy policy for details."],
-            ["Can I cancel or get a refund?", "Yes. Cancel any time from the app. Every first purchase has a 30-day money-back guarantee."],
-            ["Do I need both apps?", "No. Each app is separate, with its own plan. Use one, or both."],
-          ]} />
-        </div>
-      </Reveal>
+        <Reveal as="section" id="pricing" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-20 border-t border-line">
+          <SectionHead eyebrow="Pricing" title="Pay for the size of your exports." sub="Every plan includes the same templates and the live preview. Plans differ by rows per export and a few advanced features." />
+          <div className="mt-12"><PlanGrid cta={cta} /></div>
+        </Reveal>
 
-      <CtaBand title="Get your data and your codes sorted today." sub="Start free. No card needed." href="/login" label="Create your free account" />
+        <Reveal as="section" className="mx-auto max-w-[900px] px-4 sm:px-6 py-20 border-t border-line">
+          <SectionHead eyebrow="Questions" title="Good to know." center />
+          <div className="mt-12">
+            <Faq items={[
+              ["Will it change anything in my store?", "No. The app only reads products, inventory, locations and metafields. It never writes to your store."],
+              ["Does it see my customers' personal data?", "No. Version 1 exports products, inventory and collections only. We do not store customer personal information."],
+              ["What counts as a row?", "One row in the file. Products export one row per variant."],
+              ["What if my export is bigger than my plan allows?", "It stops with a clear message. You can narrow it with filters (status, vendor, collection) or upgrade for a higher limit."],
+              ["How long are my files kept?", "7 days, then they are deleted automatically."],
+              ["How is it billed?", "By Shopify, on your normal Shopify invoice. It is free on development stores."],
+            ]} />
+          </div>
+        </Reveal>
+
+        <CtaBand title="Stop copy-pasting from Shopify." sub="Get clean spreadsheets of your catalog in minutes." href={cta.href} label={cta.label} />
       </main>
       <MarketingFooter />
     </div>

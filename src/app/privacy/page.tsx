@@ -1,40 +1,39 @@
 import { A, LegalPage, Section, UL } from "@/components/legal";
 import { COMPANY, operatorName } from "@/lib/company";
 
-export const metadata = { title: "Privacy policy — Klyroo", description: "What personal data Klyroo collects, why, and how it is protected." };
+export const metadata = { title: "Privacy policy — Klyroo Data Exporter", description: "What data Klyroo Data Exporter handles, how long it is kept, who we share it with, and your rights." };
 
 export default function Privacy() {
   const op = operatorName();
   return (
-    <LegalPage title="Privacy policy" intro="This policy explains what personal data we collect when you use Klyroo, why we collect it, who we share it with, and the rights you have.">
+    <LegalPage title="Privacy policy" intro="This policy explains what data Klyroo Data Exporter (“the app”) handles when a merchant installs it on a Shopify store, why, how long we keep it, and the rights you have.">
       <Section n={1} title="Who is responsible">
         <p>
-          The controller of your account and billing data is {op}{COMPANY.registeredAddress ? `, ${COMPANY.registeredAddress}` : ""}{COMPANY.country ? `, ${COMPANY.country}` : ""} (“Klyroo”, “we”).
-          For data about your store&apos;s customers that you export with Klyroo Export, you are the controller and we are your processor: we handle it only on your instructions.
+          The app is provided by {op}{COMPANY.registeredAddress ? `, ${COMPANY.registeredAddress}` : ""}{COMPANY.country ? `, ${COMPANY.country}` : ""} (“Klyroo”, “we”).
+          For the data of your store that you export with the app, you are the controller and we are your processor: we handle it only to build the files you ask for.
           Privacy contact: <A href={`mailto:${COMPANY.supportEmail}`}>{COMPANY.supportEmail}</A>.
         </p>
       </Section>
 
-      <Section n={2} title="What we collect and why">
+      <Section n={2} title="What the app handles and why">
         <div className="overflow-x-auto rounded-card border border-line">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-muted border-b border-line">
                 <th className="px-4 py-3 font-normal">Data</th>
                 <th className="px-4 py-3 font-normal">Why</th>
-                <th className="px-4 py-3 font-normal">Legal basis</th>
+                <th className="px-4 py-3 font-normal">Kept</th>
               </tr>
             </thead>
             <tbody className="align-top">
               {[
-                ["Account details: name, company, email, password (stored only as a secure hash)", "Create and secure your account, provide the service, contact you about it", "Contract"],
-                ["Shopify connection: store address, app credentials (encrypted), granted permissions", "Connect to your store and run exports you request", "Contract"],
-                ["Store data you choose to export: products, orders, customers, inventory, collections", "Build the files you ask for. We act as your processor", "Your instructions (processor)"],
-                ["Klyroo QR codes you save, and for dynamic links the scan data: time, country, device type, referring site and a daily-changing anonymous visitor code (no IP address is stored and no cookies are used)", "Redirect scans and show you your analytics", "Contract; legitimate interests"],
-                ["Export files and job history (what was exported, when, status)", "Let you download and review exports", "Contract"],
-                ["Billing details: plan, status, payment provider customer and subscription IDs (we never see your card number)", "Manage your subscription and limits", "Contract; legal obligation"],
-                ["Support emails and what you tell us", "Answer your questions", "Legitimate interests"],
-                ["Technical data: IP address, device and error logs", "Keep the service secure and fix problems", "Legitimate interests"],
+                ["Your store address (the .myshopify.com domain) and the access token Shopify gives the app", "Identify your store and read the data you ask to export", "Until you uninstall the app (the token is deleted at once); the rest is deleted after Shopify's shop erasure request"],
+                ["The permissions you approved and your current plan", "Apply the right limits and features", "Until the shop erasure request"],
+                ["Product, variant, inventory, location and metafield data of your store", "Build the Excel or CSV file you request. It is read from Shopify while the export runs and is not kept except inside the file", "Not stored by us beyond the export file"],
+                ["Export files and the job history (what was exported, when, its status and size)", "Let you download and review your exports", "Files: 7 days, then deleted automatically. Job history: until the shop erasure request"],
+                ["Names of the people who open the app, as supplied by Shopify, if any", "Shopify's sign-in; we do not store personal profiles", "Not stored"],
+                ["Messages you send us for support", "Answer your questions", "Until the question is resolved, then up to 24 months"],
+                ["Technical logs (IP address, requests, errors)", "Keep the service secure and fix problems", "A short period set by our hosting provider"],
               ].map(([a, b, c]) => (
                 <tr key={a} className="border-b border-line last:border-0">
                   <td className="px-4 py-3">{a}</td>
@@ -45,67 +44,62 @@ export default function Privacy() {
             </tbody>
           </table>
         </div>
-        <p>We do not sell personal data and we do not use exported store data for advertising or to build profiles.</p>
         <p>
-          <strong className="font-normal">Roles.</strong> For your account, billing and QR codes we are the controller. For the store data you choose to export (which can include your customers&apos; personal data) you are the controller and we are your processor: we handle it only to build the files you ask for, on your instructions. For people who scan your QR codes, we count scans for you without cookies and without storing IP addresses (see the table above).
+          <strong className="font-normal">The app does not collect or store personal data about your customers.</strong> It exports products, inventory, locations and collections only. We do not sell personal data, and we do not use exported data for advertising or to build profiles.
         </p>
       </Section>
 
-      <Section n={3} title="Who we share it with">
-        <p>We use these service providers, who process data for us under agreements that protect it:</p>
+      <Section n={3} title="Shopify's privacy webhooks">
+        <p>The app implements Shopify&apos;s three mandatory privacy webhooks, and verifies that each request really came from Shopify:</p>
         <UL items={[
-          <><strong className="font-normal">Supabase</strong> for our database, sign-in and private file storage (data is held in Japan, in the AWS Asia Pacific (Tokyo) region).</>,
-          <><strong className="font-normal">Render</strong> for application hosting (Singapore).</>,
-          <><strong className="font-normal">Dodo Payments</strong>, our Merchant of Record, which sells our plans, collects payment and handles tax, invoices and refunds. Dodo Payments acts as an independent controller of your payment data under its own <A href="https://dodopayments.com/legal/privacy-policy">privacy policy</A>.</>,
-          <><strong className="font-normal">Shopify</strong>, the source of the data you ask us to export.</>,
-          <><strong className="font-normal">Resend</strong>, which delivers our account emails (confirmation and password reset). It receives your email address and the message content, not your exported store data.</>,
+          <><strong className="font-normal">customers/data_request</strong> and <strong className="font-normal">customers/redact</strong>: because the app stores no customer personal data, there is nothing to return or erase; the request is acknowledged.</>,
+          <><strong className="font-normal">shop/redact</strong> (sent 48 hours after you uninstall): we delete everything we hold for the store: access tokens, plan record, job history and any remaining export files.</>,
+        ]} />
+      </Section>
+
+      <Section n={4} title="Who we share it with">
+        <p>The app runs on these providers, who process data for us:</p>
+        <UL items={[
+          <><strong className="font-normal">Shopify</strong>, the source of the data you ask us to export, and the provider of sign-in and billing.</>,
+          <><strong className="font-normal">Spaceship</strong>, the server host (United States) that runs the app and keeps export files for up to 7 days.</>,
+          <><strong className="font-normal">Turso</strong>, the database provider that stores the store record, plan, job history and Shopify&apos;s session data.</>,
+          <><strong className="font-normal">Resend</strong>, which delivers email we send you about support requests.</>,
           "Professional advisers, and public authorities where we are legally required to.",
         ]} />
       </Section>
 
-      <Section n={4} title="International transfers">
+      <Section n={5} title="International transfers">
         <p>
-          Our providers may process data outside the UK and European Economic Area, including in Japan and Singapore. Where that happens we rely on an adequacy decision or approved safeguards such as the UK International Data Transfer Agreement or the EU Standard Contractual Clauses.
+          Our providers may process data outside the UK and European Economic Area, including in the United States. Where that happens we rely on an adequacy decision or approved safeguards such as the UK International Data Transfer Agreement or the EU Standard Contractual Clauses.
         </p>
-      </Section>
-
-      <Section n={5} title="How long we keep it">
-        <UL items={[
-          "Export files are deleted automatically 7 days after they are created.",
-          "Your Shopify credentials are deleted when you disconnect a store.",
-          "Account, job history and subscription records are kept while your account is open. When you delete your account (Account > Delete account) or ask us to, we delete or anonymise them, except billing records we must keep by law.",
-          "Operational logs are kept for a limited period set by our hosting providers.",
-        ]} />
       </Section>
 
       <Section n={6} title="How we protect it">
         <UL items={[
-          "Shopify credentials are encrypted at rest and we only request read access.",
-          "Data is encrypted in transit (HTTPS). Export files are private and are only downloadable through short-lived links by signed-in members of your account.",
-          "Access to each account's data is restricted by database access rules, and our systems use the minimum permissions they need.",
+          "Data travels over HTTPS. The app only asks for read access to products, inventory and locations.",
+          "Every request from Shopify is verified, and every merchant action is authenticated with a Shopify session token. One store can never see another store's data or files.",
+          "Export files are private. They are downloaded through signed links that expire after 30 minutes, and are deleted after 7 days.",
         ]} />
-        <p>No system is perfectly secure. If a breach affects you we will tell you and the authorities as the law requires.</p>
+        <p>No system is perfectly secure. If a breach affects you we will tell you and the authorities as the law requires. Read more on our <A href="/security">security page</A>.</p>
       </Section>
 
       <Section n={7} title="Cookies">
-        <p>
-          We use only strictly necessary cookies, to keep you signed in and secure. Our checkout, provided by Dodo Payments, may set its own cookies to process your payment. We do not use advertising or analytics cookies on the Klyroo app.
-        </p>
+        <p>The app, which runs inside the Shopify Admin, uses only what Shopify&apos;s sign-in needs. This website uses no advertising or tracking cookies.</p>
       </Section>
 
       <Section n={8} title="Your rights">
         <p>
-          Depending on where you live, you can ask us to access, correct, delete or export your personal data, to restrict or object to how we use it, and to withdraw consent where we rely on it.
+          Depending on where you live, you can ask us to access, correct, delete or export the personal data we hold about you, to restrict or object to how we use it, and to withdraw consent where we rely on it.
           Email <A href={`mailto:${COMPANY.supportEmail}`}>{COMPANY.supportEmail}</A> and we will reply within one month. If you are unhappy with our response you can complain to your data protection authority, such as the UK Information Commissioner&apos;s Office (<A href="https://ico.org.uk">ico.org.uk</A>).
         </p>
       </Section>
 
       <Section n={9} title="Children">
-        <p>Klyroo is for businesses and is not directed at anyone under 18.</p>
+        <p>The app is for businesses and is not directed at anyone under 18.</p>
       </Section>
 
       <Section n={10} title="Changes">
-        <p>We will post changes to this policy here and tell you about important ones by email or in the app.</p>
+        <p>We will post changes to this policy here and tell you about important ones in the app or by email.</p>
       </Section>
     </LegalPage>
   );

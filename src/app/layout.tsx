@@ -12,12 +12,12 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://useklyroo.com"),
   openGraph: { type: "website", siteName: "Klyroo", locale: "en_GB" },
   twitter: { card: "summary_large_image" },
-  title: "Klyroo — small, sharp tools for ecommerce teams",
+  title: "Klyroo Data Exporter: Shopify data as Excel and CSV",
   description:
-    "Klyroo makes focused apps for ecommerce teams: Klyroo Export for Shopify data and Klyroo QR for QR codes. Each app has its own plan.",
+    "Klyroo builds Klyroo Data Exporter, a Shopify app that exports products, inventory and metafields to Excel and CSV.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${sans.variable} h-full`}>
       <body className="min-h-full flex flex-col">

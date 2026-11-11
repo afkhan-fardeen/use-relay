@@ -6,7 +6,7 @@ import { Button, Field, inputCls } from "@/components/ui";
 import { sendSupport } from "./actions";
 import { SUPPORT_CATEGORIES, SUPPORT_PRODUCTS } from "./options";
 
-export function SupportForm() {
+export function SupportForm({ category }: { category?: string }) {
   const [state, action, pending] = useActionState(sendSupport, undefined);
   if (state?.ok) {
     return <Notice tone="success">Thanks, we&apos;ve got your message. We&apos;ll reply by email within 2 business days. For anything urgent about billing, email support@useklyroo.com too.</Notice>;
@@ -28,7 +28,7 @@ export function SupportForm() {
           </select>
         </Field>
         <Field label="Category">
-          <select name="category" required className={inputCls} defaultValue={d.category ?? ""}>
+          <select name="category" required className={inputCls} defaultValue={d.category ?? category ?? ""}>
             <option value="" disabled>Choose one</option>
             {SUPPORT_CATEGORIES.map((p) => <option key={p}>{p}</option>)}
           </select>
