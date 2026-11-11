@@ -1,7 +1,7 @@
-// Company details shown on the public site and in the legal pages.
-// You sell as an individual (sole trader): enter your full legal name below. Dodo Payments (our Merchant of Record) needs the
-// seller's legal name and a way to contact it; fill the empty fields before
-// submitting your domain for approval. `npm run check:launch` lists what is still missing.
+// Business details shown on the public site and in the legal pages.
+// You sell as an individual (sole trader): enter your full legal name below. Shopify app review and the legal pages need the
+// seller's legal name and a way to contact them; fill the empty fields before
+// submitting the app. `npm run check:launch` lists what is still missing.
 
 export const COMPANY = {
   brand: "Klyroo",

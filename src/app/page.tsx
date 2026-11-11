@@ -16,7 +16,7 @@ import { organizationLd, websiteLd } from "@/lib/seo";
 
 export const metadata = {
   title: "Klyroo: Shopify apps that keep it simple",
-  description: "Klyroo is a company that makes Shopify apps. Simple, focused apps that do one job well, starting with Klyroo Data Exporter.",
+  description: "Klyroo makes Shopify apps. Simple, focused apps that do one job well, starting with Klyroo Data Exporter.",
   alternates: { canonical: "/" },
 };
 
@@ -35,7 +35,7 @@ export default function Home() {
               <span aria-hidden="true"><SplitText text="We make Shopify apps." /><br /><SplitText text="Simple ones." className="text-muted" start={4} /></span>
             </h1>
             <p className="anim-fade-up delay-4 mt-8 max-w-[600px] text-[18px] leading-[28px] text-muted">
-              Klyroo is a small company with a plain idea: a good Shopify app does one job, does it well, and stays out of your way. No bloat, no setup marathon, no surprises on the invoice.
+              Klyroo is an independent studio with a plain idea: a good Shopify app does one job, does it well, and stays out of your way. No bloat, no setup marathon, no surprises on the invoice.
             </p>
             <div className="anim-fade-up delay-4 mt-10 flex flex-col sm:flex-row gap-3">
               <Magnetic><Button href="#apps">See our apps</Button></Magnetic>

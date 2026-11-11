@@ -40,7 +40,7 @@ export function MarketingFooter() {
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6 py-14 grid gap-10 grid-cols-2 md:grid-cols-[1.6fr_1fr_1fr_1fr] text-sm">
         <div className="col-span-2 md:col-span-1">
           <Logo />
-          <p className="mt-4 text-muted max-w-xs leading-6">Klyroo is a company that makes Shopify apps. Simple, focused and built to do one job well.</p>
+          <p className="mt-4 text-muted max-w-xs leading-6">Klyroo makes Shopify apps. Simple, focused and built to do one job well.</p>
           <a href={`mailto:${COMPANY.supportEmail}`} className="mt-4 inline-block underline underline-offset-4">{COMPANY.supportEmail}</a>
         </div>
         <nav aria-label="Apps" className="space-y-2.5">

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
   title: "Klyroo: Shopify apps that keep it simple",
   description:
-    "Klyroo is a company that makes simple, focused Shopify apps, starting with Klyroo Data Exporter.",
+    "Klyroo is an independent maker of simple, focused Shopify apps, starting with Klyroo Data Exporter.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
