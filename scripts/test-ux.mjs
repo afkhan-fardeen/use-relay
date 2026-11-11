@@ -32,7 +32,7 @@ try {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
 
-  for (const path of ["/", "/data-exporter", "/pricing", "/docs", "/docs/getting-started", "/privacy", "/terms", "/security", "/contact", "/support"]) {
+  for (const path of ["/", "/data-exporter", "/pricing", "/docs", "/docs/getting-started", "/privacy", "/terms", "/security", "/about", "/changelog", "/refunds", "/cookies", "/dpa", "/contact", "/support"]) {
     const r = await page.goto(base + path, { waitUntil: "networkidle" });
     assert.equal(r.status(), 200, path);
     await scan(page, path);

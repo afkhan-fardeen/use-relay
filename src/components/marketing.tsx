@@ -53,12 +53,17 @@ export function MarketingFooter() {
           <Link href="/docs" className="block hover:underline underline-offset-4">Documentation</Link>
           <Link href="/docs/getting-started" className="block hover:underline underline-offset-4">Getting started</Link>
           <Link href="/support" className="block hover:underline underline-offset-4">Support</Link>
+          <Link href="/changelog" className="block hover:underline underline-offset-4">Changelog</Link>
           <Link href="/contact" className="block hover:underline underline-offset-4">Contact</Link>
         </nav>
         <nav aria-label="Legal" className="space-y-2.5">
           <p className="text-muted">Legal</p>
+          <Link href="/about" className="block hover:underline underline-offset-4">About</Link>
           <Link href="/terms" className="block hover:underline underline-offset-4">Terms of service</Link>
           <Link href="/privacy" className="block hover:underline underline-offset-4">Privacy policy</Link>
+          <Link href="/refunds" className="block hover:underline underline-offset-4">Billing and refunds</Link>
+          <Link href="/cookies" className="block hover:underline underline-offset-4">Cookie policy</Link>
+          <Link href="/dpa" className="block hover:underline underline-offset-4">Data processing</Link>
           <Link href="/security" className="block hover:underline underline-offset-4">Security</Link>
         </nav>
       </div>

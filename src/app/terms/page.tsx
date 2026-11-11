@@ -48,7 +48,7 @@ export default function Terms() {
           "You approve each plan on Shopify's own approval page. You can change or cancel a plan at any time from the Plans page in the app. Cancellation takes effect as Shopify describes it at the time.",
           "The app is free on Shopify development stores.",
           "We may change prices for future periods. We will tell you in advance, and a change applies only after you approve it in Shopify.",
-          "Refunds for charges made through Shopify are handled by Shopify under its own policy. If something went wrong with the app, contact us and we will help you resolve it with Shopify.",
+          <>Refunds for charges made through Shopify are handled by Shopify under its own policy. If something went wrong with the app, contact us and we will help you resolve it with Shopify. See <A href="/refunds">billing and refunds</A>.</>,
         ]} />
       </Section>
 

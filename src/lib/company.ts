@@ -17,7 +17,7 @@ export const COMPANY = {
   governingLaw: "",
   supportEmail: "support@useklyroo.com",
   domain: "useklyroo.com",
-  policiesUpdated: "7 November 2026",
+  policiesUpdated: "11 November 2026",
 } as const;
 
 /** The seller as it should be named in the legal pages: "Jane Doe, trading as Klyroo" for an individual, the company name for a company. */

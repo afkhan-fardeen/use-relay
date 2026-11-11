@@ -80,11 +80,11 @@ export default function Privacy() {
           "Every request from Shopify is verified, and every merchant action is authenticated with a Shopify session token. One store can never see another store's data or files.",
           "Export files are private. They are downloaded through signed links that expire after 30 minutes, and are deleted after 7 days.",
         ]} />
-        <p>No system is perfectly secure. If a breach affects you we will tell you and the authorities as the law requires. Read more on our <A href="/security">security page</A>.</p>
+        <p>No system is perfectly secure. If a breach affects you we will tell you and the authorities as the law requires. Read more on our <A href="/security">security page</A>. Merchants who need data processing terms can read <A href="/dpa">Data processing and subprocessors</A>.</p>
       </Section>
 
       <Section n={7} title="Cookies">
-        <p>The app, which runs inside the Shopify Admin, uses only what Shopify&apos;s sign-in needs. This website uses no advertising or tracking cookies.</p>
+        <p>The app, which runs inside the Shopify Admin, uses only what Shopify&apos;s sign-in needs. This website uses no advertising or tracking cookies. See the <A href="/cookies">cookie policy</A>.</p>
       </Section>
 
       <Section n={8} title="Your rights">
