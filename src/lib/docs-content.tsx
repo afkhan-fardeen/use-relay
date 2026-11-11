@@ -27,7 +27,7 @@ export const DOCS: DocPage[] = [
         ]} />
         <Tip>Files are kept for 7 days and then deleted. Download what you need, or run the export again.</Tip>
         <H2>Need help?</H2>
-        <P>Email {mail} or use the <A href="/support">support form</A>.</P>
+        <P>Email {mail} or see the <A href="/support">support page</A>.</P>
       </>
     ),
   },

@@ -34,7 +34,6 @@ export function MobileMenu({ nav }: { nav: { href: string; label: string }[] }) 
                 <Icon name="chevronRight" size={18} className="text-muted" />
               </Link>
             ))}
-            <Link href="/contact" onClick={() => setOpen(false)} className="flex items-center justify-between h-14 border-b border-line text-[17px]">Contact<Icon name="chevronRight" size={18} className="text-muted" /></Link>
             <div className="mt-8 grid gap-3">
               <Button href={CTA.href} onClick={() => setOpen(false)} className="w-full">{CTA.label}</Button>
             </div>

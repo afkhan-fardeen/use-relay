@@ -39,7 +39,7 @@ export default function Home() {
             </p>
             <div className="anim-fade-up delay-4 mt-10 flex flex-col sm:flex-row gap-3">
               <Magnetic><Button href="#apps">See our apps</Button></Magnetic>
-              <Magnetic><Button href="/contact" variant="secondary">Get in touch</Button></Magnetic>
+              <Magnetic><Button href="/support" variant="secondary">Get in touch</Button></Magnetic>
             </div>
           </div>
         </section>

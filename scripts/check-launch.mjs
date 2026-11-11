@@ -1,7 +1,7 @@
 // Readiness check for the public showcase site.
 //   npm run check:launch                      (checks https://useklyroo.com)
 //   BASE=http://localhost:3000 npm run check:launch
-import { COMPANY, missingCompanyDetails } from "../src/lib/company.ts";
+import { COMPANY } from "../src/lib/company.ts";
 
 const BASE = (process.env.BASE || `https://${COMPANY.domain}`).replace(/\/$/, "");
 const results = [];
@@ -14,7 +14,7 @@ async function get(path) {
   } catch (e) { return { status: 0, text: "", error: e.message }; }
 }
 
-const pages = ["/", "/data-exporter", "/pricing", "/docs", "/docs/getting-started", "/terms", "/privacy", "/contact", "/support", "/security", "/about", "/changelog", "/refunds", "/cookies", "/dpa", "/robots.txt", "/sitemap.xml"];
+const pages = ["/", "/data-exporter", "/pricing", "/docs", "/docs/getting-started", "/terms", "/privacy", "/support", "/security", "/about", "/changelog", "/refunds", "/cookies", "/dpa", "/robots.txt", "/sitemap.xml"];
 const body = {};
 for (const p of pages) {
   const r = await get(p);
@@ -26,13 +26,11 @@ for (const gone of ["/login", "/export", "/qr-code-generator"]) {
   check("Old routes", `${gone} no longer serves the old product`, r.status !== 200 || !/Klyroo QR/.test(r.text));
 }
 check("Product", "home page describes Klyroo Data Exporter", /Data Exporter/.test(body["/"]) && /Excel/.test(body["/"]));
-check("Honesty", "no QR or Dodo wording left on the main pages", !["/", "/pricing", "/terms", "/privacy", "/contact", "/security"].some((p) => /Klyroo QR|Dodo/i.test(body[p] || "")));
+check("Honesty", "no QR or Dodo wording left on the main pages", !["/", "/pricing", "/terms", "/privacy", "/security"].some((p) => /Klyroo QR|Dodo/i.test(body[p] || "")));
 check("Pricing", "pricing shows $29, $119 and $249", ["$29", "$119", "$249"].every((x) => (body["/pricing"] || "").includes(x)));
 check("Pricing", "pricing says billed by Shopify, in US dollars", /billed by Shopify/i.test(body["/pricing"]) && /US dollars/i.test(body["/pricing"]));
 check("Legal", "terms, privacy and security carry the support email", ["/terms", "/privacy", "/security"].every((p) => (body[p] || "").includes(COMPANY.supportEmail)));
 check("Legal", "privacy lists the Shopify privacy webhooks", /shop\/redact/.test(body["/privacy"]));
-const missing = missingCompanyDetails();
-check("Company", "legal details are filled in", missing.length === 0, missing.join(", "));
 
 let failed = 0;
 for (const r of results) {

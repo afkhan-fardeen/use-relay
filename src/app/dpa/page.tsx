@@ -1,5 +1,5 @@
 import { A, LegalPage, Section, UL } from "@/components/legal";
-import { COMPANY, operatorName } from "@/lib/company";
+import { COMPANY } from "@/lib/company";
 
 export const metadata = { title: "Data processing and subprocessors — Klyroo", description: "How Klyroo processes store data on your behalf, and who helps us do it." };
 
@@ -7,7 +7,7 @@ export default function Dpa() {
   return (
     <LegalPage title="Data processing and subprocessors" intro="For merchants who need to know how Klyroo handles data on their behalf, for example under GDPR.">
       <Section n={1} title="Roles">
-        <p>For the store data you export with Klyroo Data Exporter, you are the controller and {operatorName()} is your processor. This page, together with our <A href="/terms">terms</A> and <A href="/privacy">privacy policy</A>, forms our data processing terms. For a signed copy, email <A href={`mailto:${COMPANY.supportEmail}`}>{COMPANY.supportEmail}</A>.</p>
+        <p>For the store data you export with Klyroo Data Exporter, you are the controller and Klyroo is your processor. This page, together with our <A href="/terms">terms</A> and <A href="/privacy">privacy policy</A>, forms our data processing terms. For a signed copy, email <A href={`mailto:${COMPANY.supportEmail}`}>{COMPANY.supportEmail}</A>.</p>
       </Section>
       <Section n={2} title="What we process">
         <UL items={[
@@ -34,7 +34,6 @@ export default function Dpa() {
               {[
                 ["Spaceship", "Server hosting, export files", "United States"],
                 ["Turso", "Database (store record, plan, job history)", "See Turso region"],
-                ["Resend", "Email for support requests", "United States"],
               ].map(([a, b, c]) => (
                 <tr key={a} className="border-b border-line last:border-0"><td className="px-4 py-3">{a}</td><td className="px-4 py-3 text-muted">{b}</td><td className="px-4 py-3 text-muted">{c}</td></tr>
               ))}

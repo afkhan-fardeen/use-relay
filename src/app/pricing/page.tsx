@@ -4,7 +4,7 @@ import { APP_STORE_URL } from "@/lib/product";
 
 export const metadata = { title: "Pricing — Klyroo Data Exporter", description: "Klyroo Data Exporter plans from free. Prices in US dollars per month, billed by Shopify. Free on development stores." };
 
-const cta = APP_STORE_URL ? { href: APP_STORE_URL, label: "Install on Shopify" } : { href: "/support?topic=access", label: "Request early access" };
+const cta = APP_STORE_URL ? { href: APP_STORE_URL, label: "Install on Shopify" } : { href: "mailto:support@useklyroo.com?subject=Early%20access", label: "Request early access" };
 
 export default function Pricing() {
   return (

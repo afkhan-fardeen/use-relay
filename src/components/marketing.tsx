@@ -54,7 +54,6 @@ export function MarketingFooter() {
           <Link href="/docs/getting-started" className="block hover:underline underline-offset-4">Getting started</Link>
           <Link href="/support" className="block hover:underline underline-offset-4">Support</Link>
           <Link href="/changelog" className="block hover:underline underline-offset-4">Changelog</Link>
-          <Link href="/contact" className="block hover:underline underline-offset-4">Contact</Link>
         </nav>
         <nav aria-label="Legal" className="space-y-2.5">
           <p className="text-muted">Legal</p>
