@@ -33,7 +33,7 @@ export default function Dpa() {
             <tbody>
               {[
                 ["Spaceship", "Server hosting, export files", "United States"],
-                ["Turso", "Database (store record, plan, job history)", "See Turso region"],
+                ["Turso", "Database (store record, plan, job history)", "United States (AWS US East, Ohio)"],
               ].map(([a, b, c]) => (
                 <tr key={a} className="border-b border-line last:border-0"><td className="px-4 py-3">{a}</td><td className="px-4 py-3 text-muted">{b}</td><td className="px-4 py-3 text-muted">{c}</td></tr>
               ))}

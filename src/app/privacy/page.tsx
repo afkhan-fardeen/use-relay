@@ -68,7 +68,7 @@ export default function Privacy() {
               {[
                 ["Shopify", "Sign-in, billing, source of the data you export", "Store data you choose to export"],
                 ["Spaceship", "Server hosting (United States)", "Everything the App processes, and export files for up to 7 days"],
-                ["Turso", "Database", "Store record, plan, job history, Shopify session data"],
+                ["Turso", "Database (United States)", "Store record, plan, job history, Shopify session data"],
                 ["Our email provider", "Email, including support replies", "Your email address and messages"],
               ].map(([a, c, d]) => (
                 <tr key={a} className="border-b border-line last:border-0"><td className="px-4 py-3">{a}</td><td className="px-4 py-3 text-muted">{c}</td><td className="px-4 py-3 text-muted">{d}</td></tr>
