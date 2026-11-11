@@ -124,3 +124,33 @@ dialog[open] { animation: pop-in 0.2s var(--ease-out-soft) both; }
   }
   .js .reveal { opacity: 1; transform: none; }
 }
+
+/* ───────── Advanced motion ───────── */
+@keyframes word-in { from { transform: translateY(110%); } to { transform: none; } }
+.word-in { animation: word-in 0.8s var(--ease-out-soft) both; animation-delay: calc(var(--i, 0) * 70ms + 120ms); }
+
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+.marquee-row { animation: marquee 38s linear infinite; }
+.marquee:hover .marquee-row { animation-play-state: paused; }
+
+.spotlight::before { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity 0.3s; background: radial-gradient(360px circle at var(--sx, 50%) var(--sy, 50%), rgb(0 0 0 / 0.06), transparent 70%); }
+.spotlight:hover::before { opacity: 1; }
+
+/* Looping export illustration: rows slide in one after another, then the "Ready" badge and a progress line complete the loop. */
+@keyframes demo-row { 0%, 8% { opacity: 0; transform: translateX(-12px); } 16%, 88% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+.demo-row { opacity: 0; animation: demo-row 7s var(--ease-out-soft) infinite; animation-delay: calc(var(--i) * 0.45s); }
+@keyframes demo-badge { 0%, 40% { opacity: 0.2; } 52%, 88% { opacity: 1; } 100% { opacity: 0.2; } }
+.demo-badge { animation: demo-badge 7s ease infinite; }
+@keyframes demo-bar { 0% { transform: scaleX(0); } 60%, 100% { transform: scaleX(1); } }
+.demo-bar { transform-origin: left; animation: demo-bar 7s ease-in-out infinite; }
+
+/* Page-load fade for the hero particles */
+.particles-in { animation: fade-in 1.4s ease 0.2s both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .word-in { animation: none; }
+  .marquee-row { animation: none; }
+  .demo-row { opacity: 1; animation: none; transform: none; }
+  .demo-badge { animation: none; opacity: 1; }
+  .demo-bar { animation: none; transform: none; }
+}

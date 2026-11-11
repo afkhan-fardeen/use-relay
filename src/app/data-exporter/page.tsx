@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { JsonLd } from "@/components/json-ld";
+import { Magnetic } from "@/components/kit/magnetic";
+import { Particles } from "@/components/kit/particles";
 import { Reveal } from "@/components/kit/reveal";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing";
 import { CtaBand, Faq, Feature, PlanGrid, ProductShot, SectionHead, Steps, TrustRow } from "@/components/marketing-blocks";
@@ -21,7 +23,7 @@ export default function Home() {
       <JsonLd data={softwareLd({ name: PRODUCT.name, description: PRODUCT.tagline, path: "/data-exporter", category: "BusinessApplication", low: 0, high: 249, features: FEATURES.map((f) => f.title) })} />
       <MarketingHeader anchors={[{ href: "#features", label: "Features" }, { href: "#how", label: "How it works" }, { href: "#pricing", label: "Pricing" }, { href: "/docs", label: "Docs" }]} />
       <main>
-        <section className="mx-auto max-w-[1200px] px-4 sm:px-6 pt-14 sm:pt-20 pb-16 text-center">
+        <section className="relative overflow-hidden"><div className="particles-in absolute inset-0"><Particles /></div><div className="relative mx-auto max-w-[1200px] px-4 sm:px-6 pt-14 sm:pt-20 pb-16 text-center">
           <div className="anim-fade-up"><Chip tone="outline">A Shopify app by Klyroo</Chip></div>
           <h1 className="mt-6 mx-auto max-w-[900px] text-[44px] sm:text-[72px] leading-[1.05] tracking-[-0.04em] font-normal">
             Your Shopify data, <span className="text-muted">as clean spreadsheets.</span>
@@ -30,10 +32,11 @@ export default function Home() {
             Klyroo Data Exporter lives inside your Shopify Admin. Export products, variants, inventory by location and metafields to Excel or CSV, check a live preview first, and download in minutes.
           </p>
           <div className="anim-fade-up delay-3 mt-9 flex flex-col sm:flex-row gap-3 justify-center">
-            <Button href={cta.href} className="w-full sm:w-auto">{cta.label}</Button>
+            <Magnetic><Button href={cta.href} className="w-full sm:w-auto">{cta.label}</Button></Magnetic>
             <Button href="#how" variant="secondary" className="w-full sm:w-auto">See how it works</Button>
           </div>
           <div className="mt-7 flex justify-center"><TrustRow items={["Read-only access", "Free plan", "Free on development stores"]} /></div>
+        </div>
         </section>
 
         <Reveal as="section" className="mx-auto max-w-[1200px] px-4 sm:px-6 pb-20">

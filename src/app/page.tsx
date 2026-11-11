@@ -1,6 +1,13 @@
 import Link from "next/link";
 import { JsonLd } from "@/components/json-ld";
+import { CountUp } from "@/components/kit/count-up";
+import { ExportDemo } from "@/components/kit/export-demo";
+import { Magnetic } from "@/components/kit/magnetic";
+import { Marquee } from "@/components/kit/marquee";
+import { Particles } from "@/components/kit/particles";
 import { Reveal } from "@/components/kit/reveal";
+import { Spotlight } from "@/components/kit/spotlight";
+import { SplitText } from "@/components/kit/split-text";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing";
 import { CtaBand, Feature, SectionHead } from "@/components/marketing-blocks";
 import { Button } from "@/components/ui";
@@ -20,35 +27,58 @@ export default function Home() {
       <JsonLd data={websiteLd} />
       <MarketingHeader />
       <main>
-        <section className="mx-auto max-w-[1200px] px-4 sm:px-6 pt-20 sm:pt-32 pb-24 sm:pb-32">
-          <h1 className="anim-fade-up max-w-[960px] text-[48px] sm:text-[84px] leading-[1.02] tracking-[-0.045em] font-normal">
-            We make Shopify apps.<br />
-            <span className="text-muted">Simple ones.</span>
-          </h1>
-          <p className="anim-fade-up delay-2 mt-8 max-w-[600px] text-[18px] leading-[28px] text-muted">
-            Klyroo is a small company with a plain idea: a good Shopify app does one job, does it well, and stays out of your way. No bloat, no setup marathon, no surprises on the invoice.
-          </p>
-          <div className="anim-fade-up delay-3 mt-10 flex flex-col sm:flex-row gap-3">
-            <Button href="#apps">See our apps</Button>
-            <Button href="/contact" variant="secondary">Get in touch</Button>
+        <section className="relative overflow-hidden border-b border-line">
+          <div className="particles-in absolute inset-0"><Particles /></div>
+          <div className="relative mx-auto max-w-[1200px] px-4 sm:px-6 pt-24 sm:pt-40 pb-28 sm:pb-44">
+            <h1 className="max-w-[1100px] text-[44px] sm:text-[80px] leading-[1.02] tracking-[-0.045em] font-normal">
+              <span className="sr-only">We make Shopify apps. Simple ones.</span>
+              <span aria-hidden="true"><SplitText text="We make Shopify apps." /><br /><SplitText text="Simple ones." className="text-muted" start={4} /></span>
+            </h1>
+            <p className="anim-fade-up delay-4 mt-8 max-w-[600px] text-[18px] leading-[28px] text-muted">
+              Klyroo is a small company with a plain idea: a good Shopify app does one job, does it well, and stays out of your way. No bloat, no setup marathon, no surprises on the invoice.
+            </p>
+            <div className="anim-fade-up delay-4 mt-10 flex flex-col sm:flex-row gap-3">
+              <Magnetic><Button href="#apps">See our apps</Button></Magnetic>
+              <Magnetic><Button href="/contact" variant="secondary">Get in touch</Button></Magnetic>
+            </div>
           </div>
         </section>
 
+        <Marquee items={["Products", "Variants", "Inventory", "Collections", "Metafields", "Excel", "CSV"]} />
+
         <Reveal as="section" id="apps" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-24 border-t border-line">
           <SectionHead eyebrow="Our apps" title="Built for the people who run the store." />
-          <Link href="/data-exporter" className="lift mt-12 grid gap-8 md:grid-cols-[1.1fr_1fr] rounded-card border border-line bg-surface p-8 sm:p-12 block md:grid">
-            <div>
-              <p className="text-sm text-muted">Data · Reporting</p>
-              <h3 className="mt-3 text-[32px] leading-[1.1] tracking-[-0.03em]">{PRODUCT.name}</h3>
-              <p className="mt-4 max-w-md text-[17px] leading-[27px] text-muted">{PRODUCT.tagline} Pick a template, check a live preview, and download in minutes, right inside your Shopify Admin.</p>
-              <span className="mt-8 inline-block underline underline-offset-4">Learn more</span>
-            </div>
-            <ul className="space-y-3 text-[15px] self-end">
-              {["Excel and CSV files that open cleanly", "Live preview before you export", "Read-only access, nothing changes in your store", "Free plan, and free on development stores"].map((t) => (
-                <li key={t} className="border-t border-line-strong pt-3">{t}</li>
-              ))}
-            </ul>
-          </Link>
+          <Spotlight className="mt-12 rounded-card">
+            <Link href="/data-exporter" className="lift grid gap-10 md:grid-cols-[1.1fr_1fr] rounded-card border border-line bg-surface p-8 sm:p-12">
+              <div>
+                <p className="text-sm text-muted">Data · Reporting</p>
+                <h3 className="mt-3 text-[32px] leading-[1.1] tracking-[-0.03em]">{PRODUCT.name}</h3>
+                <p className="mt-4 max-w-md text-[17px] leading-[27px] text-muted">{PRODUCT.tagline} Pick a template, check a live preview, and download in minutes, right inside your Shopify Admin.</p>
+                <ul className="mt-8 space-y-2 text-[15px]">
+                  {["Excel and CSV files that open cleanly", "Read-only access, nothing changes in your store", "Free plan, and free on development stores"].map((t) => (
+                    <li key={t} className="border-t border-line-strong pt-2">{t}</li>
+                  ))}
+                </ul>
+                <span className="mt-8 inline-block underline underline-offset-4">Learn more</span>
+              </div>
+              <div className="self-center"><ExportDemo /></div>
+            </Link>
+          </Spotlight>
+        </Reveal>
+
+        <Reveal as="section" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-24 border-t border-line">
+          <dl className="grid gap-10 sm:grid-cols-3">
+            {[
+              [<CountUp key="a" to={0} />, "customer records stored"],
+              [<CountUp key="b" to={7} suffix=" days" />, "and export files are deleted"],
+              [<CountUp key="c" to={1000000} />, "rows in a single export, on Plus"],
+            ].map(([n, l], i) => (
+              <div key={i} className="border-t border-primary pt-5">
+                <dt className="text-[56px] sm:text-[72px] leading-none tracking-[-0.045em]">{n}</dt>
+                <dd className="mt-3 text-muted">{l}</dd>
+              </div>
+            ))}
+          </dl>
         </Reveal>
 
         <Reveal as="section" className="mx-auto max-w-[1200px] px-4 sm:px-6 py-24 border-t border-line">
