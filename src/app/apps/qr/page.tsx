@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing";
 import { CtaBand, Faq, Feature, PlanGrid, QrArt, SectionHead, Steps, TrustRow } from "@/components/marketing-blocks";
+import { JsonLd } from "@/components/json-ld";
+import { softwareLd } from "@/lib/seo";
 import { Button, Card, Chip } from "@/components/ui";
 
 export const metadata = {
@@ -12,7 +14,9 @@ export const metadata = {
 export default function QrLanding() {
   return (
     <div className="flex-1">
+      <JsonLd data={softwareLd({ name: "Klyroo QR", description: "QR codes for links, Wi-Fi, contact cards and more, with editable dynamic links and cookie-free scan analytics.", path: "/apps/qr", category: "BusinessApplication", low: 0, high: 45, features: ["Seven kinds of code", "PNG and SVG downloads", "Dynamic links", "Scan analytics without cookies"] })} />
       <MarketingHeader tool="QR" anchors={[{ href: "#features", label: "Features" }, { href: "#pricing", label: "Pricing" }, { href: "/qr-code-generator", label: "Free generator" }, { href: "/docs/qr/getting-started", label: "Docs" }]} />
+      <main>
 
       <section className="mx-auto max-w-[1200px] px-4 sm:px-6 pt-14 sm:pt-20 pb-16 grid lg:grid-cols-[1.1fr_1fr] gap-12 items-center">
         <div className="text-center lg:text-left">
@@ -89,6 +93,7 @@ export default function QrLanding() {
       </section>
 
       <CtaBand title="Make your first QR code in under a minute." sub="Free, in your browser. No account needed." href="/qr-code-generator" label="Open the free generator" />
+      </main>
       <MarketingFooter />
     </div>
   );

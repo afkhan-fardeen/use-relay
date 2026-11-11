@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { MarketingFooter, MarketingHeader } from "@/components/marketing";
 import { CtaBand, Faq, Feature, PlanGrid, QrArt, SectionHead, Steps, TrustRow } from "@/components/marketing-blocks";
+import { JsonLd } from "@/components/json-ld";
 import { Reveal } from "@/components/kit/reveal";
+import { organizationLd, websiteLd } from "@/lib/seo";
 import { Button, Card, Chip } from "@/components/ui";
 import { APPS } from "@/lib/apps";
 import { COMPANY } from "@/lib/company";
@@ -21,13 +23,16 @@ const ROWS = [
 export default function Home() {
   return (
     <div className="flex-1">
+      <JsonLd data={organizationLd} />
+      <JsonLd data={websiteLd} />
       <MarketingHeader />
+      <main>
 
       {/* Hero */}
       <section className="mx-auto max-w-[1200px] px-4 sm:px-6 pt-14 sm:pt-20 pb-16 grid grid-cols-[minmax(0,1fr)] lg:grid-cols-[1.05fr_1fr] gap-12 lg:gap-8 items-center">
         <div className="text-center lg:text-left">
           <div className="anim-fade-up"><Chip tone="info">Two focused apps. One account.</Chip></div>
-          <h1 className="anim-fade-up delay-1 mt-6 text-[40px] sm:text-[56px] leading-[1.05] tracking-[-0.025em] font-light">
+          <h1 className="mt-6 text-[40px] sm:text-[56px] leading-[1.05] tracking-[-0.025em] font-light">
             Shopify exports and QR codes, <span className="text-primary">without the busywork.</span>
           </h1>
           <p className="mt-6 text-[18px] leading-[28px] text-muted max-w-xl mx-auto lg:mx-0">
@@ -147,6 +152,7 @@ export default function Home() {
       </Reveal>
 
       <CtaBand title="Get your data and your codes sorted today." sub="Start free. No card needed." href="/login" label="Create your free account" />
+      </main>
       <MarketingFooter />
     </div>
   );

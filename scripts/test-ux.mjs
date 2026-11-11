@@ -78,12 +78,40 @@ try {
   ok("reduced motion: everything is visible immediately, with no fade");
   await calm.context().close();
 
-  for (const path of ["/", "/pricing", "/login", "/docs", "/docs/export/connect-shopify", "/terms", "/privacy", "/refunds", "/contact", "/forgot-password"]) {
+  for (const path of ["/", "/pricing", "/login", "/docs", "/docs/export/connect-shopify", "/terms", "/privacy", "/refunds", "/contact", "/support", "/security", "/forgot-password"]) {
     await page.goto(`${base}${path}`, { waitUntil: "networkidle" });
     await page.evaluate(() => document.querySelectorAll(".reveal").forEach((e) => e.classList.add("is-visible")));
     await scan(page, path);
   }
-  ok("accessibility scan (WCAG 2.1 A/AA): no serious problems on the 10 public pages");
+  ok("accessibility scan (WCAG 2.1 A/AA): no serious problems on the 12 public pages");
+
+  // ───────── support form ─────────
+  await page.goto(`${base}/support`, { waitUntil: "networkidle" });
+  await page.fill("input[name=email]", "customer@example.com");
+  await page.selectOption("select[name=product]", "Klyroo Export");
+  await page.selectOption("select[name=category]", "Question");
+  await page.fill("textarea[name=message]", "short");
+  await page.evaluate(() => document.querySelector("textarea").removeAttribute("minlength"));
+  await page.click('button:has-text("Send message")');
+  await page.waitForSelector("text=Tell us a little more");
+  assert.equal(await page.inputValue("select[name=product]"), "Klyroo Export", "the form keeps what you typed after an error");
+  await page.fill("textarea[name=message]", `UX test ${tag}: how do I connect my store?`);
+  await page.click('button:has-text("Send message")');
+  await page.waitForSelector("text=/got your message/");
+  let rows = [];
+  for (let i = 0; i < 10 && !rows.length; i++) { rows = (await admin.from("support_requests").select("*").like("message", `UX test ${tag}%`)).data; if (!rows.length) await page.waitForTimeout(500); }
+  assert.equal(rows.length, 1);
+  assert.deepEqual([rows[0].product, rows[0].category, rows[0].email], ["Klyroo Export", "Question", "customer@example.com"]);
+  await admin.from("support_requests").delete().eq("id", rows[0].id);
+  ok("support form: validates, saves the request, and confirms (honeypot and rate limits are in the action)");
+
+  // ───────── docs search ─────────
+  await page.goto(`${base}/docs`, { waitUntil: "networkidle" });
+  await page.fill("input[type=search]", "read_all_orders");
+  await page.waitForSelector('main a[href="/docs/export/connect-shopify"]');
+  await page.fill("input[type=search]", "zzzz-nothing");
+  await page.waitForSelector("main >> text=Nothing matched");
+  ok("docs search finds guides by their full text and says so when nothing matches");
 
   // ───────── signed in ─────────
   await page.goto(`${base}/login`, { waitUntil: "networkidle" });

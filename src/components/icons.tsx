@@ -22,6 +22,7 @@ const PATHS = {
   book: "M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 19V5M9 7h6",
   download: "M12 4v12m0 0 4-4m-4 4-4-4M5 20h14",
   copy: "M8 8h11v11H8zM5 16V5h11",
+  search: "M11 4a7 7 0 1 1 0 14 7 7 0 0 1 0-14zM21 21l-4.5-4.5",
   trash: "M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3",
   external: "M14 4h6v6M20 4l-9 9M18 14v5H5V6h5",
   panel: "M4 5h16v14H4zM9 5v14",

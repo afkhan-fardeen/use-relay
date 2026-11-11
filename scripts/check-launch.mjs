@@ -20,7 +20,7 @@ async function get(path, init) {
 const strip = (html) => html.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&apos;|&#x27;|&#39;/g, "'").replace(/\s+/g, " ");
 
 // 1. Pages are public (HTTP 200 without logging in)
-const pages = ["/", "/apps/export", "/apps/qr", "/pricing", "/docs", "/docs/export/getting-started", "/docs/qr/getting-started", "/qr-code-generator", "/terms", "/privacy", "/refunds", "/contact", "/robots.txt", "/sitemap.xml"];
+const pages = ["/", "/apps/export", "/apps/qr", "/pricing", "/docs", "/docs/export/getting-started", "/docs/qr/getting-started", "/qr-code-generator", "/terms", "/privacy", "/refunds", "/contact", "/support", "/security", "/robots.txt", "/sitemap.xml"];
 const body = {};
 for (const p of pages) {
   const r = await get(p);

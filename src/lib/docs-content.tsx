@@ -383,4 +383,4 @@ export const DOCS: DocPage[] = [
 ];
 
 export const docBySlug = (slug: string) => DOCS.find((d) => d.slug === slug);
-export const DOC_GROUPS = (["Start here", "Klyroo Export", "Klyroo QR"] as const).map((g) => ({ title: g, items: DOCS.filter((d) => d.group === g).map((d) => ({ slug: d.slug, title: d.title })) }));
+export const DOC_GROUPS = (["Start here", "Klyroo Export", "Klyroo QR"] as const).map((g) => ({ title: g, items: DOCS.filter((d) => d.group === g).map((d) => ({ slug: d.slug, title: d.title, summary: d.summary })) }));

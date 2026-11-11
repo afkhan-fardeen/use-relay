@@ -3,7 +3,9 @@ import { MarketingFooter, MarketingHeader } from "@/components/marketing";
 import { CtaBand, Faq, Feature, PlanGrid, ProductShot, SectionHead, Steps, TrustRow } from "@/components/marketing-blocks";
 import { Reveal } from "@/components/kit/reveal";
 import { Button, Chip } from "@/components/ui";
+import { JsonLd } from "@/components/json-ld";
 import { resources, templates } from "@/lib/export";
+import { softwareLd } from "@/lib/seo";
 
 export const metadata = {
   icons: { icon: "/brand/klyroo-export-favicon.svg" },
@@ -16,14 +18,16 @@ const COLUMNS = resources.reduce((n, r) => n + r.fields.length, 0);
 export default function ExportLanding() {
   return (
     <div className="flex-1">
+      <JsonLd data={softwareLd({ name: "Klyroo Export", description: "Export Shopify products, orders, customers, inventory and collections to CSV with live preview and read-only access.", path: "/apps/export", category: "BusinessApplication", low: 0, high: 99, features: ["Products, orders, customers, inventory and collections", "Live preview", "Ready-made templates", "Read-only Shopify access"] })} />
       <MarketingHeader tool="Export" anchors={[{ href: "#features", label: "Features" }, { href: "#how", label: "How it works" }, { href: "#pricing", label: "Pricing" }, { href: "/docs/export/getting-started", label: "Docs" }]} />
+      <main>
 
       <section className="mx-auto max-w-[1200px] px-4 sm:px-6 pt-14 sm:pt-20 pb-16 text-center">
         <div className="anim-fade-up"><Chip tone="info">Klyroo Export · for Shopify</Chip></div>
-        <h1 className="anim-fade-up delay-1 mt-6 mx-auto max-w-[860px] text-[40px] sm:text-[56px] leading-[1.05] tracking-[-0.025em] font-light">
+        <h1 className="mt-6 mx-auto max-w-[860px] text-[40px] sm:text-[56px] leading-[1.05] tracking-[-0.025em] font-light">
           Every Shopify export, <span className="text-primary">ready in minutes.</span>
         </h1>
-        <p className="anim-fade-up delay-2 mt-6 mx-auto max-w-[640px] text-[18px] leading-[28px] text-muted">
+        <p className="mt-6 mx-auto max-w-[640px] text-[18px] leading-[28px] text-muted">
           Products, orders, customers, inventory and collections to CSV. Pick a template or choose your own columns, check a live preview, and download. No code, no API.
         </p>
         <div className="anim-fade-up delay-3 mt-9 flex flex-col sm:flex-row gap-3 justify-center">
@@ -95,6 +99,7 @@ export default function ExportLanding() {
       </Reveal>
 
       <CtaBand title="Stop copy-pasting from Shopify." sub="Connect a store and run your first export for free." href="/login?app=export" label="Start free" />
+      </main>
       <MarketingFooter />
     </div>
   );

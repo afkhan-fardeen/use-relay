@@ -49,6 +49,12 @@ services:
         value: pdt_0NrPysV3156gQDM6BtqGi
       - key: DODO_PRODUCT_QR_BUSINESS
         value: pdt_0NrPysZFeKUzcVdJWLp5A
+      # Support form: emails support@useklyroo.com through Resend (requests are saved either way)
+      - key: RESEND_API_KEY
+        sync: false
+      # Optional, cookie-free analytics (Plausible): your site domain
+      - key: NEXT_PUBLIC_PLAUSIBLE_DOMAIN
+        value: ""
       # Optional: Slack/Discord incoming webhook for server error alerts
       - key: ERROR_WEBHOOK_URL
         sync: false

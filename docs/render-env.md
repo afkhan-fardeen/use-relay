@@ -30,6 +30,13 @@ Copy secret values from your local `web/.env.local` (never paste them in chat or
 | `DODO_PRODUCT_QR_PRO` | `pdt_0NrPysV3156gQDM6BtqGi` | no |
 | `DODO_PRODUCT_QR_BUSINESS` | `pdt_0NrPysZFeKUzcVdJWLp5A` | no |
 
+## Support form and analytics
+
+| Key | Value |
+|---|---|
+| `RESEND_API_KEY` | the `re_...` key from [resend-setup.md](resend-setup.md). Without it the /support form still saves every request (Supabase table `support_requests`) but doesn't email you, so check the table or add the key |
+| `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` | `useklyroo.com` to switch on Plausible's cookie-free analytics (needs a Plausible account). Leave empty for none. Baked in at build time |
+
 ## Optional
 
 | Key | Value |

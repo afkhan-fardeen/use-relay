@@ -55,6 +55,7 @@ export function MarketingFooter() {
           <Link href="/docs" className="block hover:text-primary">Documentation</Link>
           <Link href="/docs/export/getting-started" className="block hover:text-primary">Export guide</Link>
           <Link href="/docs/qr/getting-started" className="block hover:text-primary">QR guide</Link>
+          <Link href="/support" className="block hover:text-primary">Support</Link>
           <Link href="/contact" className="block hover:text-primary">Contact</Link>
         </nav>
         <nav aria-label="Company" className="space-y-2.5">
@@ -67,12 +68,13 @@ export function MarketingFooter() {
           <Link href="/terms" className="block hover:text-primary">Terms of service</Link>
           <Link href="/privacy" className="block hover:text-primary">Privacy policy</Link>
           <Link href="/refunds" className="block hover:text-primary">Refund policy</Link>
+          <Link href="/security" className="block hover:text-primary">Security</Link>
         </nav>
       </div>
       <div className="border-t border-line">
         <div className="mx-auto max-w-[1200px] px-4 sm:px-6 py-6 flex flex-wrap items-center justify-between gap-3 text-xs text-muted">
           <p>© 2026 {operatorName()}. All rights reserved.</p>
-          <p>Payments are handled by Dodo Payments, our Merchant of Record.</p>
+          <p className="max-w-xl">Payments are handled by Dodo Payments, our Merchant of Record. Shopify is a trademark of Shopify Inc. Klyroo is an independent product and is not affiliated with or endorsed by Shopify.</p>
         </div>
       </div>
     </footer>
