@@ -50,7 +50,7 @@ export function DocsBrowser({ docs, groups }: { docs: Omit<DocEntry, "text">[]; 
       ) : (
         groups.map((g) => (
           <section key={g} className="mt-12">
-            <h2 className="text-[22px] font-light mb-4">{g}</h2>
+            <h2 className="text-[22px] font-normal mb-4">{g}</h2>
             <div className="grid gap-3">
               {docs.filter((d) => d.group === g).map((d) => <DocLink key={d.slug} href={`/docs/${d.slug}`} title={d.title} sub={d.summary} />)}
             </div>

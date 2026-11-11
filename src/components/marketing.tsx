@@ -2,12 +2,14 @@ import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui";
 import { COMPANY, operatorName } from "@/lib/company";
+import { CTA } from "@/lib/product";
 import { MobileMenu } from "./mobile-menu";
 
 export const MAIN_NAV = [
-  { href: "/#features", label: "Features" },
+  { href: "/data-exporter", label: "Data Exporter" },
   { href: "/pricing", label: "Pricing" },
   { href: "/docs", label: "Docs" },
+  { href: "/support", label: "Support" },
 ];
 
 export function MarketingHeader({ tool, anchors }: { tool?: string; anchors?: { href: string; label: string }[] }) {
@@ -24,8 +26,7 @@ export function MarketingHeader({ tool, anchors }: { tool?: string; anchors?: { 
           ))}
         </nav>
         <div className="flex items-center gap-3 sm:gap-5">
-          <Link href="/login" className="hidden sm:inline text-sm text-muted hover:text-ink">Log in</Link>
-          <Button size="sm" href="/login" className="hidden sm:inline-flex">Start free</Button>
+          <Button size="sm" href={CTA.href} className="hidden sm:inline-flex">{CTA.label}</Button>
           <MobileMenu nav={nav} />
         </div>
       </div>
@@ -39,27 +40,26 @@ export function MarketingFooter() {
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6 py-14 grid gap-10 grid-cols-2 md:grid-cols-[1.6fr_1fr_1fr_1fr] text-sm">
         <div className="col-span-2 md:col-span-1">
           <Logo />
-          <p className="mt-4 text-muted max-w-xs leading-6">Klyroo builds Shopify apps. Klyroo Data Exporter turns your store data into clean Excel and CSV files.</p>
-          <a href={`mailto:${COMPANY.supportEmail}`} className="mt-4 inline-block text-primary hover:text-primary-hover">{COMPANY.supportEmail}</a>
+          <p className="mt-4 text-muted max-w-xs leading-6">Klyroo is a company that makes Shopify apps. Simple, focused and built to do one job well.</p>
+          <a href={`mailto:${COMPANY.supportEmail}`} className="mt-4 inline-block underline underline-offset-4">{COMPANY.supportEmail}</a>
         </div>
-        <nav aria-label="Product" className="space-y-2.5">
-          <p className="text-muted">Product</p>
-          <Link href="/" className="block hover:text-primary">Klyroo Data Exporter</Link>
-          <Link href="/#features" className="block hover:text-primary">Features</Link>
-          <Link href="/pricing" className="block hover:text-primary">Pricing</Link>
+        <nav aria-label="Apps" className="space-y-2.5">
+          <p className="text-muted">Apps</p>
+          <Link href="/data-exporter" className="block hover:underline underline-offset-4">Klyroo Data Exporter</Link>
+          <Link href="/pricing" className="block hover:underline underline-offset-4">Pricing</Link>
         </nav>
         <nav aria-label="Help" className="space-y-2.5">
           <p className="text-muted">Help</p>
-          <Link href="/docs" className="block hover:text-primary">Documentation</Link>
-          <Link href="/docs/getting-started" className="block hover:text-primary">Getting started</Link>
-          <Link href="/support" className="block hover:text-primary">Support</Link>
-          <Link href="/contact" className="block hover:text-primary">Contact</Link>
+          <Link href="/docs" className="block hover:underline underline-offset-4">Documentation</Link>
+          <Link href="/docs/getting-started" className="block hover:underline underline-offset-4">Getting started</Link>
+          <Link href="/support" className="block hover:underline underline-offset-4">Support</Link>
+          <Link href="/contact" className="block hover:underline underline-offset-4">Contact</Link>
         </nav>
         <nav aria-label="Legal" className="space-y-2.5">
           <p className="text-muted">Legal</p>
-          <Link href="/terms" className="block hover:text-primary">Terms of service</Link>
-          <Link href="/privacy" className="block hover:text-primary">Privacy policy</Link>
-          <Link href="/security" className="block hover:text-primary">Security</Link>
+          <Link href="/terms" className="block hover:underline underline-offset-4">Terms of service</Link>
+          <Link href="/privacy" className="block hover:underline underline-offset-4">Privacy policy</Link>
+          <Link href="/security" className="block hover:underline underline-offset-4">Security</Link>
         </nav>
       </div>
       <div className="border-t border-line">

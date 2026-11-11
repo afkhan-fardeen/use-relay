@@ -22,7 +22,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
   return (
     <article>
       <p className="text-sm text-primary">{doc.group}</p>
-      <h1 className="mt-2 text-[36px] sm:text-[40px] leading-[1.1] font-light tracking-[-0.02em]">{doc.title}</h1>
+      <h1 className="mt-2 text-[36px] sm:text-[40px] leading-[1.1] font-normal tracking-[-0.02em]">{doc.title}</h1>
       <p className="mt-4 text-[18px] leading-[28px] text-muted">{doc.summary}</p>
       <div className="mt-8">{doc.body()}</div>
       <nav aria-label="More guides" className="mt-16 pt-6 border-t border-line grid sm:grid-cols-2 gap-4 text-sm">

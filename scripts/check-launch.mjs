@@ -14,7 +14,7 @@ async function get(path) {
   } catch (e) { return { status: 0, text: "", error: e.message }; }
 }
 
-const pages = ["/", "/pricing", "/docs", "/docs/getting-started", "/terms", "/privacy", "/contact", "/support", "/security", "/robots.txt", "/sitemap.xml"];
+const pages = ["/", "/data-exporter", "/pricing", "/docs", "/docs/getting-started", "/terms", "/privacy", "/contact", "/support", "/security", "/robots.txt", "/sitemap.xml"];
 const body = {};
 for (const p of pages) {
   const r = await get(p);

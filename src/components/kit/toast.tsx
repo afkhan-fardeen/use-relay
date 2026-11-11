@@ -10,7 +10,7 @@ const Ctx = createContext<(tone: Tone, text: string) => void>(() => undefined);
 const STYLE: Record<Tone, string> = {
   success: "border-success/30 text-success",
   error: "border-danger/30 text-danger",
-  info: "border-secondary/25 text-secondary",
+  info: "border-line-strong text-ink",
 };
 
 /** Small, self-dismissing messages in the corner. Use for "Saved" and "Copied", not for errors people must act on. */

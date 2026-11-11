@@ -12,9 +12,9 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://useklyroo.com"),
   openGraph: { type: "website", siteName: "Klyroo", locale: "en_GB" },
   twitter: { card: "summary_large_image" },
-  title: "Klyroo Data Exporter: Shopify data as Excel and CSV",
+  title: "Klyroo: Shopify apps that keep it simple",
   description:
-    "Klyroo builds Klyroo Data Exporter, a Shopify app that exports products, inventory and metafields to Excel and CSV.",
+    "Klyroo is a company that makes simple, focused Shopify apps, starting with Klyroo Data Exporter.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

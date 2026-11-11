@@ -5,7 +5,7 @@ const TONES = {
   error: { cls: "text-danger bg-danger/[0.05] border-danger/25", icon: "alert" as IconName, role: "alert" as const },
   warning: { cls: "text-warning bg-warning/[0.06] border-warning/30", icon: "alert" as IconName, role: "status" as const },
   success: { cls: "text-success bg-success/[0.06] border-success/25", icon: "check" as IconName, role: "status" as const },
-  info: { cls: "text-secondary bg-secondary/[0.04] border-secondary/20", icon: "info" as IconName, role: "status" as const },
+  info: { cls: "text-ink bg-surface border-line-strong", icon: "info" as IconName, role: "status" as const },
 };
 
 /** One consistent way to say something went wrong, worked, or needs attention. Never relies on colour alone. */

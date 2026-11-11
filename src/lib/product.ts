@@ -38,3 +38,6 @@ export const FEATURES: { icon: "list" | "plus" | "history" | "store" | "apps" | 
 ];
 
 export const money = (n: number) => (n === 0 ? "Free" : `$${n}`);
+
+/** The main call to action. Until the app is listed it asks for early access rather than pointing at a page that does not exist. */
+export const CTA = APP_STORE_URL ? { href: APP_STORE_URL, label: "Install on Shopify" } : { href: "/support?topic=access", label: "Request early access" };

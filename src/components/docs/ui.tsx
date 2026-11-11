@@ -4,7 +4,7 @@ import { Icon } from "@/components/icons";
 import { Notice } from "@/components/notice";
 
 export const H2 = ({ children, id }: { children: ReactNode; id?: string }) => (
-  <h2 id={id} className="mt-12 mb-4 text-[26px] leading-[1.15] font-light tracking-[-0.01em] scroll-mt-24">{children}</h2>
+  <h2 id={id} className="mt-12 mb-4 text-[26px] leading-[1.15] font-normal tracking-[-0.01em] scroll-mt-24">{children}</h2>
 );
 export const H3 = ({ children }: { children: ReactNode }) => <h3 className="mt-8 mb-3 text-[19px] leading-[1.3] font-normal">{children}</h3>;
 export const P = ({ children }: { children: ReactNode }) => <p className="my-4 text-[16px] leading-[26px] text-ink/90">{children}</p>;

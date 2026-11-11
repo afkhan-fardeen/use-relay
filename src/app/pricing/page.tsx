@@ -12,7 +12,7 @@ export default function Pricing() {
       <MarketingHeader />
       <main>
         <section className="mx-auto max-w-[1200px] px-4 sm:px-6 pt-14 sm:pt-20 pb-6 text-center">
-          <h1 className="text-[40px] sm:text-[52px] leading-[1.08] tracking-[-0.025em] font-light">Simple pricing for Klyroo Data Exporter</h1>
+          <h1 className="text-[40px] sm:text-[52px] leading-[1.08] tracking-[-0.025em] font-normal">Simple pricing for Klyroo Data Exporter</h1>
           <p className="mt-5 mx-auto max-w-2xl text-[18px] leading-[28px] text-muted">
             Start free and upgrade when your exports get bigger. Prices are in US dollars per month, billed by Shopify every 30 days. You can change or cancel at any time from the app.
           </p>

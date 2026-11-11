@@ -7,7 +7,7 @@ export function LegalPage({ title, intro, children }: { title: string; intro?: s
     <div className="flex-1">
       <MarketingHeader />
       <main className="mx-auto max-w-[760px] px-6 py-16">
-        <h1 className="text-[36px] leading-[1.1] font-light">{title}</h1>
+        <h1 className="text-[36px] leading-[1.1] font-normal">{title}</h1>
         <p className="mt-3 text-sm text-muted">Last updated {COMPANY.policiesUpdated}</p>
         {intro && <p className="mt-6 text-[17px] leading-[27px] text-muted">{intro}</p>}
         <div className="mt-10 space-y-8">{children}</div>
@@ -20,7 +20,7 @@ export function LegalPage({ title, intro, children }: { title: string; intro?: s
 export function Section({ n, title, children }: { n?: number; title: string; children: ReactNode }) {
   return (
     <section>
-      <h2 className="text-[22px] leading-[1.25] font-light">{n ? `${n}. ` : ""}{title}</h2>
+      <h2 className="text-[22px] leading-[1.25] font-normal">{n ? `${n}. ` : ""}{title}</h2>
       <div className="mt-3 space-y-3 text-[15px] leading-[24px] text-ink/90">{children}</div>
     </section>
   );

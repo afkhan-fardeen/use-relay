@@ -8,7 +8,7 @@ export default function GlobalError({ reset }: { error: Error & { digest?: strin
         <main>
           <h1 style={{ fontWeight: 300, fontSize: 32, margin: "0 0 12px" }}>Something went wrong</h1>
           <p style={{ color: "#627A96", margin: "0 0 24px", maxWidth: 420 }}>Your data is safe. Please try again, or email support@useklyroo.com if it keeps happening.</p>
-          <button onClick={reset} style={{ background: "#533AFD", color: "#fff", border: 0, borderRadius: 4, padding: "12px 24px", fontSize: 16, cursor: "pointer" }}>Try again</button>
+          <button onClick={reset} style={{ background: "#000000", color: "#fff", border: 0, borderRadius: 4, padding: "12px 24px", fontSize: 16, cursor: "pointer" }}>Try again</button>
         </main>
       </body>
     </html>

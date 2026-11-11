@@ -32,7 +32,7 @@ try {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
 
-  for (const path of ["/", "/pricing", "/docs", "/docs/getting-started", "/privacy", "/terms", "/security", "/contact", "/support"]) {
+  for (const path of ["/", "/data-exporter", "/pricing", "/docs", "/docs/getting-started", "/privacy", "/terms", "/security", "/contact", "/support"]) {
     const r = await page.goto(base + path, { waitUntil: "networkidle" });
     assert.equal(r.status(), 200, path);
     await scan(page, path);
@@ -48,8 +48,8 @@ try {
 
   // Old product routes redirect to the home page.
   const old = await page.goto(`${base}/apps/qr`, { waitUntil: "networkidle" });
-  assert.ok(new URL(page.url()).pathname === "/" && old.status() === 200);
-  console.log("ok  ", "old /apps/qr redirects home");
+  assert.ok(new URL(page.url()).pathname === "/data-exporter" && old.status() === 200);
+  console.log("ok  ", "old /apps/qr redirects to the app page");
   pass++;
 
   assert.deepEqual(errors, [], "no page errors");
