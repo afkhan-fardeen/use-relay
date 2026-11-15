@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "Klyroo: Shopify apps that keep it simple";
+export const alt = "Klyroo Context: your store's brand brain for AI tools";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -16,12 +16,12 @@ export default function OpenGraphImage() {
           <div style={{ fontSize: 44 }}>klyroo</div>
         </div>
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <div style={{ fontSize: 76, lineHeight: 1.05, letterSpacing: -2 }}>We make</div>
-          <div style={{ fontSize: 76, lineHeight: 1.05, letterSpacing: -2, color: "#000000" }}>Shopify apps.</div>
-          <div style={{ fontSize: 32, color: "#5B5F66", marginTop: 28 }}>Simple, focused apps. First up: Klyroo Data Exporter.</div>
+          <div style={{ fontSize: 76, lineHeight: 1.05, letterSpacing: -2 }}>Your store&apos;s</div>
+          <div style={{ fontSize: 76, lineHeight: 1.05, letterSpacing: -2, color: "#000000" }}>brand brain for AI.</div>
+          <div style={{ fontSize: 32, color: "#5B5F66", marginTop: 28 }}>One live guide to your brand, products and policies.</div>
         </div>
         <div style={{ display: "flex", gap: 16, fontSize: 28 }}>
-          <div style={{ display: "flex", background: "#000000", color: "#fff", borderRadius: 14, padding: "12px 26px" }}>Klyroo Data Exporter</div>
+          <div style={{ display: "flex", background: "#000000", color: "#fff", borderRadius: 14, padding: "12px 26px" }}>Klyroo Context</div>
           <div style={{ display: "flex", marginLeft: "auto", color: "#5B5F66" }}>useklyroo.com</div>
         </div>
       </div>

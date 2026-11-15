@@ -4,5 +4,5 @@ import { DOCS } from "@/lib/docs-content";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = `https://${COMPANY.domain}`;
-  return ["", "/data-exporter", "/pricing", "/support", "/security", "/docs", ...DOCS.map((d) => `/docs/${d.slug}`), "/terms", "/privacy", "/about", "/changelog", "/refunds", "/cookies", "/dpa"].map((p) => ({ url: `${base}${p}`, changeFrequency: "monthly" as const }));
+  return ["", "/pricing", "/support", "/security", "/bot", "/docs", ...DOCS.map((d) => `/docs/${d.slug}`), "/terms", "/privacy", "/about", "/refunds", "/cookies", "/dpa"].map((p) => ({ url: `${base}${p}`, changeFrequency: "monthly" as const }));
 }

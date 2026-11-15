@@ -6,7 +6,7 @@ import { CTA } from "@/lib/product";
 import { MobileMenu } from "./mobile-menu";
 
 export const MAIN_NAV = [
-  { href: "/data-exporter", label: "Data Exporter" },
+  { href: "/#how", label: "How it works" },
   { href: "/pricing", label: "Pricing" },
   { href: "/docs", label: "Docs" },
   { href: "/support", label: "Support" },
@@ -40,20 +40,20 @@ export function MarketingFooter() {
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6 py-14 grid gap-10 grid-cols-2 md:grid-cols-[1.6fr_1fr_1fr_1fr] text-sm">
         <div className="col-span-2 md:col-span-1">
           <Logo />
-          <p className="mt-4 text-muted max-w-xs leading-6">Klyroo makes Shopify apps. Simple, focused and built to do one job well.</p>
+          <p className="mt-4 text-muted max-w-xs leading-6">Klyroo Context turns your public store into a living brand guide for AI tools.</p>
           <a href={`mailto:${COMPANY.supportEmail}`} className="mt-4 inline-block underline underline-offset-4">{COMPANY.supportEmail}</a>
         </div>
-        <nav aria-label="Apps" className="space-y-2.5">
-          <p className="text-muted">Apps</p>
-          <Link href="/data-exporter" className="block hover:underline underline-offset-4">Klyroo Data Exporter</Link>
+        <nav aria-label="Product" className="space-y-2.5">
+          <p className="text-muted">Product</p>
+          <Link href="/#how" className="block hover:underline underline-offset-4">How it works</Link>
           <Link href="/pricing" className="block hover:underline underline-offset-4">Pricing</Link>
+          <Link href="/bot" className="block hover:underline underline-offset-4">KlyrooBot</Link>
         </nav>
         <nav aria-label="Help" className="space-y-2.5">
           <p className="text-muted">Help</p>
           <Link href="/docs" className="block hover:underline underline-offset-4">Documentation</Link>
           <Link href="/docs/getting-started" className="block hover:underline underline-offset-4">Getting started</Link>
           <Link href="/support" className="block hover:underline underline-offset-4">Support</Link>
-          <Link href="/changelog" className="block hover:underline underline-offset-4">Changelog</Link>
         </nav>
         <nav aria-label="Legal" className="space-y-2.5">
           <p className="text-muted">Legal</p>
@@ -69,7 +69,7 @@ export function MarketingFooter() {
       <div className="border-t border-line">
         <div className="mx-auto max-w-[1200px] px-4 sm:px-6 py-6 flex flex-wrap items-center justify-between gap-3 text-xs text-muted">
           <p>© 2026 {operatorName()}. All rights reserved.</p>
-          <p className="max-w-xl">Billing is handled by Shopify. Shopify is a trademark of Shopify Inc. Klyroo is an independent product and is not affiliated with or endorsed by Shopify.</p>
+          <p className="max-w-xl">Payments are handled by Paddle, our Merchant of Record. Shopify, Claude, ChatGPT and Cursor are trademarks of their owners. Klyroo is independent and is not affiliated with or endorsed by them.</p>
         </div>
       </div>
     </footer>

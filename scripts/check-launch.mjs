@@ -14,7 +14,7 @@ async function get(path) {
   } catch (e) { return { status: 0, text: "", error: e.message }; }
 }
 
-const pages = ["/", "/data-exporter", "/pricing", "/docs", "/docs/getting-started", "/terms", "/privacy", "/support", "/security", "/about", "/changelog", "/refunds", "/cookies", "/dpa", "/robots.txt", "/sitemap.xml"];
+const pages = ["/", "/pricing", "/docs", "/docs/getting-started", "/terms", "/privacy", "/support", "/security", "/about", "/bot", "/refunds", "/cookies", "/dpa", "/robots.txt", "/sitemap.xml"];
 const body = {};
 for (const p of pages) {
   const r = await get(p);
@@ -25,12 +25,13 @@ for (const gone of ["/login", "/export", "/qr-code-generator"]) {
   const r = await get(gone);
   check("Old routes", `${gone} no longer serves the old product`, r.status !== 200 || !/Klyroo QR/.test(r.text));
 }
-check("Product", "home page describes Klyroo Data Exporter", /Data Exporter/.test(body["/"]) && /Excel/.test(body["/"]));
-check("Honesty", "no QR or Dodo wording left on the main pages", !["/", "/pricing", "/terms", "/privacy", "/security"].some((p) => /Klyroo QR|Dodo/i.test(body[p] || "")));
-check("Pricing", "pricing shows $29, $119 and $249", ["$29", "$119", "$249"].every((x) => (body["/pricing"] || "").includes(x)));
-check("Pricing", "pricing says billed by Shopify, in US dollars", /billed by Shopify/i.test(body["/pricing"]) && /US dollars/i.test(body["/pricing"]));
+check("Product", "home page describes Klyroo Context", /Klyroo/.test(body["/"]) && /brand/i.test(body["/"]) && /AI tools/.test(body["/"]));
+check("Honesty", "no old Exporter, QR or Dodo wording left on the main pages", !["/", "/pricing", "/terms", "/privacy", "/security", "/about", "/support", "/refunds", "/dpa", "/cookies", "/docs/getting-started"].some((p) => /Data Exporter|Klyroo QR|Dodo|Turso|Shopify App Store/i.test(body[p] || "")));
+check("Pricing", "pricing shows $24, $69 and $169", ["$24", "$69", "$169"].every((x) => (body["/pricing"] || "").includes(x)));
+check("Pricing", "pricing names Paddle and US dollars", /Paddle/.test(body["/pricing"]) && /US dollars/i.test(body["/pricing"]));
 check("Legal", "terms, privacy and security carry the support email", ["/terms", "/privacy", "/security"].every((p) => (body[p] || "").includes(COMPANY.supportEmail)));
-check("Legal", "privacy lists the Shopify privacy webhooks", /shop\/redact/.test(body["/privacy"]));
+check("Legal", "terms and refunds name Paddle as Merchant of Record", ["/terms", "/refunds"].every((p) => /Merchant of Record/.test(body[p] || "")));
+check("Legal", "KlyrooBot page explains how to block it", /User-agent: KlyrooBot/.test(body["/bot"]) && /robots\.txt/.test(body["/bot"]));
 
 let failed = 0;
 for (const r of results) {

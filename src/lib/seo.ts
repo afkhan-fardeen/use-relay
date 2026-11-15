@@ -22,7 +22,7 @@ export const softwareLd = (o: { name: string; description: string; path: string;
   description: o.description,
   url: `${base}${o.path}`,
   applicationCategory: o.category,
-  operatingSystem: "Shopify",
+  operatingSystem: "Web",
   featureList: o.features,
   publisher: { "@type": "Organization", name: "Klyroo", url: base },
   offers: { "@type": "AggregateOffer", priceCurrency: "USD", lowPrice: String(o.low), highPrice: String(o.high), offerCount: 4 },

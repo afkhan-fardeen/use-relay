@@ -18,7 +18,9 @@ const nextConfig: NextConfig = {
       { source: "/contact", destination: "/support", permanent: true },
       { source: "/products", destination: "/", permanent: true },
       { source: "/products/:path*", destination: "/", permanent: true },
-      { source: "/apps/:path*", destination: "/data-exporter", permanent: true },
+      { source: "/apps/:path*", destination: "/", permanent: true },
+      { source: "/data-exporter", destination: "/", permanent: true },
+      { source: "/changelog", destination: "/", permanent: true },
       { source: "/qr-code-generator", destination: "/", permanent: true },
       { source: "/login", destination: "/", permanent: false },
     ];

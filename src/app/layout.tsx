@@ -13,9 +13,9 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://useklyroo.com"),
   openGraph: { type: "website", siteName: "Klyroo", locale: "en_GB" },
   twitter: { card: "summary_large_image" },
-  title: "Klyroo: Shopify apps that keep it simple",
+  title: "Klyroo Context: your store's brand brain for AI tools",
   description:
-    "Klyroo is an independent maker of simple, focused Shopify apps, starting with Klyroo Data Exporter.",
+    "Paste your store address. Klyroo Context builds a living guide to your brand, products and policies that Claude, ChatGPT, Cursor and other AI tools can use.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

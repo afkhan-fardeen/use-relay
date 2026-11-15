@@ -1,11 +1,10 @@
-// Public details for the website and the legal pages. Like other independent Shopify app makers, we publish the
-// brand and a support email, not a personal name or postal address.
+// Public details for the website and the legal pages: the brand and a support email, not a personal name or postal address.
 
 export const COMPANY = {
   brand: "Klyroo",
   supportEmail: "support@useklyroo.com",
   domain: "useklyroo.com",
-  policiesUpdated: "11 November 2026",
+  policiesUpdated: "15 November 2026",
 } as const;
 
 /** The name used in the legal pages. */

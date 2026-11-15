@@ -58,11 +58,11 @@ export function PlanGrid({ cta }: { cta: { href: string; label: string } }) {
                 <li key={f} className="flex gap-3"><Icon name="check" size={18} className="mt-0.5 shrink-0 text-primary" /><span>{f}</span></li>
               ))}
             </ul>
-            <Button variant={p.recommended ? "primary" : "secondary"} href={cta.href} className="mt-8 w-full">{p.price === 0 ? "Start free" : `Choose ${p.name}`}</Button>
+            <Button variant={p.recommended ? "primary" : "secondary"} href={cta.href} className="mt-8 w-full">{p.price === 0 ? "Try a preview" : "Join the waitlist"}</Button>
           </Card>
         ))}
       </div>
-      <p className="mt-5 text-sm text-muted max-w-3xl">Prices are in US dollars per month, billed by Shopify every 30 days, and you can change or cancel any time. Free on Shopify development stores.</p>
+      <p className="mt-5 text-sm text-muted max-w-3xl">Prices are in US dollars per month, excluding any taxes. Paddle is our Merchant of Record and handles payment and tax. Paid plans open once the service leaves early access.</p>
     </div>
   );
 }
@@ -111,7 +111,7 @@ export function ProductShot({ src, alt, priority }: { src: string; alt: string; 
     <figure className="mx-auto max-w-[1100px] overflow-hidden rounded-card border border-line-strong bg-surface">
       <div className="flex items-center gap-2 border-b border-line bg-white px-4 py-3" aria-hidden>
         <span className="size-2.5 rounded-full bg-line-strong" /><span className="size-2.5 rounded-full bg-line-strong" /><span className="size-2.5 rounded-full bg-line-strong" />
-        <span className="ml-4 hidden sm:block rounded-ctl bg-surface px-3 py-1 text-xs text-muted">Shopify Admin &gt; Klyroo Data Exporter</span>
+        <span className="ml-4 hidden sm:block rounded-ctl bg-surface px-3 py-1 text-xs text-muted">useklyroo.com</span>
       </div>
       <Image src={src} alt={alt} width={2880} height={1800} sizes="(min-width: 1200px) 1100px, 100vw" priority={priority} className="h-auto w-full" />
     </figure>

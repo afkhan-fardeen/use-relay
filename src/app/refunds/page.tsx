@@ -1,26 +1,27 @@
 import { A, LegalPage, Section, UL } from "@/components/legal";
 import { COMPANY } from "@/lib/company";
 
-export const metadata = { title: "Billing, cancellation and refunds — Klyroo", description: "How billing, cancellation and refunds work for Klyroo Data Exporter." };
+export const metadata = { title: "Billing, cancellation and refunds — Klyroo", description: "How billing, cancellation and refunds work for Klyroo Context." };
 
 export default function Refunds() {
   return (
-    <LegalPage title="Billing, cancellation and refunds" intro="Klyroo apps are billed through Shopify. This page explains what that means for you.">
+    <LegalPage title="Billing, cancellation and refunds" intro="Payments for Klyroo Context are handled by Paddle. This page explains what that means for you.">
       <Section title="How billing works">
         <UL items={[
-          "Paid plans are monthly subscriptions, charged by Shopify every 30 days in US dollars, on your normal Shopify invoice.",
-          "You approve each plan on Shopify's own approval page before any charge. We never see or store your payment details.",
-          "The free plan costs nothing, and the app is free on Shopify development stores.",
+          "Our order process is conducted by our online reseller Paddle.com. Paddle.com is the Merchant of Record for all our orders. Paddle provides all customer service inquiries and handles returns.",
+          "Paid plans are subscriptions, billed monthly or, if you choose, yearly, in US dollars. Prices exclude taxes, which Paddle adds where required.",
+          "You pay at Paddle's checkout. We never see or store your card details.",
+          "The free preview costs nothing and needs no card.",
         ]} />
       </Section>
       <Section title="Cancelling">
-        <p>Open <strong className="font-normal">Plans</strong> in the app and move to the Free plan, or uninstall the app from your Shopify admin. Billing stops as Shopify describes at the time. You keep access to the paid features until the end of the period Shopify has already charged for, where Shopify allows it.</p>
+        <p>You can cancel at any time from your account, or by emailing us. Cancellation takes effect at the end of the period you have already paid for, and you keep access until then. We do not charge cancellation fees.</p>
       </Section>
       <Section title="Refunds">
-        <p>Because Shopify collects the payment, refunds are issued by Shopify under its own app billing policy. If the app did not work as described, a charge was wrong, or you were billed after cancelling, email <A href={`mailto:${COMPANY.supportEmail}`}>{COMPANY.supportEmail}</A> with your store address. We will look into it within 2 business days and, where it is fair, ask Shopify to refund or credit you.</p>
+        <p>If the Service is not right for you, ask for a refund within 14 days of your first payment for a plan and we will refund it. After that, we do not refund periods that have already started, unless the law requires it or the Service failed to work as described. Email <A href={`mailto:${COMPANY.supportEmail}`}>{COMPANY.supportEmail}</A> with the email address you paid with. We reply within 2 business days. You can also contact Paddle directly about an order.</p>
       </Section>
       <Section title="Price changes">
-        <p>We tell you before a price changes, and a new price applies only after you approve it in Shopify.</p>
+        <p>We tell you before a price changes, and a new price applies from your next renewal after the notice.</p>
       </Section>
       <Section title="Related">
         <p>See the <A href="/pricing">pricing page</A> and our <A href="/terms">terms of service</A>.</p>
